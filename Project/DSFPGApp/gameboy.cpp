@@ -15,12 +15,13 @@
 #include "gpio.h"
 #include "Serial.h"
 #include "IRP.h"
+#include "Header.h"
 
 Gameboy gameboy;
 
 void Gameboy::reset()
 {
-	cycles = 0;
+	totalticks = 0;
 
 	if (coldreset)
 	{
@@ -31,7 +32,8 @@ void Gameboy::reset()
 		Memory.reset(filename);
 	}
 
-	CPU.reset();
+	CPU9.reset(true);
+	CPU7.reset(false);
 	GPU_Timing.reset();
 	Sound.reset();
 	Joypad.set_reg();
@@ -45,6 +47,9 @@ void Gameboy::reset()
 	loading_state = false;
 	coldreset = false;
 
+	CPU9.PC = Header.ARM9_CODE_PC;
+	CPU7.PC = Header.ARM7_CODE_PC;
+
 	on = true;
 	pause = false;
 }
@@ -57,7 +62,50 @@ void Gameboy::run()
 
 	while (on)
 	{
-		CPU.nextInstr();
+#if DEBUG
+		bool newinstr = false;
+		if (tracer.traclist_ptr == 3)
+		{
+			int stop = 1;
+		}
+#endif
+		if (CPU9.totalticks <= totalticks)
+		{
+		   CPU9.nextInstr();
+#if DEBUG
+		   newinstr = true;
+#endif
+		}
+		if (CPU7.totalticks <= totalticks)
+		{
+			CPU7.nextInstr();
+#if DEBUG
+		    newinstr = true;
+#endif
+		}
+
+#if DEBUG
+		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
+		{
+			tracer.traclist_ptr = 0;
+			tracer.runmoretrace = 20;
+		}
+
+		if (newinstr && tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
+		{
+			tracer.Tracelist[tracer.traclist_ptr][0].update(true);
+			tracer.Tracelist[tracer.traclist_ptr][1].update(false);
+			tracer.traclist_ptr = (tracer.traclist_ptr + 1) % tracer.Tracelist_Length;
+			tracer.runmoretrace = tracer.runmoretrace - 1;
+			//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % tracer.debug_outdiv;
+			if (tracer.runmoretrace == 0)
+			{
+				//tracer.trace_file_last();
+				tracer.vcd_file_last();
+			}
+		}
+#endif
+
 		DMA.work();
 		GPU_Timing.work();
 		Sound.work();
@@ -68,7 +116,7 @@ void Gameboy::run()
 		Timer.work();
 		Serial.work();
 
-		cycles = cycles + CPU.newticks;
+		totalticks = totalticks + 1;
 
 		checkcount++;
 		if (checkcount == 0)
@@ -99,6 +147,7 @@ void Gameboy::run()
 
 void Gameboy::create_savestate()
 {
+	/*
 	savestate[0]++; // header -> number of savestate, 0 = invalid
 
 	uint index = 2;
@@ -219,10 +268,12 @@ void Gameboy::create_savestate()
 	for (int i = 0; i < 256; i++) { savestate[index++] = *(UInt32*)&Memory.OAMRAM[i * 4]; }
 
 	savestate[1] = index; // header -> size
+	*/
 }
 
 void Gameboy::load_savestate()
 {
+	/*
 	if (savestate[0] != 0)
 	{
 		reset();
@@ -391,4 +442,5 @@ void Gameboy::load_savestate()
 		gpio.select = (byte)((gpiomix >> 24) & 0xF);
 		gpio.state = (GPIOState)((gpiomix >> 28) & 0x3);
 	}
+	*/
 }

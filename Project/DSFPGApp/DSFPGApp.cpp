@@ -261,10 +261,11 @@ void drawer()
 								}
 								break;
 							case OSDMAINMENU::CPUSTEPS:
-								CPU.additional_steps += 1;
-								if (CPU.additional_steps > 10)
-									CPU.additional_steps = -10;
-								OSD.exchangeText((int)OSDMAINMENU::CPUSTEPS, "CPU Steps: " + std::to_string(CPU.additional_steps));
+								CPU9.additional_steps += 1;
+								if (CPU9.additional_steps > 10)
+									CPU9.additional_steps = -10;
+								CPU7.additional_steps = CPU9.additional_steps;
+								OSD.exchangeText((int)OSDMAINMENU::CPUSTEPS, "CPU Steps: " + std::to_string(CPU9.additional_steps));
 								break;
 							case OSDMAINMENU::EXIT: running = false; break;
 							}
@@ -399,7 +400,7 @@ void drawer()
 		delta = (double)((currentTime - lastTime_second) * 1000000 / (double)SDL_GetPerformanceFrequency());
 		if (delta >= 1000000)
 		{
-			UInt64 cpucycles = (UInt64)gameboy.cycles;
+			UInt64 cpucycles = (UInt64)gameboy.totalticks;
 			double newcycles = (double)(cpucycles - oldcycles);
 #ifdef CONSOLE
 			std::cout << "CPU%: " << (int)(100 * newcycles / 16780000);
@@ -422,7 +423,7 @@ void drawer()
 				GPU.intern_frames = 0;
 				GPU.videomode_frames = 0;
 				oldcycles = cpucycles;
-				oldcommands = CPU.commands;
+				oldcommands = CPU9.commands;
 				SDL_UnlockMutex(GPU.drawlock);
 			}
 		}
@@ -442,13 +443,11 @@ int main(int argc, char* argv[])
 	TTF_Init();
 	set_displaysize(4, false);
 	OSD.init();
-	CPU.additional_steps = -1;
-
 
 	GPU.drawlock = SDL_CreateMutex();
 
 	// debug
-	//gameboy.filename = "C:\\Users\\FPGADev\\suite\\suite_fillrate_10.gba";
+	gameboy.filename = "C:\\Users\\FPGADev\\Desktop\\Emu-Docs-master\\Nintendo DS\\testroms\\Eigenmath1.0.nds";
 
 	openrom();
 

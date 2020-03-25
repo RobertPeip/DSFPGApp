@@ -73,7 +73,7 @@ void TIMER::set_settings(int index)
 void TIMER::work()
 {
 	// must save here, as dma may reset to zero
-	int cputicks = CPU.newticks;
+	int cputicks = CPU9.newticks;
 
 	for (int i = 0; i < 4; i++)
 	{

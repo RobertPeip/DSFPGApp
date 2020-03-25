@@ -26,7 +26,7 @@ void GPUTiming::dispstat_write()
 
 void GPUTiming::work()
 {
-	cycles += CPU.newticks;
+	cycles += CPU9.newticks;
 
 	bool runagain = true;
 

@@ -29,7 +29,7 @@ void Osd::gotoMain()
 	currentMenu.push_back("LoadStateDisk (F10)");
 	currentMenu.push_back("Displaysize: " + std::to_string(displaysize));
 	currentMenu.push_back("Flickerblend: off");
-	currentMenu.push_back("CPU Steps: " + std::to_string(CPU.additional_steps));
+	currentMenu.push_back("CPU Steps: " + std::to_string(CPU9.additional_steps));
 	currentMenu.push_back("EXIT");
 }
 

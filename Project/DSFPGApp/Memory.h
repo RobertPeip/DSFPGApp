@@ -10,12 +10,12 @@ public:
 	bool has_tilt = false;
 	bool gpio_enable = false;
 
-	Byte WRAM_Large[262144];
-	Byte WRAM_Small[32768];
-	Byte VRAM[98304];
-	Byte OAMRAM[1024];
-	Byte PaletteRAM[1024];
-	Byte GameRom[33554432];
+	Byte WRAM_Large[4194304];
+	Byte WRAM_Small[98304];
+	Byte VRAM[655360];
+	Byte OAMRAM[2048];
+	Byte PaletteRAM[2048];
+	Byte GameRom[33554432]; // 32mbyte max for now
 
 	UInt32 GameRom_max;
 	byte blockcmd_lowerbits;

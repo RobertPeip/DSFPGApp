@@ -19,7 +19,7 @@ void SERIAL::work()
 {
 	if (start)
 	{
-		serialcnt += CPU.newticks;
+		serialcnt += CPU9.newticks;
 
 		if ((!hispeed && serialcnt >= 64) || (hispeed && serialcnt >= 8))
 		{

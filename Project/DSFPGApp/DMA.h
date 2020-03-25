@@ -2,10 +2,13 @@
 
 #include "types.h"
 #include "GBRegs.h"
+#include "CPU.h"
 
 class SingleDMA
 {
 public:
+    Cpu CPU;
+
 	UInt16 irpmask;
 
 	GBReg SAD;
@@ -44,7 +47,7 @@ public:
 	bool skipdebugout;
 
 	SingleDMA();
-	SingleDMA(UInt16 irpmask,
+	SingleDMA(Cpu CPU, UInt16 irpmask,
 		GBReg SAD, GBReg DAD, GBReg CNT_L,
 		GBReg Dest_Addr_Control, GBReg Source_Adr_Control, GBReg DMA_Repeat, GBReg DMA_Transfer_Type,
 		GBReg Game_Pak_DRQ, GBReg DMA_Start_Timing, GBReg IRQ_on, GBReg DMA_Enable, bool hasDRQ);

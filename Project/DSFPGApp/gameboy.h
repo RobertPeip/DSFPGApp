@@ -11,9 +11,9 @@ public:
 	bool pause = false;
 	bool coldreset = false;
 
-	string filename;
+	UInt64 totalticks;
 
-	Int64 cycles = 0;
+	string filename;
 
 	string statefilename;
 	bool do_savestate = false;

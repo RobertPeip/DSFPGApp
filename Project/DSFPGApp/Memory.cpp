@@ -23,18 +23,28 @@ MEMORY Memory;
 void MEMORY::reset(string filename)
 {
 	//string biosname = "gba_bios.bin";
-	string biosname = "gba_bios_fast.bin";
+	//string biosname = "gba_bios_fast.bin";
+	//FileIO.readfile(GBRom, biosname, false);
 
-	FileIO.readfile(GBRom, biosname, false);
-
+	// read in and analyze rom
 	GameRom_max = FileIO.readfile(GameRom, filename, true);
+	Header.read();
+
+	for (int i = 0; i < Header.ARM9_CODE_SIZE; i += 4)
+	{
+		uint data = *(UInt32*)&Memory.GameRom[Header.ARM9_CODE_SRC + i];
+		write_dword(Header.ARM9_CODE_DST + i, data);
+	}
+	for (int i = 0; i < Header.ARM7_CODE_SIZE; i += 4)
+	{
+		uint data = *(UInt32*)&Memory.GameRom[Header.ARM7_CODE_SRC + i];
+		write_dword(Header.ARM7_CODE_DST + i, data);
+	}
 
 	EEPROMEnabled = true;
 	FlashEnabled = true;
 	SramEnabled = true;
 	EEPROMSensorEnabled = false;
-
-    Header.autocheck();
 
 	tiltx = 0x3A0;
 	tilty = 0x3A0;
@@ -102,20 +112,20 @@ byte MEMORY::read_unreadable_byte(UInt32 offset)
 {
 	byte value;
 
-	if (CPU.thumbmode && ((CPU.regs[15] >> 24) & 15) == 3)
+	if (CPU9.thumbmode && ((CPU9.regs[15] >> 24) & 15) == 3)
 	{
-		if ((CPU.regs[15] & 0x3) == 0)
+		if ((CPU9.regs[15] & 0x3) == 0)
 		{
-			value = read_byte(CPU.regs[15] - 2 + offset);
+			value = read_byte(CPU9.regs[15] - 2 + offset);
 		}
 		else
 		{
-			value = read_byte(CPU.regs[15] + offset);
+			value = read_byte(CPU9.regs[15] + offset);
 		}
 	}
 	else
 	{
-		value = read_byte(CPU.regs[15] + offset);
+		value = read_byte(CPU9.regs[15] + offset);
 	}
 
 	unreadable = true;
@@ -126,20 +136,20 @@ byte MEMORY::read_unreadable_byte(UInt32 offset)
 UInt16 MEMORY::read_unreadable_word()
 {
 	UInt16 value;
-	if (CPU.thumbmode && ((CPU.regs[15] >> 24) & 15) == 3)
+	if (CPU9.thumbmode && ((CPU9.regs[15] >> 24) & 15) == 3)
 	{
-		if ((CPU.regs[15] & 0x3) == 0)
+		if ((CPU9.regs[15] & 0x3) == 0)
 		{
-			value = (UInt16)read_word(CPU.regs[15] - 2);
+			value = (UInt16)read_word(CPU9.regs[15] - 2);
 		}
 		else
 		{
-			value = (UInt16)read_word(CPU.regs[15]);
+			value = (UInt16)read_word(CPU9.regs[15]);
 		}
 	}
 	else
 	{
-		value = (UInt16)read_word(CPU.regs[15]);
+		value = (UInt16)read_word(CPU9.regs[15]);
 	}
 
 	unreadable = true;
@@ -149,43 +159,43 @@ UInt16 MEMORY::read_unreadable_word()
 
 UInt32 MEMORY::read_unreadable_dword()
 {
-	if (CPU.op_since_dma < 2)
+	if (CPU9.op_since_dma < 2)
 	{
 		return DMA.last_dma_value;
 	}
 
 	UInt32 value;
 
-	if (CPU.thumbmode)
+	if (CPU9.thumbmode)
 	{
 		//For THUMB code in 32K - WRAM on GBA, GBA SP, GBA Micro, NDS-Lite(but not NDS):
 		//LSW = [$+4], MSW = OldHI   ; for opcodes at 4 - byte aligned locations
 		//LSW = OldLO, MSW = [$+4]   ; for opcodes at non - 4 - byte aligned locations
 		//OldLO=[$+2], OldHI=[$+2]
-		if (((CPU.regs[15] >> 24) & 15) == 3)
+		if (((CPU9.regs[15] >> 24) & 15) == 3)
 		{
-			if ((CPU.regs[15] & 0x3) == 0)
+			if ((CPU9.regs[15] & 0x3) == 0)
 			{
-				UInt32 retval_low = read_word(CPU.regs[15]) & 0xFFFF;
-				UInt32 retval_high = read_word(CPU.regs[15] - 2) & 0xFFFF;
+				UInt32 retval_low = read_word(CPU9.regs[15]) & 0xFFFF;
+				UInt32 retval_high = read_word(CPU9.regs[15] - 2) & 0xFFFF;
 				value = retval_high << 16 | retval_low;
 			}
 			else
 			{
-				UInt32 retval_low = read_word(CPU.regs[15] - 2) & 0xFFFF;
-				UInt32 retval_high = read_word(CPU.regs[15]) & 0xFFFF;
+				UInt32 retval_low = read_word(CPU9.regs[15] - 2) & 0xFFFF;
+				UInt32 retval_high = read_word(CPU9.regs[15]) & 0xFFFF;
 				value = retval_high << 16 | retval_low;
 			}
 		}
 		else // standard case LSW = [$+4], MSW = [$+4]
 		{
-			UInt32 retval = read_word(CPU.regs[15]);
+			UInt32 retval = read_word(CPU9.regs[15]);
 			value = retval << 16 | retval;
 		}
 	}
 	else
 	{
-		value = read_dword(CPU.regs[15]);
+		value = read_dword(CPU9.regs[15]);
 	}
 
 	unreadable = true;
@@ -202,7 +212,7 @@ byte MEMORY::read_byte(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU.regs[15] >> 24) > 0)
+		if ((CPU9.regs[15] >> 24) > 0)
 		{
 			if (address < 0x4000)
 			{
@@ -223,9 +233,19 @@ byte MEMORY::read_byte(UInt32 address)
 		}
 
 	case 1: return read_unreadable_byte(address & 1);
-	case 2: return WRAM_Large[address & 0x03FFFF];
-	case 3: return WRAM_Small[address & 0x7FFF];
-
+	case 2: return WRAM_Large[address & 0x03FFFFF];
+	case 3: 
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			return WRAM_Small[adr]; break;
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			return WRAM_Small[0x8000 + adr]; break;
+		}
+		
 	case 4:
 		if (address < 0x04000400)
 		{
@@ -335,7 +355,7 @@ UInt32 MEMORY::read_word(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU.regs[15] >> 24) > 0)
+		if ((CPU9.regs[15] >> 24) > 0)
 		{
 			if (address < 0x4000)
 			{
@@ -357,9 +377,19 @@ UInt32 MEMORY::read_word(UInt32 address)
 		break;
 
 	case 1: value = read_unreadable_word(); break;
-	case 2: value = *(UInt16*)&WRAM_Large[address & 0x03FFFF]; break;
-	case 3: value = *(UInt16*)&WRAM_Small[address & 0x7FFF]; break;
-
+	case 2: value = *(UInt16*)&WRAM_Large[address & 0x03FFFFF]; break;
+	case 3: 
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			value = *(UInt16*)&WRAM_Small[adr]; break;
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			value = *(UInt16*)&WRAM_Small[0x8000 + adr]; break;
+		}
+		
 	case 4:
 		if (address < 0x04000400)
 		{
@@ -475,7 +505,7 @@ UInt32 MEMORY::read_dword(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU.regs[15] >> 24) > 0)
+		if ((CPU9.regs[15] >> 24) > 0)
 		{
 			if (address < 0x4000)
 			{
@@ -497,8 +527,18 @@ UInt32 MEMORY::read_dword(UInt32 address)
 		break;
 
 	case 1: value = read_unreadable_dword(); break;
-	case 2: value = *(UInt32*)&WRAM_Large[address & 0x03FFFF]; break;
-	case 3: value = *(UInt32*)&WRAM_Small[address & 0x7FFF]; break;
+	case 2: value = *(UInt32*)&WRAM_Large[address & 0x03FFFFF]; break;
+	case 3: 
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			value = *(UInt32*)&WRAM_Small[adr]; break;
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			value = *(UInt32*)&WRAM_Small[0x8000 + adr]; break;
+		}
 
 	case 4:
 		if (address < 0x04000400)
@@ -573,7 +613,7 @@ UInt32 MEMORY::read_dword(UInt32 address)
 	}
 	else
 	{
-		value = CPU.RotateRight(value, 8 * rotate);
+		value = CPU9.RotateRight(value, 8 * rotate);
 	}
 
 	return value;
@@ -585,8 +625,19 @@ void MEMORY::write_byte(UInt32 address, byte data)
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
-	case 2: WRAM_Large[address & 0x03FFFF] = (byte)(data & 0xFF); return;
-	case 3: WRAM_Small[address & 0x7FFF] = (byte)(data & 0xFF); return;
+	case 2: WRAM_Large[address & 0x03FFFFF] = (byte)(data & 0xFF); return;
+	case 3: 
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			WRAM_Small[adr] = (byte)(data & 0xFF);
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			return;
+		}
 
 	case 4:
 		if (address < 0x04000400)
@@ -643,15 +694,24 @@ void MEMORY::write_word(UInt32 address, UInt16 data)
 	switch (select)
 	{
 	case 2:
-		adr = address & 0x03FFFF;
+		adr = address & 0x03FFFFF;
 		WRAM_Large[adr] = (byte)(data & 0xFF);
 		WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
 
 	case 3:
-		adr = address & 0x7FFF;
-		WRAM_Small[adr] = (byte)(data & 0xFF);
-		WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			WRAM_Small[adr] = (byte)(data & 0xFF);
+			WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+		}
 		return;
 
 	case 4:
@@ -724,7 +784,7 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 	switch (select)
 	{
 	case 2:
-		adr = address & 0x03FFFF;
+		adr = address & 0x03FFFFF;
 		WRAM_Large[adr] = (byte)(data & 0xFF);
 		WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
 		WRAM_Large[adr + 2] = (byte)((data >> 16) & 0xFF);
@@ -732,11 +792,22 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 		return;
 
 	case 3:
-		adr = address & 0x7FFF;
-		WRAM_Small[adr] = (byte)(data & 0xFF);
-		WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
-		WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
-		WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			WRAM_Small[adr] = (byte)(data & 0xFF);
+			WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+			WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
+			WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+			WRAM_Small[0x8000 + adr + 2] = (byte)((data >> 16) & 0xFF);
+			WRAM_Small[0x8000 + adr + 3] = (byte)((data >> 24) & 0xFF);
+		}
 		return;
 
 	case 4:
@@ -892,8 +963,8 @@ void MEMORY::write_gbreg(UInt32 adr, UInt32 value, bool dwaccess)
 	else if (adr == GBRegs.Sect_system.HALTCNT.address && !gameboy.loading_state)
 	{
 		if ((GBRegs.Sect_system.HALTCNT.read() & 0x80) == 0x80)
-			CPU.stop = true;
+			CPU9.stop = true;
 		else
-			CPU.halt = true;
+			CPU9.halt = true;
 	}
 }

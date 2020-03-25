@@ -8,11 +8,23 @@ using namespace std;
 #include "IRP.h"
 #include "Memory.h"
 
-Cpu CPU;
+Cpu CPU9;
+Cpu CPU7;
 
 #if DEBUG
-void cpustate::update(byte mode)
+Tracer tracer;
+
+void cpustate::update(bool isArm9)
 {
+	Cpu CPU = CPU9;
+	int procnum = 0;
+
+	if (!isArm9)
+	{
+		CPU = CPU7;
+		procnum = 1;
+	}
+
 	int saveticks = newticks;
 	this->busprefetch = 0; // (uint)BusTiming.busPrefetchCount;
 
@@ -31,22 +43,15 @@ void cpustate::update(byte mode)
 	flag_Zero = CPU.Flag_Zero;
 	flag_V_Overflow = CPU.Flag_V_Overflow;
 
-	this->thumbmode = mode;
+	this->thumbmode = CPU.thumbmode;
 
-	if (mode < 2)
+	if (CPU.thumbmode == 1)
 	{
-		if (mode == 1)
-		{
-			this->opcode = Memory.read_word(CPU.PC);
-		}
-		else
-		{
-			this->opcode = Memory.read_dword(CPU.PC);
-		}
+		this->opcode = Memory.read_word(CPU.PC - 2);
 	}
 	else
 	{
-		this->opcode = 0;
+		this->opcode = Memory.read_dword(CPU.PC - 4);
 	}
 
 	switch (CPU.cpu_mode)
@@ -77,9 +82,9 @@ void cpustate::update(byte mode)
 	//this->memory03 = Memory.read_dword(0x04000208); // master irp
 	//this->memory01 = Memory.read_dword(0x04000200); // IME/IF
 
-	this->memory01 = Memory.read_dword(0x04000000); // display settings
+	this->memory01 = 0; // Memory.read_dword(0x04000000); // display settings
 	this->memory02 = 0;// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
-	this->memory03 = Memory.read_dword(0x04000004); // vcount
+	this->memory03 = 0; // Memory.read_dword(0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
 
@@ -94,16 +99,12 @@ void cpustate::update(byte mode)
 	SPSR_IRQ = CPU.regbanks[2][17];
 	SPSR_SVC = CPU.regbanks[3][17];
 
-	newticks = saveticks;
+	newticks = CPU.totalticks;
 }
 
-void cpustate::update_ticks(Int32 newticks)
+void Tracer::trace_file_last()
 {
-	this->newticks = CPU.totalticks;
-}
-
-void Cpu::trace_file_last()
-{
+/*
 	FILE* file = fopen("..\\..\\debug.txt", "w");
 	//FILE* file = fopen("debug.txt", "w");
 
@@ -161,9 +162,10 @@ void Cpu::trace_file_last()
 		}
 	}
 	fclose(file);
+*/
 }
 
-void Cpu::vcd_file_last()
+void Tracer::vcd_file_last()
 {
 	FILE* file = fopen("..\\..\\debug.vcd", "w");
 
@@ -173,53 +175,55 @@ void Cpu::vcd_file_last()
 	fprintf(file, "$timescale 1ps $end\n");
 	fprintf(file, "$scope module logic $end\n");
 
-	fprintf(file, "$var wire 32 R0 reg0 $end\n");
-	fprintf(file, "$var wire 32 R1 reg1 $end\n");
-	fprintf(file, "$var wire 32 R2 reg2 $end\n");
-	fprintf(file, "$var wire 32 R3 reg3 $end\n");
-	fprintf(file, "$var wire 32 R4 reg4 $end\n");
-	fprintf(file, "$var wire 32 R5 reg5 $end\n");
-	fprintf(file, "$var wire 32 R6 reg6 $end\n");
-	fprintf(file, "$var wire 32 R7 reg7 $end\n");
-	fprintf(file, "$var wire 32 R8 reg8 $end\n");
-	fprintf(file, "$var wire 32 R9 reg9 $end\n");
-	fprintf(file, "$var wire 32 R10 reg10 $end\n");
-	fprintf(file, "$var wire 32 R11 reg11 $end\n");
-	fprintf(file, "$var wire 32 R12 reg12 $end\n");
-	fprintf(file, "$var wire 32 R13 reg13 $end\n");
-	fprintf(file, "$var wire 32 R14 reg14 $end\n");
-	fprintf(file, "$var wire 32 R15 reg15 $end\n");
-	fprintf(file, "$var wire 32 O Opcode $end\n");
-	fprintf(file, "$var wire 1 FN Flag_Neg $end\n");
-	fprintf(file, "$var wire 1 FC Flag_Carry $end\n");
-	fprintf(file, "$var wire 1 FZ Flag_Zero $end\n");
-	fprintf(file, "$var wire 1 FV Flag_Overflow $end\n");
-	fprintf(file, "$var wire 16 TK Ticks $end\n");
-	fprintf(file, "$var wire 8 PF Prefetch $end\n");
-	fprintf(file, "$var wire 1 AT isThumb $end\n");
-	fprintf(file, "$var wire 8 M Mode $end\n");
-	fprintf(file, "$var wire 1 I IRQ_disable $end\n");
-	fprintf(file, "$var wire 16 IF IRQ_Flags $end\n");
-	fprintf(file, "$var wire 8 IW IRQ_wait $end\n");
-	fprintf(file, "$var wire 32 T0 Timer_0 $end\n");
-	fprintf(file, "$var wire 32 T1 Timer_1 $end\n");
-	fprintf(file, "$var wire 32 T2 Timer_2 $end\n");
-	fprintf(file, "$var wire 32 T3 Timer_3 $end\n");
-	fprintf(file, "$var wire 32 M1 Memory_1 $end\n");
-	fprintf(file, "$var wire 32 M2 Memory_2 $end\n");
-	fprintf(file, "$var wire 32 M3 Memory_3 $end\n");
-	fprintf(file, "$var wire 32 DMA DMA_count $end\n");
-	fprintf(file, "$var wire 32 R16 reg16 $end\n");
-	fprintf(file, "$var wire 32 R17 reg17 $end\n");
-	fprintf(file, "$var wire 32 R13u R13usr $end\n");
-	fprintf(file, "$var wire 32 R14u R14usr $end\n");
-	fprintf(file, "$var wire 32 R13i R13irq $end\n");
-	fprintf(file, "$var wire 32 R14i R14irq $end\n");
-	fprintf(file, "$var wire 32 R13s R13svc $end\n");
-	fprintf(file, "$var wire 32 R14s R14svc $end\n");
-	fprintf(file, "$var wire 32 SPi SPSR_irq $end\n");
-	fprintf(file, "$var wire 32 SPs SPSR_svc $end\n");
-
+	for (int cpuindex = 0; cpuindex < 2; cpuindex++)
+	{
+		fprintf(file, "$var wire 32 %dR0 cpu%d_reg0 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR1 cpu%d_reg1 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR2 cpu%d_reg2 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR3 cpu%d_reg3 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR4 cpu%d_reg4 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR5 cpu%d_reg5 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR6 cpu%d_reg6 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR7 cpu%d_reg7 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR8 cpu%d_reg8 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR9 cpu%d_reg9 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR10 cpu%d_reg10 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR11 cpu%d_reg11 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR12 cpu%d_reg12 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR13 cpu%d_reg13 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR14 cpu%d_reg14 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR15 cpu%d_reg15 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dO cpu%d_Opcode $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 1 %dFN cpu%d_Flag_Neg $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 1 %dFC cpu%d_Flag_Carry $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 1 %dFZ cpu%d_Flag_Zero $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 1 %dFV cpu%d_Flag_Overflow $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 16 %dTK cpu%d_Ticks $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 8 %dPF cpu%d_Prefetch $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 1 %dAT cpu%d_isThumb $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 8 %dM cpu%d_Mode $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 1 %dI cpu%d_IRQ_disable $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 16 %dIF cpu%d_IRQ_Flags $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 8 %dIW cpu%d_IRQ_wait $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dT0 cpu%d_Timer_0 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dT1 cpu%d_Timer_1 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dT2 cpu%d_Timer_2 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dT3 cpu%d_Timer_3 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dM1 cpu%d_Memory_1 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dM2 cpu%d_Memory_2 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dM3 cpu%d_Memory_3 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dDMA cpu%d_DMA_count $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR16 cpu%d_reg16 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR17 cpu%d_reg17 $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR13u cpu%d_R13usr $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR14u cpu%d_R14usr $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR13i cpu%d_R13irq $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR14i cpu%d_R14irq $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR13s cpu%d_R13svc $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dR14s cpu%d_R14svc $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dSPi cpu%d_SPSR_irq $end\n", cpuindex, cpuindex);
+		fprintf(file, "$var wire 32 %dSPs cpu%d_SPSR_svc $end\n", cpuindex, cpuindex);
+	}
 	fprintf(file, "$upscope $end\n");
 	fprintf(file, "$enddefinitions $end\n");
 
@@ -228,64 +232,67 @@ void Cpu::vcd_file_last()
 	{
 		fprintf(file, "#%d\n", i); //timestamp
 
-		cpustate laststate = Tracelist[i];
-		cpustate state = Tracelist[i];
-		if (i > 0)
+		for (int cpuindex = 0; cpuindex < 2; cpuindex++)
 		{
-			laststate = Tracelist[i - 1];
-		}
-
-		// all changes for this timestamp
-		for (int j = 0; j < 16; j++)
-		{
-			if (i == 0 || state.debugregs[j] != laststate.debugregs[j]) fprintf(file, "b%s R%d\n" , std::bitset<32>(state.debugregs[j]).to_string().c_str(), j);
-		}
-		if (i == 0 || state.opcode != laststate.opcode)
-		{
-			if (state.thumbmode)
+			cpustate laststate = Tracelist[i][cpuindex];
+			cpustate state = Tracelist[i][cpuindex];
+			if (i > 0)
 			{
-				fprintf(file, "b%s O\n", std::bitset<16>(state.opcode).to_string().c_str());
+				laststate = Tracelist[i - 1][cpuindex];
 			}
-			else
+
+			// all changes for this timestamp
+			for (int j = 0; j < 16; j++)
 			{
-				fprintf(file, "b%s O\n", std::bitset<32>(state.opcode).to_string().c_str());
+				if (i == 0 || state.debugregs[j] != laststate.debugregs[j]) fprintf(file, "b%s %dR%d\n", std::bitset<32>(state.debugregs[j]).to_string().c_str(), cpuindex, j);
 			}
+			if (i == 0 || state.opcode != laststate.opcode)
+			{
+				if (state.thumbmode)
+				{
+					fprintf(file, "b%s %dO\n", std::bitset<16>(state.opcode).to_string().c_str(), cpuindex);
+				}
+				else
+				{
+					fprintf(file, "b%s %dO\n", std::bitset<32>(state.opcode).to_string().c_str(), cpuindex);
+				}
+			}
+
+			if (i == 0 || state.flag_Negative != laststate.flag_Negative) fprintf(file, "%s%dFN\n", std::bitset<1>(state.flag_Negative).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_Carry != laststate.flag_Carry) fprintf(file, "%s%dFC\n", std::bitset<1>(state.flag_Carry).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_Zero != laststate.flag_Zero) fprintf(file, "%s%dFZ\n", std::bitset<1>(state.flag_Zero).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_V_Overflow != laststate.flag_V_Overflow) fprintf(file, "%s%dFV\n", std::bitset<1>(state.flag_V_Overflow).to_string().c_str(), cpuindex);
+
+			if (i == 0 || state.newticks != laststate.newticks) fprintf(file, "b%s %dTK\n", std::bitset<16>(state.newticks).to_string().c_str(), cpuindex);
+			if (i == 0 || state.busprefetch != laststate.busprefetch) fprintf(file, "b%s %dPF\n", std::bitset<12>(state.busprefetch).to_string().c_str(), cpuindex);
+			if (i == 0 || state.thumbmode != laststate.thumbmode) fprintf(file, "%s%dAT\n", std::bitset<1>(state.thumbmode).to_string().c_str(), cpuindex);
+			if (i == 0 || state.armmode != laststate.armmode) fprintf(file, "b%s %dM\n", std::bitset<8>(state.armmode).to_string().c_str(), cpuindex);
+			if (i == 0 || state.irpdisable != laststate.irpdisable) fprintf(file, "%s%dI\n", std::bitset<1>(state.irpdisable).to_string().c_str(), cpuindex);
+			if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s %dIF\n", std::bitset<16>(state.IF_intern).to_string().c_str(), cpuindex);
+			if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s %dIW\n", std::bitset<8>(state.irp_wait).to_string().c_str(), cpuindex);
+
+			if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s %dT0\n", std::bitset<32>(state.timer0).to_string().c_str(), cpuindex);
+			if (i == 0 || state.timer1 != laststate.timer1) fprintf(file, "b%s %dT1\n", std::bitset<32>(state.timer1).to_string().c_str(), cpuindex);
+			if (i == 0 || state.timer2 != laststate.timer2) fprintf(file, "b%s %dT2\n", std::bitset<32>(state.timer2).to_string().c_str(), cpuindex);
+			if (i == 0 || state.timer3 != laststate.timer3) fprintf(file, "b%s %dT3\n", std::bitset<32>(state.timer3).to_string().c_str(), cpuindex);
+
+			if (i == 0 || state.memory01 != laststate.memory01) fprintf(file, "b%s %dM1\n", std::bitset<32>(state.memory01).to_string().c_str(), cpuindex);
+			if (i == 0 || state.memory02 != laststate.memory02) fprintf(file, "b%s %dM2\n", std::bitset<32>(state.memory02).to_string().c_str(), cpuindex);
+			if (i == 0 || state.memory03 != laststate.memory03) fprintf(file, "b%s %dM3\n", std::bitset<32>(state.memory03).to_string().c_str(), cpuindex);
+
+			//if (i == 0 || state.debug_dmatranfers != laststate.debug_dmatranfers) fprintf(file, "b%s DMA\n", std::bitset<32>(state.debug_dmatranfers).to_string().c_str(), cpuindex);
+
+			if (i == 0 || state.R16 != laststate.R16) fprintf(file, "b%s %dR16\n", std::bitset<32>(state.R16).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s %dR17\n", std::bitset<32>(state.R17).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s %dR14u\n", std::bitset<32>(state.R14_USR).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s %dR13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R14_IRQ != laststate.R14_IRQ) fprintf(file, "b%s %dR14i\n", std::bitset<32>(state.R14_IRQ).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R13_SVC != laststate.R13_SVC) fprintf(file, "b%s %dR13s\n", std::bitset<32>(state.R13_SVC).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R14_SVC != laststate.R14_SVC) fprintf(file, "b%s %dR14s\n", std::bitset<32>(state.R14_SVC).to_string().c_str(), cpuindex);
+			if (i == 0 || state.SPSR_IRQ != laststate.SPSR_IRQ) fprintf(file, "b%s %dSPi\n", std::bitset<32>(state.SPSR_IRQ).to_string().c_str(), cpuindex);
+			if (i == 0 || state.SPSR_SVC != laststate.SPSR_SVC) fprintf(file, "b%s %dSPs\n", std::bitset<32>(state.SPSR_SVC).to_string().c_str(), cpuindex);
 		}
-
-		if (i == 0 || state.flag_Negative != laststate.flag_Negative) fprintf(file, "%sFN\n", std::bitset<1>(state.flag_Negative).to_string().c_str());
-		if (i == 0 || state.flag_Carry != laststate.flag_Carry) fprintf(file, "%sFC\n", std::bitset<1>(state.flag_Carry).to_string().c_str());
-		if (i == 0 || state.flag_Zero != laststate.flag_Zero) fprintf(file, "%sFZ\n", std::bitset<1>(state.flag_Zero).to_string().c_str());
-		if (i == 0 || state.flag_V_Overflow != laststate.flag_V_Overflow) fprintf(file, "%sFV\n", std::bitset<1>(state.flag_V_Overflow).to_string().c_str());
-
-		if (i == 0 || state.newticks != laststate.newticks) fprintf(file, "b%s TK\n", std::bitset<16>(state.newticks).to_string().c_str());
-		if (i == 0 || state.busprefetch != laststate.busprefetch) fprintf(file, "b%s PF\n", std::bitset<12>(state.busprefetch).to_string().c_str());
-		if (i == 0 || state.thumbmode != laststate.thumbmode) fprintf(file, "%sAT\n", std::bitset<1>(state.thumbmode).to_string().c_str());
-		if (i == 0 || state.armmode != laststate.armmode) fprintf(file, "b%s M\n", std::bitset<8>(state.armmode).to_string().c_str());
-		if (i == 0 || state.irpdisable != laststate.irpdisable) fprintf(file, "%sI\n", std::bitset<1>(state.irpdisable).to_string().c_str());
-		if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s IF\n", std::bitset<16>(state.IF_intern).to_string().c_str());
-		if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s IW\n", std::bitset<8>(state.irp_wait).to_string().c_str());
-
-		if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s T0\n", std::bitset<32>(state.timer0).to_string().c_str());
-		if (i == 0 || state.timer1 != laststate.timer1) fprintf(file, "b%s T1\n", std::bitset<32>(state.timer1).to_string().c_str());
-		if (i == 0 || state.timer2 != laststate.timer2) fprintf(file, "b%s T2\n", std::bitset<32>(state.timer2).to_string().c_str());
-		if (i == 0 || state.timer3 != laststate.timer3) fprintf(file, "b%s T3\n", std::bitset<32>(state.timer3).to_string().c_str());
-
-		if (i == 0 || state.memory01 != laststate.memory01) fprintf(file, "b%s M1\n", std::bitset<32>(state.memory01).to_string().c_str());
-		if (i == 0 || state.memory02 != laststate.memory02) fprintf(file, "b%s M2\n", std::bitset<32>(state.memory02).to_string().c_str());
-		if (i == 0 || state.memory03 != laststate.memory03) fprintf(file, "b%s M3\n", std::bitset<32>(state.memory03).to_string().c_str());
-
-		if (i == 0 || state.debug_dmatranfers != laststate.debug_dmatranfers) fprintf(file, "b%s DMA\n", std::bitset<32>(state.debug_dmatranfers).to_string().c_str());
-
-		if (i == 0 || state.R16 != laststate.R16) fprintf(file, "b%s R16\n", std::bitset<32>(state.R16).to_string().c_str());
-		if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s R17\n", std::bitset<32>(state.R17).to_string().c_str());
-		if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s R13u\n", std::bitset<32>(state.R13_USR).to_string().c_str());
-		if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s R14u\n", std::bitset<32>(state.R14_USR).to_string().c_str());
-		if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s R13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str());
-		if (i == 0 || state.R14_IRQ != laststate.R14_IRQ) fprintf(file, "b%s R14i\n", std::bitset<32>(state.R14_IRQ).to_string().c_str());
-		if (i == 0 || state.R13_SVC != laststate.R13_SVC) fprintf(file, "b%s R13s\n", std::bitset<32>(state.R13_SVC).to_string().c_str());
-		if (i == 0 || state.R14_SVC != laststate.R14_SVC) fprintf(file, "b%s R14s\n", std::bitset<32>(state.R14_SVC).to_string().c_str());
-		if (i == 0 || state.SPSR_IRQ != laststate.SPSR_IRQ) fprintf(file, "b%s SPi\n", std::bitset<32>(state.SPSR_IRQ).to_string().c_str());
-		if (i == 0 || state.SPSR_SVC != laststate.SPSR_SVC) fprintf(file, "b%s SPs\n", std::bitset<32>(state.SPSR_SVC).to_string().c_str());
 
 		i = (i + 1) % Tracelist_Length;
 		if (i == traclist_ptr)
@@ -298,9 +305,11 @@ void Cpu::vcd_file_last()
 
 #endif
 
-void Cpu::reset()
+void Cpu::reset(bool isArm9)
 {
-	cpu_mode = CPUMODES::SUPERVISOR;
+	this->isArm9 = isArm9;
+
+	cpu_mode = CPUMODES::SYSTEM;
 	thumbmode = false;
 	for (int i = 0; i < 18; i++)
 	{
@@ -311,9 +320,27 @@ void Cpu::reset()
 		}
 	}
 	PC = 0;
-	IRQ_disable = true;
-	FIQ_disable = true;
+	IRQ_disable = false;
+	FIQ_disable = false;
 	irpnext = false;
+
+	// mostly guesses from desmume
+	regs[17] = 0x1F;
+	if (isArm9)
+	{
+		regbanks[3][13] = 0x00803FC0;
+		regbanks[2][13] = 0x00803FA0;
+		regbanks[0][13] = 0x00803EC0;
+		regbanks[4][13] = regbanks[0][13];
+		regs[13] = regbanks[0][13];
+	}
+	else
+	{
+		regbanks[3][13] = 0x0380FFDC;
+		regbanks[2][13] = 0x0380FFB0;
+		regbanks[0][13] = 0x0380FF00;
+		regs[13] = regbanks[0][13];
+	}
 
 	halt = false;
 	stop = false;
@@ -321,108 +348,29 @@ void Cpu::reset()
 	totalticks = 0;
 	commands = 0;
 	cyclenr = 0;
-	traclist_ptr = 0;
-	runmoretrace = 0;
+#if DEBUG
+	tracer.traclist_ptr = 0;
+	tracer.runmoretrace = 0;
+#endif
 }
 
 void Cpu::nextInstr()
 {
 	if (DMA.dma_active)
 	{
-		if (!DMA.delayed)
-		{
-			newticks = 0;
-		}
 		return;
-	}
-
-	if (irpdelay > 0)
-	{
-		irpdelay -= max(1, newticks);
-		if (irpdelay <= 0)
-		{
-			irpnext = true;
-		}
-	}
-
-	if (irpdelay_next)
-	{
-		irpdelay = 4;
-		irpdelay_next = false;
 	}
 
 	if (!IRQ_disable && IRP.Master_enable && IRP.get_IF_with_mask() > 0 && !irpnext && !irpdelay_next && irpdelay <= 0)
 	{
-		//irpdelay = 4;
-		irpdelay_next = true;
-		//irpnext = true;
+		irpnext = true;
 	}
 #if DEBUG
-	//if (!IRQ_disable && commands == 24158) { irpdelay = 1; irpnext = false; } 
 
-	//if (!IRQ_disable && commands == 44349) { irpdelay_next = false; irpdelay = 0; irpnext = true; } 
-
-	bool tracethis = false;
-	bool update_ticks = false;
-	if (!halt || irpnext)
+	if (tracer.traclist_ptr == 0)
 	{
-		if (thumbmode)
-		{
-			regs[15] = PC + 2;
-		}
-		else
-		{
-			regs[15] = PC + 4;
-		}
-
-		//if (cyclenr == 7100000 && runmoretrace == 0) // end of bios
-		//if (cyclenr == 38000000 && runmoretrace == 0)
-		if (commands == 0000001 && runmoretrace == 0)
-		{
-			traclist_ptr = 0;
-			//runmoretrace = 300001;
-			runmoretrace = 1000000;
-		}
-
-		if (irpnext)
-		{
-			debug_outdivcnt = 0;
-		}
-
-		update_ticks = true;
-		if (runmoretrace > 0 && debug_outdivcnt == 0)
-		{
-			if (thumbmode)
-			{
-				Tracelist[traclist_ptr].update(1);
-			}
-			else
-			{
-				Tracelist[traclist_ptr].update(0);
-			}
-
-			tracethis = true;
-
-			runmoretrace = runmoretrace - 1;
-			if (runmoretrace == 0)
-			{
-				//trace_file_last();
-				//vcd_file_last();
-			}
-		}
-
-		//if (thumbmode && (PC & 1) == 1 || !thumbmode && (PC & 3) > 0)
-		//{
-		//	throw new Exception("Wrong PC with last bit set");
-		//}
-
-		//if (traclist_ptr == 422) - game entry
-		if (traclist_ptr == 29800)
-		{
-			int xx = 0;
-		}
+		int xx = 0;
 	}
-	UInt32 debug_outdiv = 1;
 
 	//if (commands == 3000000) { Joypad.KeyStart = true; Joypad.set_reg(); }
 	//if (commands == 3100000) { Joypad.KeyStart = false; Joypad.set_reg(); }
@@ -435,12 +383,6 @@ void Cpu::nextInstr()
 
 	if (irpnext && !IRQ_disable)
 	{
-#if DEBUG
-		//Tracelist[traclist_ptr].opcode = 0;
-		//Tracelist[traclist_ptr].thumbmode = 2;
-		traclist_ptr--;
-		cyclenr--;
-#endif
 		interrupt();
 		halt = false;
 		irpnext = false;
@@ -500,21 +442,23 @@ void Cpu::nextInstr()
 #if DEBUG
 	//if (commands == 5645810) { newticks -= 0xE; }
 
-	if (update_ticks) totalticks += newticks;
-
-	if (tracethis)
+	if (thumbmode)
 	{
-		Tracelist[traclist_ptr].update_ticks(newticks);
-		traclist_ptr = (traclist_ptr + 1) % Tracelist_Length;
-		cyclenr++;
+		regs[15] = PC + 4;
 	}
-
-	debug_outdivcnt = (debug_outdivcnt + 1) % debug_outdiv;
+	else
+	{
+		regs[15] = PC + 8;
+	}
 #endif
 
-	if (irpnext)
+	if (isArm9)
 	{
-		newticks -= 1;
+		totalticks += newticks;
+	}
+	else
+	{ 
+		totalticks += newticks * 2;
 	}
 }
 
@@ -796,13 +740,13 @@ void Cpu::sp_relative_load_store(bool load, byte Rd, byte word8)
 	if (load)
 	{
 		regs[Rd] = Memory.read_dword(address);
-		newticks = 3 + BusTiming.dataTicksAccess32(address, 3);
+		newticks = 3 + BusTiming.dataTicksAccess32(isArm9, address, 3);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 	}
 	else
 	{
 		Memory.write_dword(address, regs[Rd]);
-		newticks = 2 + BusTiming.dataTicksAccess32(address, 2);
+		newticks = 2 + BusTiming.dataTicksAccess32(isArm9, address, 2);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 	}
 }
@@ -847,7 +791,7 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		{
 			UInt32 address = regs[Rb] + (UInt32)(Offset5 << 2);
 			regs[Rd] = Memory.read_dword(address);
-			newticks = 3 + BusTiming.dataTicksAccess32(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess32(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 		}
 	}
@@ -863,7 +807,7 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		else
 		{
 			UInt32 address = regs[Rb] + (UInt32)(Offset5 << 2);
-			newticks = 2 + BusTiming.dataTicksAccess32(address, 2);
+			newticks = 2 + BusTiming.dataTicksAccess32(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 			Memory.write_dword(address, regs[Rd]);
 		}
@@ -933,7 +877,7 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		else
 		{
 			regs[Rd] = Memory.read_dword(address);
-			newticks = 3 + BusTiming.dataTicksAccess32(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess32(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 		}
 	}
@@ -948,7 +892,7 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		else
 		{
 			Memory.write_dword(address, regs[Rd]);
-			newticks = 2 + BusTiming.dataTicksAccess32(address, 2);
+			newticks = 2 + BusTiming.dataTicksAccess32(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 		}
 	}
@@ -958,7 +902,7 @@ void Cpu::pc_relative_load(byte Rd, byte word8)
 {
 	uint addr = regs[15] + (UInt32)(word8 << 2);
 	regs[Rd] = Memory.read_dword(addr & 0xFFFFFFFC);
-	newticks = 3 + BusTiming.dataTicksAccess32(addr, 3);
+	newticks = 3 + BusTiming.dataTicksAccess32(isArm9, addr, 3);
 	newticks += BusTiming.codeTicksAccess16(PC + 4);
 }
 
@@ -1482,7 +1426,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				}
 				if (first)
 				{
-					newticks += 2 + BusTiming.dataTicksAccess32(address & 0xFFFFFFFC, 3);
+					newticks += 2 + BusTiming.dataTicksAccess32(isArm9, address & 0xFFFFFFFC, 3);
 					first = false;
 				}
 				else
@@ -1498,7 +1442,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 			PC = Memory.read_dword(address & 0xFFFFFFFC);
 			if (first)
 			{
-				newticks += 2 + BusTiming.dataTicksAccess32(address & 0xFFFFFFFC, 1);
+				newticks += 2 + BusTiming.dataTicksAccess32(isArm9, address & 0xFFFFFFFC, 1);
 			}
 			else
 			{
@@ -1574,7 +1518,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				Memory.write_dword(address & 0xFFFFFFFC, writeval);
 				if (first)
 				{
-					newticks += 1 + BusTiming.dataTicksAccess32(address & 0xFFFFFFFC, 2);
+					newticks += 1 + BusTiming.dataTicksAccess32(isArm9, address & 0xFFFFFFFC, 2);
 					first = false;
 				}
 				else
@@ -1697,7 +1641,11 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		else // word transfer
 		{
 			regs[Rdest] = Memory.read_dword(address);
-			newticks = 3 + BusTiming.dataTicksAccess32(address, 3);
+			if (!isArm9)
+			{
+				newticks += 3;
+			}
+			newticks += BusTiming.dataTicksAccess32(isArm9, address, 3);
 		}
 		if (Rdest == 15)
 		{
@@ -1726,7 +1674,11 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		}
 		else // word transfer
 		{
-			newticks = 2 + BusTiming.dataTicksAccess32(address, 2);
+			if (!isArm9)
+			{
+				newticks += 2;
+			}
+			newticks += BusTiming.dataTicksAccess32(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			Memory.write_dword(address, value);
 		}
@@ -1890,8 +1842,8 @@ void Cpu::single_data_swap(bool byteswap, byte Rn_op1, byte Rdest, UInt16 Op2)
 	}
 
 	// shouldn't this use access8 for byte?
-	newticks = 3 + BusTiming.dataTicksAccess32(regs[Rn_op1], 3);
-	newticks += BusTiming.dataTicksAccess32(regs[Rn_op1], 0);
+	newticks = 3 + BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], 3);
+	newticks += BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], 0);
 	newticks += BusTiming.codeTicksAccess32(PC + 4);
 }
 

@@ -25,7 +25,7 @@ SingleSoundDMA::SingleSoundDMA(GBReg Enable_RIGHT, GBReg Enable_LEFT, GBReg Time
 
 void SingleSoundDMA::work()
 {
-	tickcount += CPU.newticks;
+	tickcount += CPU9.newticks;
 	while (tickcount >= Sound.SAMPLERATE)
 	{
 		tickcount -= Sound.SAMPLERATE;
@@ -47,7 +47,7 @@ void SOUNDDMA::reset()
 
 void SOUNDDMA::timer_overflow(uint timerindex)
 {
-	CPU.newticks = 0;
+	CPU9.newticks = 0;
 	for (uint i = 0; i < 2; i++)
 	{
 		if (soundDMAs[i].any_on && soundDMAs[i].timerindex == timerindex)

@@ -4,7 +4,6 @@ using namespace std;
 #include "DMA.h"
 #include "gameboy.h"
 #include "IRP.h"
-#include "CPU.h"
 #include "Memory.h"
 #include "BusTiming.h"
 
@@ -14,11 +13,12 @@ SingleDMA::SingleDMA()
 {
 }
 
-SingleDMA::SingleDMA(UInt16 irpmask,
+SingleDMA::SingleDMA(Cpu CPU, UInt16 irpmask,
 	GBReg SAD, GBReg DAD, GBReg CNT_L,
 	GBReg Dest_Addr_Control, GBReg Source_Adr_Control, GBReg DMA_Repeat, GBReg DMA_Transfer_Type,
 	GBReg Game_Pak_DRQ, GBReg DMA_Start_Timing, GBReg IRQ_on, GBReg DMA_Enable, bool hasDRQ)
 {
+	this->CPU = CPU;
 	this->irpmask = irpmask;
 
 	this->SAD = SAD;
@@ -52,22 +52,22 @@ void Dma::reset()
 
 	GBReg empty;
 
-	DMAs[3] = SingleDMA(IRP.IRPMASK_DMA_3,
+	DMAs[3] = SingleDMA(CPU9, IRP.IRPMASK_DMA_3,
 		GBRegs.Sect_dma.DMA3SAD, GBRegs.Sect_dma.DMA3DAD, GBRegs.Sect_dma.DMA3CNT_L,
 		GBRegs.Sect_dma.DMA3CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA3CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA3CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA3CNT_H_DMA_Transfer_Type,
 		GBRegs.Sect_dma.DMA3CNT_H_Game_Pak_DRQ, GBRegs.Sect_dma.DMA3CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA3CNT_H_IRQ_on, GBRegs.Sect_dma.DMA3CNT_H_DMA_Enable, true);
 
-	DMAs[2] = SingleDMA(IRP.IRPMASK_DMA_1,
+	DMAs[2] = SingleDMA(CPU9, IRP.IRPMASK_DMA_1,
 		GBRegs.Sect_dma.DMA2SAD, GBRegs.Sect_dma.DMA2DAD, GBRegs.Sect_dma.DMA2CNT_L,
 		GBRegs.Sect_dma.DMA2CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA2CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA2CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA2CNT_H_DMA_Transfer_Type,
 		empty, GBRegs.Sect_dma.DMA2CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA2CNT_H_IRQ_on, GBRegs.Sect_dma.DMA2CNT_H_DMA_Enable, false);
 
-	DMAs[1] = SingleDMA(IRP.IRPMASK_DMA_2,
+	DMAs[1] = SingleDMA(CPU9, IRP.IRPMASK_DMA_2,
 		GBRegs.Sect_dma.DMA1SAD, GBRegs.Sect_dma.DMA1DAD, GBRegs.Sect_dma.DMA1CNT_L,
 		GBRegs.Sect_dma.DMA1CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA1CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA1CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA1CNT_H_DMA_Transfer_Type,
 		empty, GBRegs.Sect_dma.DMA1CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA1CNT_H_IRQ_on, GBRegs.Sect_dma.DMA1CNT_H_DMA_Enable, false);
 
-	DMAs[0] = SingleDMA(IRP.IRPMASK_DMA_0,
+	DMAs[0] = SingleDMA(CPU9, IRP.IRPMASK_DMA_0,
 		GBRegs.Sect_dma.DMA0SAD, GBRegs.Sect_dma.DMA0DAD, GBRegs.Sect_dma.DMA0CNT_L,
 		GBRegs.Sect_dma.DMA0CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA0CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA0CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA0CNT_H_DMA_Transfer_Type,
 		empty, GBRegs.Sect_dma.DMA0CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA0CNT_H_IRQ_on, GBRegs.Sect_dma.DMA0CNT_H_DMA_Enable, false);
@@ -188,14 +188,14 @@ void Dma::work()
 
 			if (DMAs[i].waitTicks > 0)
 			{
-				if (CPU.newticks >= DMAs[i].waitTicks)
+				if (DMAs[i].CPU.newticks >= DMAs[i].waitTicks)
 				{
 					DMAs[i].running = true;
 					DMAs[i].waitTicks = 0;
 				}
 				else
 				{
-					DMAs[i].waitTicks -= CPU.newticks;
+					DMAs[i].waitTicks -= DMAs[i].CPU.newticks;
 				}
 			}
 
@@ -220,7 +220,7 @@ void Dma::work()
 						{
 							last_dma_value = value;
 							last_dma_index = i;
-							CPU.op_since_dma = 0;
+							DMAs[i].CPU.op_since_dma = 0;
 						}
 						value = last_dma_value;
 					}
@@ -246,7 +246,7 @@ void Dma::work()
 						{
 							last_dma_value = (UInt32)newvalue | ((UInt32)newvalue << 16);
 							last_dma_index = i;
-							CPU.op_since_dma = 0;
+							DMAs[i].CPU.op_since_dma = 0;
 						}
 						value = (UInt16)last_dma_value;
 					}
@@ -293,7 +293,7 @@ void Dma::work()
 						ticks = 2 + BusTiming.memoryWaitSeq[sm & 15] + BusTiming.memoryWaitSeq[dm & 15];
 					}
 				}
-				CPU.newticks += ticks;
+				DMAs[i].CPU.newticks += ticks;
 				DMAs[i].totalTicks += ticks;
 
 				if (DMAs[i].count == 0)

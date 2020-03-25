@@ -13,55 +13,11 @@ enum class CPUMODES
 	SYSTEM
 };
 
-#if DEBUG
-class cpustate
-{
-public:
-	UInt32 debugregs[18];
-
-	UInt32 opcode;
-	UInt32 flags;
-	bool flag_Negative;
-	bool flag_Carry;
-	bool flag_Zero;
-	bool flag_V_Overflow;
-	Int32 newticks;
-	uint busprefetch;
-	byte thumbmode;
-	byte armmode;
-	byte irpdisable;
-	UInt16 IF_intern;
-	int irp_wait;
-
-	UInt32 timer0;
-	UInt32 timer1;
-	UInt32 timer2;
-	UInt32 timer3;
-
-	UInt32 memory01;
-	UInt32 memory02;
-	UInt32 memory03;
-	UInt32 debug_dmatranfers;
-
-	UInt32 R16;
-	UInt32 R17;
-	UInt32 R13_USR;
-	UInt32 R14_USR;
-	UInt32 R13_IRQ;
-	UInt32 R14_IRQ;
-	UInt32 R13_SVC;
-	UInt32 R14_SVC;
-	UInt32 SPSR_IRQ;
-	UInt32 SPSR_SVC;
-
-	void update(byte mode);
-	void update_ticks(Int32 newticks);
-};
-#endif
-
 class Cpu
 {
 public:
+	bool isArm9;
+
 	bool thumbmode;
 
 	bool output_debug = true;
@@ -89,24 +45,16 @@ public:
 
 	UInt32 regbanks[6][18];
 
-	Int32 newticks;
-	Int32 totalticks;
+	UInt64 newticks;
+	UInt64 totalticks;
 
 	int additional_steps;
 	UInt64 commands;
 	UInt64 cyclenr;
-	bool tracenext;
-
-#if DEBUG
-	const int Tracelist_Length = 1000000;
-	cpustate Tracelist[1000000];
-#endif
-	int traclist_ptr;
-	int runmoretrace;
 
 	int op_since_dma = 0; // dma bus value - e.g. hello kitty
 
-	void reset();
+	void reset(bool isArm9);
 	void nextInstr();
 
 	CPUMODES get_mode_from_value(uint value);
@@ -115,13 +63,6 @@ public:
 	UInt32 RotateRight(UInt32 x, int n);
 
 private:
-	UInt32 debug_outdivcnt;
-
-#if DEBUG
-	void trace_file_last();
-	void vcd_file_last();
-#endif
-
 	void interrupt();
 	void thumb_command();
 	void long_branch_with_link(bool high, UInt16 SOffset11);
@@ -173,4 +114,75 @@ private:
 	void data_processing(bool imm, byte opcode, bool s_updateflags, byte Rn_op1, byte Rdest, UInt16 Op2, UInt32 asmcmd);
 	void CPUSwitchMode(CPUMODES mode, bool saveState);
 };
-extern Cpu CPU;
+extern Cpu CPU9;
+extern Cpu CPU7;
+
+#if DEBUG
+class cpustate
+{
+public:
+	UInt32 debugregs[18];
+
+	UInt32 opcode;
+	UInt32 flags;
+	bool flag_Negative;
+	bool flag_Carry;
+	bool flag_Zero;
+	bool flag_V_Overflow;
+	Int32 newticks;
+	uint busprefetch;
+	byte thumbmode;
+	byte armmode;
+	byte irpdisable;
+	UInt16 IF_intern;
+	int irp_wait;
+
+	UInt32 timer0;
+	UInt32 timer1;
+	UInt32 timer2;
+	UInt32 timer3;
+
+	UInt32 memory01;
+	UInt32 memory02;
+	UInt32 memory03;
+	UInt32 debug_dmatranfers;
+
+	UInt32 R16;
+	UInt32 R17;
+	UInt32 R13_USR;
+	UInt32 R14_USR;
+	UInt32 R13_IRQ;
+	UInt32 R14_IRQ;
+	UInt32 R13_SVC;
+	UInt32 R14_SVC;
+	UInt32 SPSR_IRQ;
+	UInt32 SPSR_SVC;
+
+	void update(bool isArm9);
+};
+
+class Tracer
+{
+public:
+	Int32 newticks;
+	Int32 totalticks;
+
+	int additional_steps;
+	UInt64 commands;
+	UInt64 cyclenr;
+	bool tracenext;
+
+	const int Tracelist_Length = 1000000;
+	cpustate Tracelist[1000000][2];
+
+	int traclist_ptr;
+	int runmoretrace;
+
+	UInt32 debug_outdivcnt;
+
+	void trace_file_last();
+	void vcd_file_last();
+
+};
+extern Tracer tracer;
+#endif

@@ -11,7 +11,7 @@ BUSTiming BusTiming;
 void BUSTiming::reset()
 {
 	byte memoryWait_new[] = { 0, 0, 2, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 0 }; std::copy(std::begin(memoryWait_new), std::end(memoryWait_new), std::begin(memoryWait));
-	byte memoryWait32_new[] = { 0, 0, 5, 0, 0, 1, 1, 0, 7, 7, 9, 9, 13, 13, 4, 0 }; std::copy(std::begin(memoryWait32_new), std::end(memoryWait32_new), std::begin(memoryWait32));
+	byte memoryWait32_new[] = { 0, 0, 5, 0, 1, 1, 1, 0, 7, 7, 9, 9, 13, 13, 4, 0 }; std::copy(std::begin(memoryWait32_new), std::end(memoryWait32_new), std::begin(memoryWait32));
 	byte memoryWaitSeq_new[] = { 0, 0, 2, 0, 0, 0, 0, 0, 2, 2, 4, 4, 8, 8, 4, 0 }; std::copy(std::begin(memoryWaitSeq_new), std::end(memoryWaitSeq_new), std::begin(memoryWaitSeq));
 	byte memoryWaitSeq32_new[] = { 0, 0, 5, 0, 0, 1, 1, 0, 5, 5, 9, 9, 17, 17, 4, 0 }; std::copy(std::begin(memoryWaitSeq32_new), std::end(memoryWaitSeq32_new), std::begin(memoryWaitSeq32));
 
@@ -54,7 +54,7 @@ int BUSTiming::dataTicksAccess16(UInt32 address, int cycleadd) // DATA 8/16bits 
 	int value = memoryWait[addr];
 #ifdef prefetch_off
 	return value;
-#endif
+#else
 
 	if (addr >= 0x08)
 	{
@@ -69,15 +69,41 @@ int BUSTiming::dataTicksAccess16(UInt32 address, int cycleadd) // DATA 8/16bits 
 	}
 
 	return value;
+#endif
 }
 
-int BUSTiming::dataTicksAccess32(UInt32 address, int cycleadd) // DATA 32bits NON SE
+int BUSTiming::dataTicksAccess32(bool isArm9, UInt32 address, int cycleadd) // DATA 32bits NON SE
 {
 	UInt32 addr = (address >> 24) & 15;
+
+	if (isArm9 && addr == 2)
+	{
+		bool cached = false;
+		if (cached)
+		{
+			return 1;
+		}
+		else
+		{
+			return (4 * 5) + (8 * 2 * 2);
+		}
+	}
+
 	int value = memoryWait32[addr];
+
+	if (isArm9)
+	{
+		value *= 2;
+		value += 6;
+	}
+	else
+	{
+		value += 1;
+	}
+
 #ifdef prefetch_off
 	return value;
-#endif
+#else
 
 	if (addr == 6 && GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
@@ -103,6 +129,7 @@ int BUSTiming::dataTicksAccess32(UInt32 address, int cycleadd) // DATA 32bits NO
 	}
 
 	return value;
+#endif
 }
 
 int BUSTiming::dataTicksAccessSeq32(UInt32 address, int cycleadd) // DATA 32bits SEQ
@@ -111,7 +138,7 @@ int BUSTiming::dataTicksAccessSeq32(UInt32 address, int cycleadd) // DATA 32bits
 	int value = memoryWaitSeq32[addr];
 #ifdef prefetch_off
 	return value;
-#endif
+#else
 
 	if (addr >= 0x08)
 	{
@@ -127,6 +154,7 @@ int BUSTiming::dataTicksAccessSeq32(UInt32 address, int cycleadd) // DATA 32bits
 	}
 
 	return value;
+#endif
 }
 
 int BUSTiming::codeTicksAccess16(UInt32 address) // THUMB NON SEQ
@@ -134,7 +162,7 @@ int BUSTiming::codeTicksAccess16(UInt32 address) // THUMB NON SEQ
 	UInt32 addr = (address >> 24) & 15;
 #ifdef prefetch_off
 	return memoryWait[addr];
-#endif
+#else
 
 	int value = memoryWait[addr];
 	if ((addr >= 0x08) && (addr <= 0x0D) && busPrefetchCount > 0)
@@ -148,14 +176,15 @@ int BUSTiming::codeTicksAccess16(UInt32 address) // THUMB NON SEQ
 		busPrefetchCount = 0;
 		return memoryWait[addr];
 	}
+#endif
 }
 
 int BUSTiming::codeTicksAccess32(UInt32 address) // ARM NON SEQ
 {
 	UInt32 addr = (address >> 24) & 15;
 #ifdef prefetch_off
-	return memoryWait32[addr];
-#endif
+	return 0; // memoryWait32[addr];
+#else
 
 	int value = memoryWait32[addr];
 	if ((addr >= 0x08) && (addr <= 0x0D) && busPrefetchCount > 0)
@@ -169,6 +198,7 @@ int BUSTiming::codeTicksAccess32(UInt32 address) // ARM NON SEQ
 		busPrefetchCount = 0;
 		return memoryWait32[addr];
 	}
+#endif
 }
 
 int BUSTiming::codeTicksAccessSeq16(UInt32 address) // THUMB SEQ
@@ -176,7 +206,7 @@ int BUSTiming::codeTicksAccessSeq16(UInt32 address) // THUMB SEQ
 	UInt32 addr = (address >> 24) & 15;
 #ifdef prefetch_off
 	return memoryWaitSeq[addr];
-#endif
+#else
 
 	int value = memoryWaitSeq[addr];
 	if ((addr >= 0x08) && (addr <= 0x0D) && busPrefetchCount > 0)
@@ -190,14 +220,15 @@ int BUSTiming::codeTicksAccessSeq16(UInt32 address) // THUMB SEQ
 		busPrefetchCount = 0;
 		return memoryWaitSeq[addr];
 	}
+#endif
 }
 
 int BUSTiming::codeTicksAccessSeq32(UInt32 address) // ARM SEQ
 {
 	UInt32 addr = (address >> 24) & 15;
 #ifdef prefetch_off
-	return memoryWaitSeq32[addr];
-#endif
+	return 0; // memoryWaitSeq32[addr];
+#else
 
 	int value = memoryWaitSeq32[addr];
 	if ((addr >= 0x08) && (addr <= 0x0D) && busPrefetchCount > 0)
@@ -210,5 +241,6 @@ int BUSTiming::codeTicksAccessSeq32(UInt32 address) // ARM SEQ
 	{
 		return memoryWaitSeq32[addr];
 	}
+#endif
 }
 

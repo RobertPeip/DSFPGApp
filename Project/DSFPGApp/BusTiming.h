@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-//#define prefetch_off;
+#define prefetch_off
 
 class BUSTiming
 {
@@ -24,7 +24,7 @@ public:
 	void reset();
 	void update(UInt16 value);
 	int dataTicksAccess16(UInt32 address, int cycleadd); // DATA 8/16bits NON SEQ
-	int dataTicksAccess32(UInt32 address, int cycleadd); // DATA 32bits NON SE
+	int dataTicksAccess32(bool isArm9, UInt32 address, int cycleadd); // DATA 32bits NON SE
 	int dataTicksAccessSeq32(UInt32 address, int cycleadd); // DATA 32bits SEQ
 	int codeTicksAccess16(UInt32 address); // THUMB NON SEQ
 	int codeTicksAccess32(UInt32 address); // ARM NON SEQ
