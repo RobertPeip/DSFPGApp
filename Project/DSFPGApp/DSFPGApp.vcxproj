@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="BusTiming.cpp" />
     <ClCompile Include="CPU.cpp" />
+    <ClCompile Include="CPUCache.cpp" />
     <ClCompile Include="DMA.cpp" />
     <ClCompile Include="EEprom.cpp" />
     <ClCompile Include="FileIO.cpp" />
@@ -46,6 +47,7 @@
   <ItemGroup>
     <ClInclude Include="BusTiming.h" />
     <ClInclude Include="CPU.h" />
+    <ClInclude Include="CPUCache.h" />
     <ClInclude Include="DMA.h" />
     <ClInclude Include="EEprom.h" />
     <ClInclude Include="FileIO.h" />

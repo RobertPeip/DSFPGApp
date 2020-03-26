@@ -16,6 +16,7 @@
 #include "Serial.h"
 #include "IRP.h"
 #include "Header.h"
+#include "CPUCache.h"
 
 Gameboy gameboy;
 
@@ -34,6 +35,8 @@ void Gameboy::reset()
 
 	CPU9.reset(true);
 	CPU7.reset(false);
+	InstrCache.reset();
+	DataCache.reset();
 	GPU_Timing.reset();
 	Sound.reset();
 	Joypad.set_reg();
@@ -50,6 +53,8 @@ void Gameboy::reset()
 	CPU9.PC = Header.ARM9_CODE_PC;
 	CPU7.PC = Header.ARM7_CODE_PC;
 
+	InstrCache.inCache(CPU9.PC); // fetch first instruction
+
 	on = true;
 	pause = false;
 }
@@ -64,7 +69,7 @@ void Gameboy::run()
 	{
 #if DEBUG
 		bool newinstr = false;
-		if (tracer.traclist_ptr == 3)
+		if (tracer.traclist_ptr == 19)
 		{
 			int stop = 1;
 		}
@@ -88,7 +93,7 @@ void Gameboy::run()
 		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 20;
+			tracer.runmoretrace = 100;
 		}
 
 		if (newinstr && tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)

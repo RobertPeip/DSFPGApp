@@ -45,7 +45,7 @@ public:
 
 	UInt32 regbanks[6][18];
 
-	UInt64 newticks;
+	UInt32 newticks;
 	UInt64 totalticks;
 
 	int additional_steps;
@@ -61,6 +61,11 @@ public:
 	UInt32 get_CPSR();
 	void set_CPSR(UInt32 value);
 	UInt32 RotateRight(UInt32 x, int n);
+
+#ifdef DEBUG
+	uint lastinstruction;
+#endif DEBUG
+
 
 private:
 	void interrupt();

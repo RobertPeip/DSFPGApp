@@ -80,6 +80,9 @@
     <ClCompile Include="OSD.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CPUCache.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameboy.h">
@@ -149,6 +152,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="OSD.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CPUCache.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

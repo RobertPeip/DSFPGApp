@@ -7,6 +7,7 @@ using namespace std;
 #include "DMA.h"
 #include "IRP.h"
 #include "Memory.h"
+#include "CPUCache.h"
 
 Cpu CPU9;
 Cpu CPU7;
@@ -45,14 +46,7 @@ void cpustate::update(bool isArm9)
 
 	this->thumbmode = CPU.thumbmode;
 
-	if (CPU.thumbmode == 1)
-	{
-		this->opcode = Memory.read_word(CPU.PC - 2);
-	}
-	else
-	{
-		this->opcode = Memory.read_dword(CPU.PC - 4);
-	}
+	this->opcode = CPU.lastinstruction;
 
 	switch (CPU.cpu_mode)
 	{
@@ -454,6 +448,17 @@ void Cpu::nextInstr()
 
 	if (isArm9)
 	{
+		if (!InstrCache.inCache(PC))
+		{
+			if (newticks <= 0x34)
+			{
+				totalticks += 0x34;
+			}
+			else
+			{
+				totalticks += newticks;
+			}
+		}
 		totalticks += newticks;
 	}
 	else
@@ -474,6 +479,9 @@ void Cpu::interrupt()
 void Cpu::thumb_command()
 {
 	UInt16 asmcmd = (UInt16)Memory.read_word(PC);
+#ifdef DEBUG
+	lastinstruction = asmcmd;
+#endif DEBUG
 
 	Byte opcode_1513 = (Byte)((asmcmd >> 13) & 0x7); // bit 15..13
 
@@ -611,8 +619,6 @@ void Cpu::long_branch_with_link(bool high, UInt16 SOffset11)
 		PC = (UInt32)(regs[14] + (SOffset11 << 1));
 		PC &= 0xFFFFFFFE;
 
-		BusTiming.busPrefetchCount = 0;
-
 		newticks = 3 + (BusTiming.codeTicksAccessSeq16(PC) * 2) + BusTiming.codeTicksAccess16(PC);
 
 		PC -= 2;
@@ -631,7 +637,6 @@ void Cpu::unconditional_branch(UInt16 SOffset11)
 		PC = (UInt32)(regs[15] + (SOffset11 << 1));
 	}
 	PC &= 0xFFFFFFFE;
-	BusTiming.busPrefetchCount = 0;
 	newticks = 3 + (BusTiming.codeTicksAccessSeq16(PC) * 2) + BusTiming.codeTicksAccess16(PC);
 	PC -= 2;
 }
@@ -661,16 +666,11 @@ void Cpu::conditional_branch(byte cond, byte SOffset8)
 	{
 		PC = (UInt32)(regs[15] + ((SByte)SOffset8 << 1)) - 2;
 		PC &= 0xFFFFFFFE;
-		BusTiming.busPrefetchCount = 0;
 		newticks = 3 + (2 * BusTiming.codeTicksAccessSeq16(PC + 2)) + BusTiming.codeTicksAccess16(PC + 2);
 	}
 	else
 	{
-		// this handling is wrong, just to be compatible...
-		int oldprefetch = BusTiming.busPrefetchCount;
-		BusTiming.busPrefetchCount = 0;
 		newticks = BusTiming.codeTicksAccessSeq16(PC) + 1;
-		BusTiming.busPrefetchCount = oldprefetch;
 	}
 }
 
@@ -761,12 +761,12 @@ void Cpu::load_store_halfword(bool load, byte Offset5, byte Rb, byte Rd)
 	if (load)
 	{
 		regs[Rd] = Memory.read_word(address);
-		newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 	}
 	else
 	{
-		newticks = 2 + BusTiming.dataTicksAccess16(address, 2); // done before write, so there is time for bustiming change to happen
+		newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, 2); // done before write, so there is time for bustiming change to happen
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 		Memory.write_word(address, (UInt16)regs[Rd]);
 	}
@@ -784,7 +784,7 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		{
 			UInt32 address = regs[Rb] + Offset5;
 			regs[Rd] = Memory.read_byte(address);
-			newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 		}
 		else
@@ -800,7 +800,7 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		if (byteflag)
 		{
 			UInt32 address = regs[Rb] + Offset5;
-			newticks = 2 + BusTiming.dataTicksAccess16(address, 2);
+			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 			Memory.write_byte(address, (byte)regs[Rd]);
 		}
@@ -824,20 +824,20 @@ void Cpu::load_store_sign_extended_byte_halfword(byte opcode_hs, byte Ro, byte R
 	switch (opcode_hs)
 	{
 	case 0: // Store halfword
-		newticks = 2 + BusTiming.dataTicksAccess16(address, 2);
+		newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, 2);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 		Memory.write_word(address, (UInt16)regs[Rd]);
 		break;
 
 	case 1: // Load sign-extended byte
 		regs[Rd] = (UInt32)((Int32)(SByte)Memory.read_byte(address));
-		newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 		break;
 
 	case 2: // Load halfword
 		regs[Rd] = Memory.read_word(address);
-		newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 		break;
 
@@ -851,7 +851,7 @@ void Cpu::load_store_sign_extended_byte_halfword(byte opcode_hs, byte Ro, byte R
 			regs[Rd] = (UInt32)((Int32)(SByte)Memory.read_word(address));
 		}
 
-		newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 		newticks += BusTiming.codeTicksAccess16(PC + 2);
 		break;
 	}
@@ -871,7 +871,7 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		if (byteflag)
 		{
 			regs[Rd] = Memory.read_byte(address);
-			newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 		}
 		else
@@ -886,7 +886,7 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		if (byteflag)
 		{
 			Memory.write_byte(address, (byte)regs[Rd]);
-			newticks = 2 + BusTiming.dataTicksAccess16(address, 2);
+			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess16(PC + 2);
 		}
 		else
@@ -909,7 +909,6 @@ void Cpu::pc_relative_load(byte Rd, byte word8)
 void Cpu::thumbbranch_by_R15_write()
 {
 	PC = (regs[15] & 0xFFFFFFFE) - 2;
-	BusTiming.busPrefetchCount = 0;
 	newticks = BusTiming.codeTicksAccessSeq16(PC - 2);
 	newticks = (newticks * 2) + BusTiming.codeTicksAccess16(PC - 2) + 3;
 }
@@ -964,10 +963,6 @@ void Cpu::alu_operations(byte opcode, byte Rs, byte Rd)
 	case 0x2:                                                                                            // 0010 LSL Rd, Rs MOVS Rd, Rd, LSL Rs Rd := Rd << Rs
 		op1_val = shift_logicalleft(shiftercarry, op1_val, (int)op2_val);
 		alu_mov(Rd, op1_val, true, shiftercarry);
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount += 1;
-		}
 		newticks = 2 + BusTiming.codeTicksAccessSeq16(PC + 2);
 		//newticks = 2 + BusTiming.codeTicksAccess16(PC + 2); 
 		break;
@@ -975,10 +970,6 @@ void Cpu::alu_operations(byte opcode, byte Rs, byte Rd)
 		//if (op2_val == 0) { op2_val = 32; } -> wrong!
 		op1_val = shift_logicalright(shiftercarry, op1_val, (int)op2_val);
 		alu_mov(Rd, op1_val, true, shiftercarry);
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount += 1;
-		}
 		newticks = 2 + BusTiming.codeTicksAccessSeq16(PC + 2);
 		//newticks = 2 + BusTiming.codeTicksAccess16(PC + 2);
 		break;
@@ -986,10 +977,6 @@ void Cpu::alu_operations(byte opcode, byte Rs, byte Rd)
 		//if (op2_val == 0) { op2_val = 32; } -> wrong!
 		op1_val = shift_arithright(shiftercarry, op1_val, (int)op2_val);
 		alu_mov(Rd, op1_val, true, shiftercarry);
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount += 1;
-		}
 		newticks = 2 + BusTiming.codeTicksAccessSeq16(PC + 2);
 		//newticks = 2 + BusTiming.codeTicksAccess16(PC + 2); 
 		break;
@@ -999,10 +986,6 @@ void Cpu::alu_operations(byte opcode, byte Rs, byte Rd)
 	case 0x7:                                                                                           // 0111 ROR Rd, Rs MOVS Rd, Rd, ROR Rs Rd := Rd ROR Rs   
 		op1_val = shift_rotateright(shiftercarry, op1_val, (int)op2_val);
 		alu_mov(Rd, op1_val, true, shiftercarry);
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount += 1;
-		}
 		newticks = 2 + BusTiming.codeTicksAccessSeq16(PC + 2);
 		//newticks = 2 + BusTiming.codeTicksAccess16(PC + 2); 
 		break;
@@ -1097,6 +1080,9 @@ void Cpu::move_shifted_register(byte op, byte offset5, byte Rs, byte Rd)
 void Cpu::arm_command()
 {
 	UInt32 asmcmd = Memory.read_dword(PC);
+#ifdef DEBUG
+	lastinstruction = asmcmd;
+#endif DEBUG
 
 	byte cond = (byte)(asmcmd >> 28);
 	bool execute = false;
@@ -1270,8 +1256,6 @@ void Cpu::software_interrupt()
 		regs[14] = PC + 4;
 	}
 
-	BusTiming.busPrefetchCount = 0;
-
 	if (old_thumb)
 	{
 		PC = 6; // will be 8 after end of thumb command
@@ -1307,7 +1291,6 @@ void Cpu::branch(bool link, UInt32 offset)
 	offset_int = offset_int << 2;
 	PC = (UInt32)(regs[15] + offset_int) & 0xFFFFFFFC;
 
-	BusTiming.busPrefetchCount = 0;
 	newticks = 3 + BusTiming.codeTicksAccess32(PC) + 2 * BusTiming.codeTicksAccessSeq32(PC);
 
 	PC -= 4;
@@ -1448,7 +1431,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 			{
 				newticks += 1 + BusTiming.dataTicksAccessSeq32(address & 0xFFFFFFFC, 1);
 			}
-			BusTiming.busPrefetchCount = 0;
 			address += 4;
 			if ((opcode & 2) != 2 || !R15set)
 			{
@@ -1602,11 +1584,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 
 void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool load_store, byte Rn_op1, byte Rdest, UInt16 op2)
 {
-	//if (BusTiming.busPrefetchCount == 0)
-	//{
-	//    BusTiming.busPrefetch = BusTiming.busPrefetchEnable;
-	//}
-
 	UInt32 imm_value = 0;
 	if (!use_imm)
 	{
@@ -1636,21 +1613,24 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		if ((opcode & 2) == 2) // byte transfer
 		{
 			regs[Rdest] = (UInt32)Memory.read_byte(address);
-			newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 		}
 		else // word transfer
 		{
 			regs[Rdest] = Memory.read_dword(address);
-			if (!isArm9)
+			newticks += BusTiming.dataTicksAccess32(isArm9, address, 3);
+			if (isArm9)
+			{
+				if (newticks < 3) newticks = 3;
+			}
+			else
 			{
 				newticks += 3;
 			}
-			newticks += BusTiming.dataTicksAccess32(isArm9, address, 3);
 		}
 		if (Rdest == 15)
 		{
 			PC = regs[Rdest] & 0xFFFFFFFC;
-			BusTiming.busPrefetchCount = 0;
 			newticks += 3 + BusTiming.codeTicksAccess32(PC) + 2 * BusTiming.codeTicksAccessSeq32(PC);
 			PC -= 4;
 		}
@@ -1668,7 +1648,7 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		}
 		if ((opcode & 2) == 2) // byte transfer
 		{
-			newticks = 2 + BusTiming.dataTicksAccess16(address, 2);
+			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			Memory.write_byte(address, (byte)value);
 		}
@@ -1707,11 +1687,6 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 
 void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, byte Rn_op1, byte Rdest, UInt32 value)
 {
-	//if (BusTiming.busPrefetchCount == 0)
-	//{
-	//    BusTiming.busPrefetch = BusTiming.busPrefetchEnable;
-	//}
-
 	UInt32 address = regs[Rn_op1];
 	if ((opcode & 8) == 8) //pre
 	{
@@ -1731,13 +1706,13 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 		{
 		case 0xB: // unsigned halfword
 			regs[Rdest] = (UInt32)Memory.read_word(address);
-			newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			break;
 
 		case 0xD: // signed byte
 			regs[Rdest] = (UInt32)((Int32)(SByte)Memory.read_byte(address));
-			newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			break;
 
@@ -1750,7 +1725,7 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 			{
 				regs[Rdest] = (UInt32)((Int32)(SByte)Memory.read_byte(address));
 			}
-			newticks = 3 + BusTiming.dataTicksAccess16(address, 3);
+			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, 3);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			break;
 		}
@@ -1766,13 +1741,17 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 		{
 		case 0xB: // unsigned halfword
 		case 0xD: // signed halfword
-			newticks = 2 + BusTiming.dataTicksAccess16(address, 2);
+			if (!isArm9)
+			{
+				newticks += 2;
+			}
+			newticks = BusTiming.dataTicksAccess16(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			Memory.write_word(address, (UInt16)writevalue);
 			break;
 
 		case 0xF: // signed byte
-			newticks = 2 + BusTiming.dataTicksAccess16(address, 2);
+			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, 2);
 			newticks += BusTiming.codeTicksAccess32(PC + 4);
 			Memory.write_byte(address, (byte)writevalue);
 			break;
@@ -1804,7 +1783,6 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 void Cpu::branch_and_exchange(byte reg)
 {
 	bool old_thumbmode = thumbmode;
-	BusTiming.busPrefetchCount = 0;
 	thumbmode = (regs[reg] & 1) == 1;
 	if (thumbmode)
 	{
@@ -1876,27 +1854,11 @@ void Cpu::multiply(byte add, bool s_updateflags, byte Rn_op1, byte Rdest, byte r
 
 	if (thumbmode)
 	{
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount += newticks;
-			newticks += 1 + BusTiming.codeTicksAccessSeq16(PC);
-		}
-		else
-		{
-			newticks += 1 + BusTiming.codeTicksAccess16(PC);
-		}
+		newticks += 1 + BusTiming.codeTicksAccessSeq16(PC);
 	}
 	else
 	{
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount += newticks;
-			newticks += 1 + BusTiming.codeTicksAccessSeq32(PC);
-		}
-		else
-		{
-			newticks += 1 + BusTiming.codeTicksAccess32(PC);
-		}
+		newticks += 1 + BusTiming.codeTicksAccessSeq32(PC);
 	}
 }
 
@@ -1947,15 +1909,7 @@ void Cpu::multiply_long(byte opcode, bool s_updateflags, byte RdestHi, byte Rdes
 	else if ((rs & 0xFF000000) == 0) { newticks += 4; }
 	else newticks += 5;
 
-	if (BusTiming.busPrefetchEnable)
-	{
-		BusTiming.busPrefetchCount += newticks;
-		newticks += 1 + BusTiming.codeTicksAccessSeq32(PC);
-	}
-	else
-	{
-		newticks += 1 + BusTiming.codeTicksAccess32(PC);
-	}
+	newticks += 1 + BusTiming.codeTicksAccessSeq32(PC);
 }
 
 void Cpu::data_processing_PSR(UInt32 asmcmd)
@@ -2177,10 +2131,6 @@ bool Cpu::shifter(bool& shiftercarry, UInt32& shiftervalue, UInt16 shift_opcode)
 			shiftervalue += 4;
 		}
 		shiftamount = (int)(regs[(shiftsettings >> 4)] & 0xFF);
-		if (BusTiming.busPrefetchEnable)
-		{
-			BusTiming.busPrefetchCount++;
-		}
 		newticks = 2 + BusTiming.codeTicksAccessSeq32(PC + 2);
 		if (shiftamount == 0)
 		{
