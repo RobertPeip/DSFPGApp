@@ -9,7 +9,7 @@ public:
 	const byte ASSOCIATIVITY = 4;
 	byte LINES;
 	byte SUBTAGBITS; // bits for lower address below tag
-	byte LINEMASK;
+	uint LINEMASK;
 	uint TAGMASK;
 	byte rrb;
 
@@ -17,7 +17,7 @@ public:
 
 	CPUCache(byte LINES);
 	void reset();
-	bool inCache(uint address);
+	bool inCache(uint address, bool isRead);
 };
 extern CPUCache InstrCache;
 extern CPUCache DataCache;

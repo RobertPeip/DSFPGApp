@@ -53,7 +53,7 @@ void Gameboy::reset()
 	CPU9.PC = Header.ARM9_CODE_PC;
 	CPU7.PC = Header.ARM7_CODE_PC;
 
-	InstrCache.inCache(CPU9.PC); // fetch first instruction
+	InstrCache.inCache(CPU9.PC, true); // fetch first instruction
 
 	on = true;
 	pause = false;
@@ -69,7 +69,7 @@ void Gameboy::run()
 	{
 #if DEBUG
 		bool newinstr = false;
-		if (tracer.traclist_ptr == 19)
+		if (tracer.traclist_ptr == 1233)
 		{
 			int stop = 1;
 		}
@@ -93,7 +93,7 @@ void Gameboy::run()
 		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 100;
+			tracer.runmoretrace = 2000;
 		}
 
 		if (newinstr && tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
@@ -105,11 +105,13 @@ void Gameboy::run()
 			//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % tracer.debug_outdiv;
 			if (tracer.runmoretrace == 0)
 			{
+				tracer.runmoretrace = -1;
 				//tracer.trace_file_last();
 				tracer.vcd_file_last();
 			}
 		}
 #endif
+		totalticks = min(CPU9.totalticks, CPU7.totalticks);
 
 		DMA.work();
 		GPU_Timing.work();
@@ -120,8 +122,6 @@ void Gameboy::run()
 		}
 		Timer.work();
 		Serial.work();
-
-		totalticks = totalticks + 1;
 
 		checkcount++;
 		if (checkcount == 0)

@@ -37,6 +37,9 @@ public:
 	bool irpnext;
 	int irpdelay;
 	bool irpdelay_next;
+	uint irpTarget;
+
+	uint lastAddress;
 
 	CPUMODES cpu_mode;
 
@@ -118,9 +121,56 @@ private:
 	void alu_sub_withcarry(byte Rdest, UInt32 op1_val, UInt32 op2_val, bool updateFlags, bool carry);
 	void data_processing(bool imm, byte opcode, bool s_updateflags, byte Rn_op1, byte Rdest, UInt16 Op2, UInt32 asmcmd);
 	void CPUSwitchMode(CPUMODES mode, bool saveState);
+
+	void coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset);
+	void coprocessor_data_operation(byte opCode, byte opRegn, byte dstReg, byte coNumber, byte coInfo, byte opRegm);
+	void coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byte armSrcDstReg, byte coNumber, byte coInfo, byte opRegm);
+	void coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte armSrcDstReg, byte coNumber, byte coInfo, byte opRegm);
+
+
 };
 extern Cpu CPU9;
 extern Cpu CPU7;
+
+class CO15
+{
+public:
+	uint IDCode;
+	uint cacheType;
+	uint TCMSize;
+	uint ctrl;
+	uint DCConfig;
+	uint ICConfig;
+	uint writeBuffCtrl;
+	uint und;
+	uint DaccessPerm;
+	uint IaccessPerm;
+	uint protectBaseSize[8];
+	uint cacheOp;
+	uint DcacheLock;
+	uint IcacheLock;
+	uint ITCMRegion;
+	uint DTCMRegion;
+	uint processID;
+	uint RAM_TAG;
+	uint testState;
+	uint cacheDbg;
+
+	uint regionWriteMask_USR[8];
+	uint regionWriteMask_SYS[8];
+	uint regionReadMask_USR[8];
+	uint regionReadMask_SYS[8];
+	uint regionExecuteMask_USR[8];
+	uint regionExecuteMask_SYS[8];
+	uint regionWriteSet_USR[8];
+	uint regionWriteSet_SYS[8];
+	uint regionReadSet_USR[8];
+	uint regionReadSet_SYS[8];
+	uint regionExecuteSet_USR[8];
+	uint regionExecuteSet_SYS[8];
+};
+extern CO15 Co15;
+
 
 #if DEBUG
 class cpustate

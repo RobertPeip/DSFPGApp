@@ -29,18 +29,21 @@ void CPUCache::reset()
 	rrb = 0;
 }
 
-bool CPUCache::inCache(uint address)
+bool CPUCache::inCache(uint address, bool isRead)
 {
 	uint maskedaddress = address & TAGMASK;
-	int block = maskedaddress & LINEMASK;
+	int line = (address & LINEMASK) >> 5;
 	for (int a = 0; a < ASSOCIATIVITY; a++)
 	{
-		if (tags[block][a] == maskedaddress)
+		if (tags[line][a] == maskedaddress)
 		{
 			return true;
 		}
 	}
-	tags[block][rrb] = maskedaddress;
-	rrb = (rrb + 1) % 4;
+	if (isRead)
+	{
+		tags[line][rrb] = maskedaddress;
+		rrb = (rrb + 1) % 4;
+	}
 	return false;
 }

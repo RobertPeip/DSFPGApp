@@ -21,7 +21,7 @@ public:
 	const int BITPOS_V_Counter_IRQ_Enable = 5;
 	const int BITPOS_V_Count_Setting = 8;
 
-	Int32 cycles;
+	UInt64 localticks;
 	byte line;
 	GPUState gpustate;
 

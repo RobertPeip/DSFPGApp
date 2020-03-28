@@ -274,11 +274,11 @@ void Dma::work()
 				{
 					if (DMAs[i].dMA_Transfer_Type)
 					{
-						ticks = 4 + BusTiming.memoryWait32[sm & 15] + BusTiming.memoryWaitSeq32[dm & 15];
+						ticks = 4 + BusTiming.memoryWait32Arm9[sm & 15] + BusTiming.memoryWait32Arm9[dm & 15]; // nonseq + seq!
 					}
 					else
 					{
-						ticks = 4 + BusTiming.memoryWait[sm & 15] + BusTiming.memoryWaitSeq[dm & 15];
+						ticks = 4 + BusTiming.memoryWait16Arm9[sm & 15] + BusTiming.memoryWait16Arm9[dm & 15];  // nonseq + seq!
 					}
 					DMAs[i].first = false;
 				}
@@ -286,11 +286,11 @@ void Dma::work()
 				{
 					if (DMAs[i].dMA_Transfer_Type)
 					{
-						ticks = 2 + BusTiming.memoryWaitSeq32[sm & 15] + BusTiming.memoryWaitSeq32[dm & 15];
+						ticks = 2 + BusTiming.memoryWait32Arm9[sm & 15] + BusTiming.memoryWait32Arm9[dm & 15];
 					}
 					else
 					{
-						ticks = 2 + BusTiming.memoryWaitSeq[sm & 15] + BusTiming.memoryWaitSeq[dm & 15];
+						ticks = 2 + BusTiming.memoryWait16Arm9[sm & 15] + BusTiming.memoryWait16Arm9[dm & 15];
 					}
 				}
 				DMAs[i].CPU.newticks += ticks;

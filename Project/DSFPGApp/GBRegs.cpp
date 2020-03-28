@@ -73,7 +73,7 @@ void GBReg::write_reg(UInt32 value)
 
 RegSect_display::RegSect_display()
 {
-	DISPCNT = GBReg(0x000, 15, 0, 1, 0x0080, "readwrite");
+	DISPCNT = GBReg(0x000, 15, 0, 1, 0x0000, "readwrite");
 	DISPCNT_BG_Mode = GBReg(0x000, 2, 0, 1, 0, "readwrite");
 	DISPCNT_Reserved_CGB_Mode = GBReg(0x000, 3, 3, 1, 0, "readwrite");
 	DISPCNT_Display_Frame_Select = GBReg(0x000, 4, 4, 1, 0, "readwrite");
@@ -431,8 +431,8 @@ void GBREGS::reset()
 	//Sect_keypad = new RegSect_keypad();
 	//Sect_system = new RegSect_system();
 
-	// DISPCNT at 0x000 = 0x0080;
-	data[0] = 128 & 0xFF;
+	// DISPSTAT  at 0x004 = 0x0004;
+	data[4] = 4 & 0xFF;
 	// BG2RotScaleParDX at 0x020 = 256;
 	data[32] = 256 & 0xFF;
 	data[33] = (256 >> 8) & 0xFF;

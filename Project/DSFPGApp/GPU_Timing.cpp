@@ -4,12 +4,13 @@
 #include "GPU.h"
 #include "CPU.h"
 #include "IRP.h"
+#include "gameboy.h"
 
 GPUTiming GPU_Timing;
 
 void GPUTiming::reset()
 {
-	cycles = 0;
+	localticks = 0;
 	line = 0;
 	gpustate = GPUState::VISIBLE;
 	old_dispstat = 0;
@@ -26,21 +27,19 @@ void GPUTiming::dispstat_write()
 
 void GPUTiming::work()
 {
-	cycles += CPU9.newticks;
-
 	bool runagain = true;
-
 	while (runagain)
 	{
+		Int32 cycles = gameboy.totalticks - localticks;
 		runagain = false;
 
 		switch (gpustate)
 		{
 		case GPUState::VISIBLE:
-			if (cycles >= 1008) // 960 is drawing time
+			if (cycles >= 3204)
 			{
 				runagain = true;
-				cycles -= 1008;
+				localticks = gameboy.totalticks;
 				gpustate = GPUState::HBLANK;
 				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(1);
 				DMA.new_hblank = true;
@@ -56,10 +55,10 @@ void GPUTiming::work()
 			break;
 
 		case GPUState::HBLANK:
-			if (cycles >= 224) // 272
+			if (cycles >= 1056)
 			{
 				runagain = true;
-				cycles -= 224;
+				localticks = gameboy.totalticks;
 				nextline();
 
 				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(0);
@@ -85,10 +84,10 @@ void GPUTiming::work()
 			break;
 
 		case GPUState::VBLANK:
-			if (cycles >= 1008)
+			if (cycles >= 3204)
 			{
 				runagain = true;
-				cycles -= 1008;
+				localticks = gameboy.totalticks;
 				gpustate = GPUState::VBLANKHBLANK;
 				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(1);
 				//DMA.new_hblank = true; //!!! don't do here!
@@ -101,10 +100,10 @@ void GPUTiming::work()
 			break;
 
 		case GPUState::VBLANKHBLANK:
-			if (cycles >= 224)
+			if (cycles >= 1056)
 			{
 				runagain = true;
-				cycles -= 224;
+				localticks = gameboy.totalticks;
 				nextline();
 				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(0);
 				DMA.new_hblank = false;
