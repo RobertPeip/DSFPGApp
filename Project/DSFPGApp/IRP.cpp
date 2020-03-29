@@ -1,24 +1,25 @@
 #include "IRP.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 
 Irp IRP;
 
 void Irp::set_irp_bit(UInt16 mask)
 {
 	IRP_Flags |= mask;
-	GBRegs.Sect_system.IF.write(IRP_Flags);
+	Regs_Arm9.Sect_system9.IF.write(IRP_Flags);
 }
 
 void Irp::update_IE()
 {
-	IE = (UInt16)GBRegs.Sect_system.IE.read();
+	IE = (UInt16)Regs_Arm9.Sect_system9.IE.read();
 }
 
 void Irp::clear_irp_bits()
 {
-	UInt16 clearvector = (UInt16)GBRegs.Sect_system.IF.read();
+	UInt16 clearvector = (UInt16)Regs_Arm9.Sect_system9.IF.read();
 	IRP_Flags = (UInt16)(IRP_Flags & (~clearvector));
-	GBRegs.Sect_system.IF.write(IRP_Flags);
+	Regs_Arm9.Sect_system9.IF.write(IRP_Flags);
 }
 
 void Irp::update_IME(UInt16 value)

@@ -3,7 +3,8 @@
 using namespace std;
 
 #include "GPU.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "GPU_Timing.h"
 #include "Memory.h"
 
@@ -83,9 +84,9 @@ void Gpu::reset()
 
 void Gpu::dispcnt_write()
 {
-	videomode = (byte)GBRegs.Sect_display.DISPCNT_BG_Mode.read();
+	videomode = (byte)Regs_Arm9.Sect_display9.DISPCNT_BG_Mode.read();
 
-	bool new_forcedblank = GBRegs.Sect_display.DISPCNT_Forced_Blank.on();
+	bool new_forcedblank = Regs_Arm9.Sect_display9.DISPCNT_Forced_Blank.on();
 	if (forcedblank && !new_forcedblank)
 	{
 		GPU_Timing.restart_line();
@@ -103,24 +104,24 @@ void Gpu::refpoint_update_all()
 
 void Gpu::refpoint_update_2x()
 {
-	ref2_x = (Int32)GBRegs.Sect_display.BG2RefX.read();
+	ref2_x = (Int32)Regs_Arm9.Sect_display9.BG2RefX.read();
 	if (((ref2_x >> 27) & 1) == 1) { ref2_x = (Int32)(ref2_x | 0xF0000000); }
 	ref2_x_new = false;
 }
 void Gpu::refpoint_update_2y()
 {
-	ref2_y = (Int32)GBRegs.Sect_display.BG2RefY.read();
+	ref2_y = (Int32)Regs_Arm9.Sect_display9.BG2RefY.read();
 	if (((ref2_y >> 27) & 1) == 1) { ref2_y = (Int32)(ref2_y | 0xF0000000); }
 	ref2_y_new = false;
 }
 void Gpu::refpoint_update_3x()
 {
-	ref3_x = (Int32)GBRegs.Sect_display.BG3RefX.read();
+	ref3_x = (Int32)Regs_Arm9.Sect_display9.BG3RefX.read();
 	if (((ref3_x >> 27) & 1) == 1) { ref3_x = (Int32)(ref3_x | 0xF0000000); }
 }
 void Gpu::refpoint_update_3y()
 {
-	ref3_y = (Int32)GBRegs.Sect_display.BG3RefY.read();
+	ref3_y = (Int32)Regs_Arm9.Sect_display9.BG3RefY.read();
 	if (((ref3_y >> 27) & 1) == 1) { ref3_y = (Int32)(ref3_y | 0xF0000000); }
 }
 
@@ -128,7 +129,7 @@ void Gpu::refpoint_update_2x_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref2_x_next = (Int32)GBRegs.Sect_display.BG2RefX.read();
+		ref2_x_next = (Int32)Regs_Arm9.Sect_display9.BG2RefX.read();
 		if (((ref2_x_next >> 27) & 1) == 1) { ref2_x_next = (Int32)(ref2_x_next | 0xF0000000); }
 		ref2_x_new = true;
 	}
@@ -141,7 +142,7 @@ void Gpu::refpoint_update_2y_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref2_y_next = (Int32)GBRegs.Sect_display.BG2RefY.read();
+		ref2_y_next = (Int32)Regs_Arm9.Sect_display9.BG2RefY.read();
 		if (((ref2_y_next >> 27) & 1) == 1) { ref2_y_next = (Int32)(ref2_y_next | 0xF0000000); }
 		ref2_y_new = true;
 	}
@@ -154,7 +155,7 @@ void Gpu::refpoint_update_3x_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref3_x_next = (Int32)GBRegs.Sect_display.BG3RefX.read();
+		ref3_x_next = (Int32)Regs_Arm9.Sect_display9.BG3RefX.read();
 		if (((ref3_x_next >> 27) & 1) == 1) { ref3_x_next = (Int32)(ref3_x_next | 0xF0000000); }
 		ref3_x_new = true;
 	}
@@ -167,7 +168,7 @@ void Gpu::refpoint_update_3y_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref3_y_next = (Int32)GBRegs.Sect_display.BG3RefY.read();
+		ref3_y_next = (Int32)Regs_Arm9.Sect_display9.BG3RefY.read();
 		if (((ref3_y_next >> 27) & 1) == 1) { ref3_y_next = (Int32)(ref3_y_next | 0xF0000000); }
 		ref3_y_new = true;
 	}
@@ -179,22 +180,22 @@ void Gpu::refpoint_update_3y_new()
 
 void Gpu::once_per_hblank()
 {
-	bool DISPCNT_Screen_Display_BG0 = GBRegs.Sect_display.DISPCNT_Screen_Display_BG0.on();
+	bool DISPCNT_Screen_Display_BG0 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG0.on();
 	on_delay_bg0[2] = on_delay_bg0[1] && DISPCNT_Screen_Display_BG0;
 	on_delay_bg0[1] = on_delay_bg0[0] && DISPCNT_Screen_Display_BG0;
 	on_delay_bg0[0] = DISPCNT_Screen_Display_BG0;
 
-	bool DISPCNT_Screen_Display_BG1 = GBRegs.Sect_display.DISPCNT_Screen_Display_BG1.on();
+	bool DISPCNT_Screen_Display_BG1 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG1.on();
 	on_delay_bg1[2] = on_delay_bg1[1] && DISPCNT_Screen_Display_BG1;
 	on_delay_bg1[1] = on_delay_bg1[0] && DISPCNT_Screen_Display_BG1;
 	on_delay_bg1[0] = DISPCNT_Screen_Display_BG1;
 
-	bool DISPCNT_Screen_Display_BG2 = GBRegs.Sect_display.DISPCNT_Screen_Display_BG2.on();
+	bool DISPCNT_Screen_Display_BG2 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG2.on();
 	on_delay_bg2[2] = on_delay_bg2[1] && DISPCNT_Screen_Display_BG2;
 	on_delay_bg2[1] = on_delay_bg2[0] && DISPCNT_Screen_Display_BG2;
 	on_delay_bg2[0] = DISPCNT_Screen_Display_BG2;
 
-	bool DISPCNT_Screen_Display_BG3 = GBRegs.Sect_display.DISPCNT_Screen_Display_BG3.on();
+	bool DISPCNT_Screen_Display_BG3 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG3.on();
 	on_delay_bg3[2] = on_delay_bg3[1] && DISPCNT_Screen_Display_BG3;
 	on_delay_bg3[1] = on_delay_bg3[0] && DISPCNT_Screen_Display_BG3;
 	on_delay_bg3[0] = DISPCNT_Screen_Display_BG3;
@@ -243,7 +244,7 @@ void Gpu::next_line(byte line)
 
 		if (videomode > 3)
 		{
-			bool framebuffer_select_new = GBRegs.Sect_display.DISPCNT_Display_Frame_Select.on();
+			bool framebuffer_select_new = Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on();
 			if (framebuffer_select_new != framebuffer_select)
 			{
 				framebuffer_select = framebuffer_select_new;
@@ -256,18 +257,18 @@ void Gpu::next_line(byte line)
 		}
 	}
 
-	if ((videomode > 0 && GBRegs.Sect_display.DISPCNT_Screen_Display_BG2.on()))
+	if ((videomode > 0 && Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG2.on()))
 	{
-		Int16 BG2_DMX = (Int16)GBRegs.Sect_display.BG2RotScaleParDMX.read();
-		Int16 BG2_DMY = (Int16)GBRegs.Sect_display.BG2RotScaleParDMY.read();
+		Int16 BG2_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
+		Int16 BG2_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
 		ref2_x += BG2_DMX;
 		ref2_y += BG2_DMY;
 	}
 
-	if (videomode == 2 && GBRegs.Sect_display.DISPCNT_Screen_Display_BG3.on())
+	if (videomode == 2 && Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG3.on())
 	{
-		Int16 BG3_DMX = (Int16)GBRegs.Sect_display.BG3RotScaleParDMX.read();
-		Int16 BG3_DMY = (Int16)GBRegs.Sect_display.BG3RotScaleParDMY.read();
+		Int16 BG3_DMX = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMX.read();
+		Int16 BG3_DMY = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMY.read();
 		ref3_x += BG3_DMX;
 		ref3_y += BG3_DMY;
 	}
@@ -302,13 +303,13 @@ void Gpu::draw_line(byte y_in)
 		UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[0];
 		pixelbackdrop.update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 
-		byte prio_bg0 = (byte)GBRegs.Sect_display.BG0CNT_BG_Priority.read();
-		byte prio_bg1 = (byte)GBRegs.Sect_display.BG1CNT_BG_Priority.read();
-		byte prio_bg2 = (byte)GBRegs.Sect_display.BG2CNT_BG_Priority.read();
-		byte prio_bg3 = (byte)GBRegs.Sect_display.BG3CNT_BG_Priority.read();
+		byte prio_bg0 = (byte)Regs_Arm9.Sect_display9.BG0CNT_BG_Priority.read();
+		byte prio_bg1 = (byte)Regs_Arm9.Sect_display9.BG1CNT_BG_Priority.read();
+		byte prio_bg2 = (byte)Regs_Arm9.Sect_display9.BG2CNT_BG_Priority.read();
+		byte prio_bg3 = (byte)Regs_Arm9.Sect_display9.BG3CNT_BG_Priority.read();
 
-		byte mosaic_bg_h = (byte)GBRegs.Sect_display.MOSAIC_BG_Mosaic_H_Size.read();
-		byte mosaic_bg_v = (byte)GBRegs.Sect_display.MOSAIC_BG_Mosaic_V_Size.read();
+		byte mosaic_bg_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_BG_Mosaic_H_Size.read();
+		byte mosaic_bg_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_BG_Mosaic_V_Size.read();
 
 		int pixelcount = 240;
 		if (doubleres)
@@ -318,7 +319,7 @@ void Gpu::draw_line(byte y_in)
 
 		if (on_delay_bg0[2])
 		{
-			bool mosaic_on = GBRegs.Sect_display.BG0CNT_Mosaic.on();
+			bool mosaic_on = Regs_Arm9.Sect_display9.BG0CNT_Mosaic.on();
 			if (!mosaic_on || mosaik_bg0_vcnt == 0)
 			{
 				for (int x = 0; x < 240; x++)
@@ -332,12 +333,12 @@ void Gpu::draw_line(byte y_in)
 				case 1:
 					draw_bg_mode0(pixels_bg0,
 						y,
-						GBRegs.Sect_display.BG0CNT_Screen_Base_Block.read(),
-						GBRegs.Sect_display.BG0CNT_Character_Base_Block.read(),
-						GBRegs.Sect_display.BG0CNT_Colors_Palettes.on(),
-						(byte)GBRegs.Sect_display.BG0CNT_Screen_Size.read(),
-						(UInt16)GBRegs.Sect_display.BG0HOFS.read(),
-						(UInt16)GBRegs.Sect_display.BG0VOFS.read());
+						Regs_Arm9.Sect_display9.BG0CNT_Screen_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG0CNT_Character_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG0CNT_Colors_Palettes.on(),
+						(byte)Regs_Arm9.Sect_display9.BG0CNT_Screen_Size.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG0HOFS.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG0VOFS.read());
 					break;
 				}
 				if (mosaic_on)
@@ -367,7 +368,7 @@ void Gpu::draw_line(byte y_in)
 
 		if (on_delay_bg1[2])
 		{
-			bool mosaic_on = GBRegs.Sect_display.BG1CNT_Mosaic.on();
+			bool mosaic_on = Regs_Arm9.Sect_display9.BG1CNT_Mosaic.on();
 			if (!mosaic_on || mosaik_bg1_vcnt == 0)
 			{
 				for (int x = 0; x < 240; x++)
@@ -381,12 +382,12 @@ void Gpu::draw_line(byte y_in)
 				case 1:
 					draw_bg_mode0(pixels_bg1,
 						y,
-						GBRegs.Sect_display.BG1CNT_Screen_Base_Block.read(),
-						GBRegs.Sect_display.BG1CNT_Character_Base_Block.read(),
-						GBRegs.Sect_display.BG1CNT_Colors_Palettes.on(),
-						(byte)GBRegs.Sect_display.BG1CNT_Screen_Size.read(),
-						(UInt16)GBRegs.Sect_display.BG1HOFS.read(),
-						(UInt16)GBRegs.Sect_display.BG1VOFS.read());
+						Regs_Arm9.Sect_display9.BG1CNT_Screen_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG1CNT_Character_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG1CNT_Colors_Palettes.on(),
+						(byte)Regs_Arm9.Sect_display9.BG1CNT_Screen_Size.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG1HOFS.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG1VOFS.read());
 					break;
 				}
 				if (mosaic_on)
@@ -416,7 +417,7 @@ void Gpu::draw_line(byte y_in)
 
 		if (on_delay_bg2[2])
 		{
-			bool mosaic_on = GBRegs.Sect_display.BG2CNT_Mosaic.on();
+			bool mosaic_on = Regs_Arm9.Sect_display9.BG2CNT_Mosaic.on();
 			if (!mosaic_on || mosaik_bg2_vcnt == 0)
 			{
 				for (int x = 0; x < pixelcount; x++)
@@ -434,39 +435,39 @@ void Gpu::draw_line(byte y_in)
 				case 0:
 					draw_bg_mode0(pixels_bg2_1,
 						y,
-						GBRegs.Sect_display.BG2CNT_Screen_Base_Block.read(),
-						GBRegs.Sect_display.BG2CNT_Character_Base_Block.read(),
-						GBRegs.Sect_display.BG2CNT_Colors_Palettes.on(),
-						(byte)GBRegs.Sect_display.BG2CNT_Screen_Size.read(),
-						(UInt16)GBRegs.Sect_display.BG2HOFS.read(),
-						(UInt16)GBRegs.Sect_display.BG2VOFS.read());
+						Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.on(),
+						(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG2HOFS.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG2VOFS.read());
 					break;
 				case 1:
 				case 2:
 					draw_bg_mode2(pixels_bg2_1,
-						GBRegs.Sect_display.BG2CNT_Screen_Base_Block.read(),
-						GBRegs.Sect_display.BG2CNT_Character_Base_Block.read(),
-						GBRegs.Sect_display.BG2CNT_Display_Area_Overflow.on(),
-						(byte)GBRegs.Sect_display.BG2CNT_Screen_Size.read(),
+						Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+						(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
 						ref2_x,
 						ref2_y,
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDX.read(),
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDY.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
 						doubleres,
 						true);
 					if (doubleres)
 					{
-						Int16 BG2_DMX = (Int16)GBRegs.Sect_display.BG2RotScaleParDMX.read();
-						Int16 BG2_DMY = (Int16)GBRegs.Sect_display.BG2RotScaleParDMY.read();
+						Int16 BG2_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
+						Int16 BG2_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
 						draw_bg_mode2(pixels_bg2_2,
-							GBRegs.Sect_display.BG2CNT_Screen_Base_Block.read(),
-							GBRegs.Sect_display.BG2CNT_Character_Base_Block.read(),
-							GBRegs.Sect_display.BG2CNT_Display_Area_Overflow.on(),
-							(byte)GBRegs.Sect_display.BG2CNT_Screen_Size.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
 							ref2_x + BG2_DMX / 2,
 							ref2_y + BG2_DMY / 2,
-							(Int16)GBRegs.Sect_display.BG2RotScaleParDX.read(),
-							(Int16)GBRegs.Sect_display.BG2RotScaleParDY.read(),
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
 							doubleres,
 							true);
 					}
@@ -475,22 +476,22 @@ void Gpu::draw_line(byte y_in)
 					draw_bg_mode3(
 						ref2_x,
 						ref2_y,
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDX.read(),
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDY.read());
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
 					break;
 				case 4:
 					draw_bg_mode4(
 						ref2_x,
 						ref2_y,
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDX.read(),
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDY.read());
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
 					break;
 				case 5:
 					draw_bg_mode5(
 						ref2_x,
 						ref2_y,
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDX.read(),
-						(Int16)GBRegs.Sect_display.BG2RotScaleParDY.read());
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
 					break;
 				}
 				if (mosaic_on)
@@ -524,7 +525,7 @@ void Gpu::draw_line(byte y_in)
 
 		if (on_delay_bg3[2])
 		{
-			bool mosaic_on = GBRegs.Sect_display.BG3CNT_Mosaic.on();
+			bool mosaic_on = Regs_Arm9.Sect_display9.BG3CNT_Mosaic.on();
 			if (!mosaic_on || mosaik_bg3_vcnt == 0)
 			{
 				for (int x = 0; x < 240; x++)
@@ -537,23 +538,23 @@ void Gpu::draw_line(byte y_in)
 				case 0:
 					draw_bg_mode0(pixels_bg3,
 						y,
-						GBRegs.Sect_display.BG3CNT_Screen_Base_Block.read(),
-						GBRegs.Sect_display.BG3CNT_Character_Base_Block.read(),
-						GBRegs.Sect_display.BG3CNT_Colors_Palettes.on(),
-						(byte)GBRegs.Sect_display.BG3CNT_Screen_Size.read(),
-						(UInt16)GBRegs.Sect_display.BG3HOFS.read(),
-						(UInt16)GBRegs.Sect_display.BG3VOFS.read());
+						Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.on(),
+						(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG3HOFS.read(),
+						(UInt16)Regs_Arm9.Sect_display9.BG3VOFS.read());
 					break;
 				case 2:
 					draw_bg_mode2(pixels_bg3,
-						GBRegs.Sect_display.BG3CNT_Screen_Base_Block.read(),
-						GBRegs.Sect_display.BG3CNT_Character_Base_Block.read(),
-						GBRegs.Sect_display.BG3CNT_Display_Area_Overflow.on(),
-						(byte)GBRegs.Sect_display.BG3CNT_Screen_Size.read(),
+						Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
+						Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
+						(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
 						ref3_x,
 						ref3_y,
-						(Int16)GBRegs.Sect_display.BG3RotScaleParDX.read(),
-						(Int16)GBRegs.Sect_display.BG3RotScaleParDY.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
+						(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read(),
 						false,
 						false);
 					break;
@@ -588,7 +589,7 @@ void Gpu::draw_line(byte y_in)
 		if (ref3_x_new == true) { ref3_x = ref3_x_next; ref3_x_new = false; }
 		if (ref3_y_new == true) { ref3_y = ref3_y_next; ref3_y_new = false; }
 
-		bool spriteon = GBRegs.Sect_display.DISPCNT_Screen_Display_OBJ.on();
+		bool spriteon = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_OBJ.on();
 		for (int x = 0; x < 240; x++)
 		{
 			pixels_obj[x].transparent = true;
@@ -609,55 +610,55 @@ void Gpu::draw_line(byte y_in)
 		bool inwin_0y = false;
 		UInt32 win0_X1 = 0;
 		UInt32 win0_X2 = 0;
-		if (GBRegs.Sect_display.DISPCNT_Window_0_Display_Flag.on())
+		if (Regs_Arm9.Sect_display9.DISPCNT_Window_0_Display_Flag.on())
 		{
 			anywindow = true;
-			UInt32 Y1 = GBRegs.Sect_display.WIN0V_Y1.read();
-			UInt32 Y2 = GBRegs.Sect_display.WIN0V_Y2.read();
+			UInt32 Y1 = Regs_Arm9.Sect_display9.WIN0V_Y1.read();
+			UInt32 Y2 = Regs_Arm9.Sect_display9.WIN0V_Y2.read();
 			if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
 			{
 				inwin_0y = true;
-				win0_X1 = GBRegs.Sect_display.WIN0H_X1.read();
-				win0_X2 = GBRegs.Sect_display.WIN0H_X2.read();
+				win0_X1 = Regs_Arm9.Sect_display9.WIN0H_X1.read();
+				win0_X2 = Regs_Arm9.Sect_display9.WIN0H_X2.read();
 			}
 		}
 
 		bool inwin_1y = false;
 		UInt32 win1_X1 = 0;
 		UInt32 win1_X2 = 0;
-		if (GBRegs.Sect_display.DISPCNT_Window_1_Display_Flag.on())
+		if (Regs_Arm9.Sect_display9.DISPCNT_Window_1_Display_Flag.on())
 		{
 			anywindow = true;
-			UInt32 Y1 = GBRegs.Sect_display.WIN1V_Y1.read();
-			UInt32 Y2 = GBRegs.Sect_display.WIN1V_Y2.read();
+			UInt32 Y1 = Regs_Arm9.Sect_display9.WIN1V_Y1.read();
+			UInt32 Y2 = Regs_Arm9.Sect_display9.WIN1V_Y2.read();
 			if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
 			{
 				inwin_1y = true;
 
-				win1_X1 = GBRegs.Sect_display.WIN1H_X1.read();
-				win1_X2 = GBRegs.Sect_display.WIN1H_X2.read();
+				win1_X1 = Regs_Arm9.Sect_display9.WIN1H_X1.read();
+				win1_X2 = Regs_Arm9.Sect_display9.WIN1H_X2.read();
 			}
 		}
 
-		bool objwindow_on = GBRegs.Sect_display.DISPCNT_OBJ_Wnd_Display_Flag.on() && spriteon;
+		bool objwindow_on = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Wnd_Display_Flag.on() && spriteon;
 		anywindow |= objwindow_on;
 
-		byte enables_wnd0 = (byte)(GBRegs.Sect_display.WININ.read() & 0x1F);
-		byte enables_wnd1 = (byte)((GBRegs.Sect_display.WININ.read() >> 8) & 0x1F);
-		byte enables_out = (byte)(GBRegs.Sect_display.WINOUT.read() & 0x1F);
-		byte enables_obj = (byte)((GBRegs.Sect_display.WINOUT.read() >> 8) & 0x1F);
+		byte enables_wnd0 = (byte)(Regs_Arm9.Sect_display9.WININ.read() & 0x1F);
+		byte enables_wnd1 = (byte)((Regs_Arm9.Sect_display9.WININ.read() >> 8) & 0x1F);
+		byte enables_out = (byte)(Regs_Arm9.Sect_display9.WINOUT.read() & 0x1F);
+		byte enables_obj = (byte)((Regs_Arm9.Sect_display9.WINOUT.read() >> 8) & 0x1F);
 
-		bool inwin_0_special = GBRegs.Sect_display.WININ_Window_0_Special_Effect.on();
-		bool inwin_1_special = GBRegs.Sect_display.WININ_Window_1_Special_Effect.on();
-		bool obj_special = GBRegs.Sect_display.WINOUT_Objwnd_Special_Effect.on();
-		bool outside_special = GBRegs.Sect_display.WINOUT_Outside_Special_Effect.on();
+		bool inwin_0_special = Regs_Arm9.Sect_display9.WININ_Window_0_Special_Effect.on();
+		bool inwin_1_special = Regs_Arm9.Sect_display9.WININ_Window_1_Special_Effect.on();
+		bool obj_special = Regs_Arm9.Sect_display9.WINOUT_Objwnd_Special_Effect.on();
+		bool outside_special = Regs_Arm9.Sect_display9.WINOUT_Outside_Special_Effect.on();
 
-		byte special_effect_base = (byte)GBRegs.Sect_display.BLDCNT_Color_Special_Effect.read();
-		byte first_target = (byte)(GBRegs.Sect_display.BLDCNT.read() & 0x3F);
-		byte second_target = (byte)((GBRegs.Sect_display.BLDCNT.read() >> 8) & 0x3F);
-		byte bldy = (byte)GBRegs.Sect_display.BLDY.read();
-		byte eva = (byte)GBRegs.Sect_display.BLDALPHA_EVA_Coefficient.read();
-		byte evb = (byte)GBRegs.Sect_display.BLDALPHA_EVB_Coefficient.read();
+		byte special_effect_base = (byte)Regs_Arm9.Sect_display9.BLDCNT_Color_Special_Effect.read();
+		byte first_target = (byte)(Regs_Arm9.Sect_display9.BLDCNT.read() & 0x3F);
+		byte second_target = (byte)((Regs_Arm9.Sect_display9.BLDCNT.read() >> 8) & 0x3F);
+		byte bldy = (byte)Regs_Arm9.Sect_display9.BLDY.read();
+		byte eva = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVA_Coefficient.read();
+		byte evb = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVB_Coefficient.read();
 
 		if (bldy > 16) { bldy = 16; }
 		if (eva > 16) { eva = 16; }
@@ -1084,13 +1085,13 @@ void Gpu::draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tileb
 	Int16 BG_DMY;
 	if (is_bg2)
 	{
-		BG_DMX = (Int16)GBRegs.Sect_display.BG2RotScaleParDMX.read();
-		BG_DMY = (Int16)GBRegs.Sect_display.BG2RotScaleParDMY.read();
+		BG_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
+		BG_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
 	}
 	else
 	{
-		BG_DMX = (Int16)GBRegs.Sect_display.BG3RotScaleParDMX.read();
-		BG_DMY = (Int16)GBRegs.Sect_display.BG3RotScaleParDMY.read();
+		BG_DMX = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMX.read();
+		BG_DMY = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMY.read();
 	}
 
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
@@ -1232,7 +1233,7 @@ void Gpu::draw_bg_mode4(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 		if (xxx >= 0 && yyy >= 0 && xxx < 240 && yyy < 160)
 		{
 			int address = yyy * 240 + xxx;
-			if (GBRegs.Sect_display.DISPCNT_Display_Frame_Select.on())
+			if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
 			{
 				address += 0xA000;
 			}
@@ -1260,7 +1261,7 @@ void Gpu::draw_bg_mode5(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 		if (xxx >= 0 && yyy >= 0 && xxx < 160 && yyy < 128)
 		{
 			int address = yyy * 320 + (xxx * 2);
-			if (GBRegs.Sect_display.DISPCNT_Display_Frame_Select.on())
+			if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
 			{
 				address += 0xA000;
 			}
@@ -1284,14 +1285,14 @@ void Gpu::draw_obj(int y, int baseaddr)
 		pixels_obj[x].alpha = false;
 	}
 
-	bool one_dim_mapping = GBRegs.Sect_display.DISPCNT_OBJ_Char_VRAM_Map.on();
+	bool one_dim_mapping = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Char_VRAM_Map.on();
 
-	byte mosaic_h = (byte)GBRegs.Sect_display.MOSAIC_OBJ_Mosaic_H_Size.read();
-	byte mosaic_v = (byte)GBRegs.Sect_display.MOSAIC_OBJ_Mosaic_V_Size.read();
+	byte mosaic_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_H_Size.read();
+	byte mosaic_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_V_Size.read();
 
 	int cycles = 0;
 	int pixellimit = 1210;
-	if (GBRegs.Sect_display.DISPCNT_H_Blank_IntervalFree.on())
+	if (Regs_Arm9.Sect_display9.DISPCNT_H_Blank_IntervalFree.on())
 	{
 		pixellimit = 954;
 	}

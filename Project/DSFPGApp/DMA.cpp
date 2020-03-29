@@ -14,9 +14,9 @@ SingleDMA::SingleDMA()
 }
 
 SingleDMA::SingleDMA(Cpu CPU, UInt16 irpmask,
-	GBReg SAD, GBReg DAD, GBReg CNT_L,
-	GBReg Dest_Addr_Control, GBReg Source_Adr_Control, GBReg DMA_Repeat, GBReg DMA_Transfer_Type,
-	GBReg Game_Pak_DRQ, GBReg DMA_Start_Timing, GBReg IRQ_on, GBReg DMA_Enable, bool hasDRQ)
+	DSReg SAD, DSReg DAD, DSReg CNT_L,
+	DSReg Dest_Addr_Control, DSReg Source_Adr_Control, DSReg DMA_Repeat, DSReg DMA_Transfer_Type,
+	DSReg Game_Pak_DRQ, DSReg DMA_Start_Timing, DSReg IRQ_on, DSReg DMA_Enable, bool hasDRQ)
 {
 	this->CPU = CPU;
 	this->irpmask = irpmask;
@@ -50,27 +50,27 @@ void Dma::reset()
 
 	debug_dmatranfers = 0;
 
-	GBReg empty;
+	DSReg empty;
 
 	DMAs[3] = SingleDMA(CPU9, IRP.IRPMASK_DMA_3,
-		GBRegs.Sect_dma.DMA3SAD, GBRegs.Sect_dma.DMA3DAD, GBRegs.Sect_dma.DMA3CNT_L,
-		GBRegs.Sect_dma.DMA3CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA3CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA3CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA3CNT_H_DMA_Transfer_Type,
-		GBRegs.Sect_dma.DMA3CNT_H_Game_Pak_DRQ, GBRegs.Sect_dma.DMA3CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA3CNT_H_IRQ_on, GBRegs.Sect_dma.DMA3CNT_H_DMA_Enable, true);
+		Regs_Arm9.Sect_dma9.DMA3SAD, Regs_Arm9.Sect_dma9.DMA3DAD, Regs_Arm9.Sect_dma9.DMA3CNT_L,
+		Regs_Arm9.Sect_dma9.DMA3CNT_H_Dest_Addr_Control, Regs_Arm9.Sect_dma9.DMA3CNT_H_Source_Adr_Control, Regs_Arm9.Sect_dma9.DMA3CNT_H_DMA_Repeat, Regs_Arm9.Sect_dma9.DMA3CNT_H_DMA_Transfer_Type,
+		Regs_Arm9.Sect_dma9.DMA3CNT_H_Game_Pak_DRQ, Regs_Arm9.Sect_dma9.DMA3CNT_H_DMA_Start_Timing, Regs_Arm9.Sect_dma9.DMA3CNT_H_IRQ_on, Regs_Arm9.Sect_dma9.DMA3CNT_H_DMA_Enable, true);
 
 	DMAs[2] = SingleDMA(CPU9, IRP.IRPMASK_DMA_1,
-		GBRegs.Sect_dma.DMA2SAD, GBRegs.Sect_dma.DMA2DAD, GBRegs.Sect_dma.DMA2CNT_L,
-		GBRegs.Sect_dma.DMA2CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA2CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA2CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA2CNT_H_DMA_Transfer_Type,
-		empty, GBRegs.Sect_dma.DMA2CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA2CNT_H_IRQ_on, GBRegs.Sect_dma.DMA2CNT_H_DMA_Enable, false);
+		Regs_Arm9.Sect_dma9.DMA2SAD, Regs_Arm9.Sect_dma9.DMA2DAD, Regs_Arm9.Sect_dma9.DMA2CNT_L,
+		Regs_Arm9.Sect_dma9.DMA2CNT_H_Dest_Addr_Control, Regs_Arm9.Sect_dma9.DMA2CNT_H_Source_Adr_Control, Regs_Arm9.Sect_dma9.DMA2CNT_H_DMA_Repeat, Regs_Arm9.Sect_dma9.DMA2CNT_H_DMA_Transfer_Type,
+		empty, Regs_Arm9.Sect_dma9.DMA2CNT_H_DMA_Start_Timing, Regs_Arm9.Sect_dma9.DMA2CNT_H_IRQ_on, Regs_Arm9.Sect_dma9.DMA2CNT_H_DMA_Enable, false);
 
 	DMAs[1] = SingleDMA(CPU9, IRP.IRPMASK_DMA_2,
-		GBRegs.Sect_dma.DMA1SAD, GBRegs.Sect_dma.DMA1DAD, GBRegs.Sect_dma.DMA1CNT_L,
-		GBRegs.Sect_dma.DMA1CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA1CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA1CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA1CNT_H_DMA_Transfer_Type,
-		empty, GBRegs.Sect_dma.DMA1CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA1CNT_H_IRQ_on, GBRegs.Sect_dma.DMA1CNT_H_DMA_Enable, false);
+		Regs_Arm9.Sect_dma9.DMA1SAD, Regs_Arm9.Sect_dma9.DMA1DAD, Regs_Arm9.Sect_dma9.DMA1CNT_L,
+		Regs_Arm9.Sect_dma9.DMA1CNT_H_Dest_Addr_Control, Regs_Arm9.Sect_dma9.DMA1CNT_H_Source_Adr_Control, Regs_Arm9.Sect_dma9.DMA1CNT_H_DMA_Repeat, Regs_Arm9.Sect_dma9.DMA1CNT_H_DMA_Transfer_Type,
+		empty, Regs_Arm9.Sect_dma9.DMA1CNT_H_DMA_Start_Timing, Regs_Arm9.Sect_dma9.DMA1CNT_H_IRQ_on, Regs_Arm9.Sect_dma9.DMA1CNT_H_DMA_Enable, false);
 
 	DMAs[0] = SingleDMA(CPU9, IRP.IRPMASK_DMA_0,
-		GBRegs.Sect_dma.DMA0SAD, GBRegs.Sect_dma.DMA0DAD, GBRegs.Sect_dma.DMA0CNT_L,
-		GBRegs.Sect_dma.DMA0CNT_H_Dest_Addr_Control, GBRegs.Sect_dma.DMA0CNT_H_Source_Adr_Control, GBRegs.Sect_dma.DMA0CNT_H_DMA_Repeat, GBRegs.Sect_dma.DMA0CNT_H_DMA_Transfer_Type,
-		empty, GBRegs.Sect_dma.DMA0CNT_H_DMA_Start_Timing, GBRegs.Sect_dma.DMA0CNT_H_IRQ_on, GBRegs.Sect_dma.DMA0CNT_H_DMA_Enable, false);
+		Regs_Arm9.Sect_dma9.DMA0SAD, Regs_Arm9.Sect_dma9.DMA0DAD, Regs_Arm9.Sect_dma9.DMA0CNT_L,
+		Regs_Arm9.Sect_dma9.DMA0CNT_H_Dest_Addr_Control, Regs_Arm9.Sect_dma9.DMA0CNT_H_Source_Adr_Control, Regs_Arm9.Sect_dma9.DMA0CNT_H_DMA_Repeat, Regs_Arm9.Sect_dma9.DMA0CNT_H_DMA_Transfer_Type,
+		empty, Regs_Arm9.Sect_dma9.DMA0CNT_H_DMA_Start_Timing, Regs_Arm9.Sect_dma9.DMA0CNT_H_IRQ_on, Regs_Arm9.Sect_dma9.DMA0CNT_H_DMA_Enable, false);
 }
 
 void Dma::set_settings(int index)

@@ -10,7 +10,7 @@ SingleTimer::SingleTimer()
 {
 }
 
-SingleTimer::SingleTimer(UInt16 irpmask, GBReg CNT_L, GBReg Prescaler, GBReg Count_up, GBReg Timer_IRQ_Enable, GBReg Timer_Start_Stop)
+SingleTimer::SingleTimer(UInt16 irpmask, DSReg CNT_L, DSReg Prescaler, DSReg Count_up, DSReg Timer_IRQ_Enable, DSReg Timer_Start_Stop)
 {
 	this->irpmask = irpmask;
 
@@ -34,10 +34,10 @@ SingleTimer::SingleTimer(UInt16 irpmask, GBReg CNT_L, GBReg Prescaler, GBReg Cou
 
 void TIMER::reset()
 {
-	timers[3] = SingleTimer(IRP.IRPMASK_Timer_3, GBRegs.Sect_timer.TM3CNT_L, GBRegs.Sect_timer.TM3CNT_H_Prescaler, GBRegs.Sect_timer.TM3CNT_H_Count_up, GBRegs.Sect_timer.TM3CNT_H_Timer_IRQ_Enable, GBRegs.Sect_timer.TM3CNT_H_Timer_Start_Stop);
-	timers[2] = SingleTimer(IRP.IRPMASK_Timer_2, GBRegs.Sect_timer.TM2CNT_L, GBRegs.Sect_timer.TM2CNT_H_Prescaler, GBRegs.Sect_timer.TM2CNT_H_Count_up, GBRegs.Sect_timer.TM2CNT_H_Timer_IRQ_Enable, GBRegs.Sect_timer.TM2CNT_H_Timer_Start_Stop);
-	timers[1] = SingleTimer(IRP.IRPMASK_Timer_1, GBRegs.Sect_timer.TM1CNT_L, GBRegs.Sect_timer.TM1CNT_H_Prescaler, GBRegs.Sect_timer.TM1CNT_H_Count_up, GBRegs.Sect_timer.TM1CNT_H_Timer_IRQ_Enable, GBRegs.Sect_timer.TM1CNT_H_Timer_Start_Stop);
-	timers[0] = SingleTimer(IRP.IRPMASK_Timer_0, GBRegs.Sect_timer.TM0CNT_L, GBRegs.Sect_timer.TM0CNT_H_Prescaler, GBRegs.Sect_timer.TM0CNT_H_Count_up, GBRegs.Sect_timer.TM0CNT_H_Timer_IRQ_Enable, GBRegs.Sect_timer.TM0CNT_H_Timer_Start_Stop);
+	timers[3] = SingleTimer(IRP.IRPMASK_Timer_3, Regs_Arm9.Sect_timer9.TM3CNT_L, Regs_Arm9.Sect_timer9.TM3CNT_H_Prescaler, Regs_Arm9.Sect_timer9.TM3CNT_H_Count_up, Regs_Arm9.Sect_timer9.TM3CNT_H_Timer_IRQ_Enable, Regs_Arm9.Sect_timer9.TM3CNT_H_Timer_Start_Stop);
+	timers[2] = SingleTimer(IRP.IRPMASK_Timer_2, Regs_Arm9.Sect_timer9.TM2CNT_L, Regs_Arm9.Sect_timer9.TM2CNT_H_Prescaler, Regs_Arm9.Sect_timer9.TM2CNT_H_Count_up, Regs_Arm9.Sect_timer9.TM2CNT_H_Timer_IRQ_Enable, Regs_Arm9.Sect_timer9.TM2CNT_H_Timer_Start_Stop);
+	timers[1] = SingleTimer(IRP.IRPMASK_Timer_1, Regs_Arm9.Sect_timer9.TM1CNT_L, Regs_Arm9.Sect_timer9.TM1CNT_H_Prescaler, Regs_Arm9.Sect_timer9.TM1CNT_H_Count_up, Regs_Arm9.Sect_timer9.TM1CNT_H_Timer_IRQ_Enable, Regs_Arm9.Sect_timer9.TM1CNT_H_Timer_Start_Stop);
+	timers[0] = SingleTimer(IRP.IRPMASK_Timer_0, Regs_Arm9.Sect_timer9.TM0CNT_L, Regs_Arm9.Sect_timer9.TM0CNT_H_Prescaler, Regs_Arm9.Sect_timer9.TM0CNT_H_Count_up, Regs_Arm9.Sect_timer9.TM0CNT_H_Timer_IRQ_Enable, Regs_Arm9.Sect_timer9.TM0CNT_H_Timer_Start_Stop);
 }
 
 void TIMER::set_reload(int index)

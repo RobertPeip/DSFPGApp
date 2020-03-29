@@ -3,7 +3,6 @@ using namespace std;
 
 #include "BusTiming.h"
 #include "CPU.h"
-#include "GBRegs.h"
 #include "GPU_Timing.h"
 #include "CPUCache.h"
 

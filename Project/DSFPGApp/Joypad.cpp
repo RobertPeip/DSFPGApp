@@ -1,7 +1,7 @@
 #include "SDL.h"
 
 #include "Joypad.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
 #include "IRP.h"
 
 JOYPAD Joypad;
@@ -29,14 +29,14 @@ void JOYPAD::set_reg()
 
 	if (value != oldvalue)
 	{
-		GBRegs.Sect_keypad.KEYINPUT.write(value);
+		Regs_Arm9.Sect_keypad9.KEYINPUT.write(value);
 		check_irp();
 	}
 }
 
 void JOYPAD::check_irp()
 {
-	UInt16 irpmask = (UInt16)GBRegs.Sect_keypad.KEYCNT.read();
+	UInt16 irpmask = (UInt16)Regs_Arm9.Sect_keypad9.KEYCNT.read();
 	if ((irpmask & 0x4000) > 0)
 	{
 		if ((irpmask & 0x8000) > 0) // logical and -> all mentioned

@@ -50,9 +50,6 @@
     <ClCompile Include="Flash.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="GBRegs.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="gpio.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -81,6 +78,15 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="CPUCache.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="DSReg.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="regs_arm9.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="regs_arm7.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,9 +133,6 @@
     <ClInclude Include="Flash.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="GBRegs.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="gpio.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -155,6 +158,15 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="CPUCache.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="DSReg.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="regs_arm9.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="regs_arm7.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

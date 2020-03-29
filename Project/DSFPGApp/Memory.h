@@ -54,7 +54,7 @@ public:
 	void write_byte(UInt32 address, byte data);
 	void write_word(UInt32 address, UInt16 data);
 	void write_dword(UInt32 address, UInt32 data);
-	void prepare_read_gbreg(UInt32 adr);
-	void write_gbreg(UInt32 adr, UInt32 value, bool dwaccess);
+	void prepare_read_DSReg(UInt32 adr);
+	void write_DSReg(UInt32 adr, UInt32 value, bool dwaccess);
 };
 extern MEMORY Memory;

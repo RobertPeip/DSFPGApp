@@ -1,7 +1,8 @@
 #pragma once
 
 #include "types.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "CPU.h"
 
 class SingleDMA
@@ -11,18 +12,18 @@ public:
 
 	UInt16 irpmask;
 
-	GBReg SAD;
-	GBReg DAD;
-	GBReg CNT_L;
+	DSReg SAD;
+	DSReg DAD;
+	DSReg CNT_L;
 
-	GBReg Dest_Addr_Control;
-	GBReg Source_Adr_Control;
-	GBReg DMA_Repeat;
-	GBReg DMA_Transfer_Type;
-	GBReg Game_Pak_DRQ;
-	GBReg DMA_Start_Timing;
-	GBReg IRQ_on;
-	GBReg DMA_Enable;
+	DSReg Dest_Addr_Control;
+	DSReg Source_Adr_Control;
+	DSReg DMA_Repeat;
+	DSReg DMA_Transfer_Type;
+	DSReg Game_Pak_DRQ;
+	DSReg DMA_Start_Timing;
+	DSReg IRQ_on;
+	DSReg DMA_Enable;
 
 	bool hasDRQ = false;
 
@@ -48,15 +49,15 @@ public:
 
 	SingleDMA();
 	SingleDMA(Cpu CPU, UInt16 irpmask,
-		GBReg SAD, GBReg DAD, GBReg CNT_L,
-		GBReg Dest_Addr_Control, GBReg Source_Adr_Control, GBReg DMA_Repeat, GBReg DMA_Transfer_Type,
-		GBReg Game_Pak_DRQ, GBReg DMA_Start_Timing, GBReg IRQ_on, GBReg DMA_Enable, bool hasDRQ);
+		DSReg SAD, DSReg DAD, DSReg CNT_L,
+		DSReg Dest_Addr_Control, DSReg Source_Adr_Control, DSReg DMA_Repeat, DSReg DMA_Transfer_Type,
+		DSReg Game_Pak_DRQ, DSReg DMA_Start_Timing, DSReg IRQ_on, DSReg DMA_Enable, bool hasDRQ);
 };
 
 class Dma
 {
 public:
-	SingleDMA DMAs[4];
+	SingleDMA DMAs[8];
 
 	bool dma_active = false;
 	bool delayed = false;

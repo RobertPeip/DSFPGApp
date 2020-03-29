@@ -23,12 +23,12 @@
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="CPUCache.cpp" />
     <ClCompile Include="DMA.cpp" />
+    <ClCompile Include="DSReg.cpp" />
     <ClCompile Include="EEprom.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Flash.cpp" />
     <ClCompile Include="DSFPGApp.cpp" />
     <ClCompile Include="gameboy.cpp" />
-    <ClCompile Include="GBRegs.cpp" />
     <ClCompile Include="gpio.cpp" />
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GPU_Timing.cpp" />
@@ -37,6 +37,8 @@
     <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="OSD.cpp" />
+    <ClCompile Include="regs_arm7.cpp" />
+    <ClCompile Include="regs_arm9.cpp" />
     <ClCompile Include="Serial.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SoundChannel.cpp" />
@@ -49,11 +51,11 @@
     <ClInclude Include="CPU.h" />
     <ClInclude Include="CPUCache.h" />
     <ClInclude Include="DMA.h" />
+    <ClInclude Include="DSReg.h" />
     <ClInclude Include="EEprom.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="Flash.h" />
     <ClInclude Include="gameboy.h" />
-    <ClInclude Include="GBRegs.h" />
     <ClInclude Include="gpio.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GPU_Timing.h" />
@@ -62,6 +64,8 @@
     <ClInclude Include="Joypad.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="OSD.h" />
+    <ClInclude Include="regs_arm7.h" />
+    <ClInclude Include="regs_arm9.h" />
     <ClInclude Include="Serial.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundChannel.h" />

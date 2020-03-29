@@ -3,7 +3,7 @@
 using namespace std;
 
 #include "SoundChannel.h"
-#include "GBRegs.h"
+#include "regs_arm7.h"
 
 SoundChannel::SoundChannel()
 {
@@ -83,9 +83,9 @@ void SoundChannel::setNewFreq()
 
 void SoundChannel::setWaveTable()
 {
-	for (int i = 0; i < GBRegs.Sect_sound.WAVE_RAM.count * 4; i++)
+	for (int i = 0; i < Regs_Arm7.Sect_sound7.WAVE_RAM.count * 4; i++)
 	{
-		byte data = GBRegs.data[GBRegs.Sect_sound.WAVE_RAM.address + i];
+		byte data = Regs_Arm7.data[Regs_Arm7.Sect_sound7.WAVE_RAM.address + i];
 		if (banknumber)
 		{
 			this->wavetable[i * 2 + 0] = (byte)(data >> 4);

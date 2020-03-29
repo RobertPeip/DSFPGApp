@@ -2,7 +2,8 @@
 #include "BusTiming.h"
 #include "CPU.h"
 #include "Memory.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "Flash.h"
 #include "EEprom.h"
 #include "GPU.h"
@@ -26,7 +27,8 @@ void Gameboy::reset()
 
 	if (coldreset)
 	{
-		GBRegs.reset();
+		Regs_Arm9.reset();
+		Regs_Arm7.reset();
 		Flash.reset();
 		EEProm.reset();
 		GPU.reset();
@@ -246,9 +248,9 @@ void Gameboy::create_savestate()
 	UInt32 gpumix = (uint)GPU_Timing.cycles & 0xFFF;
 	gpumix |= (uint)((GPU_Timing.line & 0xFF) << 12);
 	gpumix |= (uint)((((uint)GPU_Timing.gpustate) & 0x3) << 20);
-	if (GBRegs.Sect_display.DISPSTAT_V_Counter_flag.read() == 1) gpumix |= 1 << 22;
-	if (GBRegs.Sect_display.DISPSTAT_H_Blank_flag.read() == 1) gpumix |= 1 << 23;
-	if (GBRegs.Sect_display.DISPSTAT_V_Blank_flag.read() == 1) gpumix |= 1 << 24;
+	if (DSRegs.Sect_display.DISPSTAT_V_Counter_flag.read() == 1) gpumix |= 1 << 22;
+	if (DSRegs.Sect_display.DISPSTAT_H_Blank_flag.read() == 1) gpumix |= 1 << 23;
+	if (DSRegs.Sect_display.DISPSTAT_V_Blank_flag.read() == 1) gpumix |= 1 << 24;
 	savestate[index++] = gpumix;
 
 	UInt32 gpiomix = (uint)gpio.clockslow & 0xFF;
@@ -262,7 +264,7 @@ void Gameboy::create_savestate()
 
 	for (int i = 0; i < 256; i++)
 	{
-		UInt32 value = *(UInt32*)&GBRegs.data[i * 4];
+		UInt32 value = *(UInt32*)&DSRegs.data[i * 4];
 		savestate[index++] = value;
 	}
 
@@ -375,7 +377,7 @@ void Gameboy::load_savestate()
 		if ((cpu_mixed & (1 << 11)) > 0) CPU.FIQ_disable = true; else CPU.FIQ_disable = false;
 
 		IRP.IRP_Flags = (UInt16)(savestate[index] & 0xFFFF);
-		GBRegs.Sect_system.IF.write(IRP.IRP_Flags);
+		DSRegs.Sect_system.IF.write(IRP.IRP_Flags);
 
 		gpio.bits = (UInt16)((savestate[index++] >> 16) & 0x3F);
 
@@ -432,11 +434,11 @@ void Gameboy::load_savestate()
 		GPU_Timing.cycles = (int)((gpumix >> 0) & 0xFFF);
 		GPU_Timing.line = (byte)((gpumix >> 12) & 0xFF);
 		GPU_Timing.gpustate = (GPUState)((gpumix >> 20) & 0x3);
-		GBRegs.Sect_display.DISPSTAT_V_Blank_flag.write((gpumix >> 22) & 1);
-		GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write((gpumix >> 23) & 1);
-		GBRegs.Sect_display.DISPSTAT_V_Blank_flag.write((gpumix >> 24) & 1);
-		GBRegs.Sect_display.VCOUNT.write(GPU_Timing.line);
-		GPU_Timing.old_dispstat = GBRegs.data[4];
+		DSRegs.Sect_display.DISPSTAT_V_Blank_flag.write((gpumix >> 22) & 1);
+		DSRegs.Sect_display.DISPSTAT_H_Blank_flag.write((gpumix >> 23) & 1);
+		DSRegs.Sect_display.DISPSTAT_V_Blank_flag.write((gpumix >> 24) & 1);
+		DSRegs.Sect_display.VCOUNT.write(GPU_Timing.line);
+		GPU_Timing.old_dispstat = DSRegs.data[4];
 
 		UInt32 gpiomix = savestate[index++];
 		gpio.clockslow = (byte)((gpiomix >> 0) & 0xFF);

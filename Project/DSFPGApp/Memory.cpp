@@ -1,7 +1,8 @@
 #include "Memory.h"
 #include "CPU.h"
 #include "DMA.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "EEProm.h"
 #include "Flash.h"
 #include "GPU.h"
@@ -250,7 +251,7 @@ byte MEMORY::read_byte(UInt32 address)
 		if (address < 0x04000400)
 		{
 			adr = address & 0x3FF;
-			byte rwmask = GBRegs.rwmask[adr];
+			byte rwmask = Regs_Arm9.rwmask[adr];
 
 			if (rwmask == 0)
 			{
@@ -258,8 +259,8 @@ byte MEMORY::read_byte(UInt32 address)
 			}
 			else
 			{
-				prepare_read_gbreg(adr);
-				byte value = GBRegs.data[adr];
+				prepare_read_DSReg(adr);
+				byte value = Regs_Arm9.data[adr];
 				value &= rwmask;
 				return value;
 			}
@@ -395,16 +396,16 @@ UInt32 MEMORY::read_word(UInt32 address)
 		{
 			adr = address & 0x3FF;
 
-			if (adr == GBRegs.Sect_dma.DMA0CNT_L.address ||
-				adr == GBRegs.Sect_dma.DMA1CNT_L.address ||
-				adr == GBRegs.Sect_dma.DMA2CNT_L.address ||
-				adr == GBRegs.Sect_dma.DMA3CNT_L.address)
+			if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_L.address ||
+				adr == Regs_Arm9.Sect_dma9.DMA1CNT_L.address ||
+				adr == Regs_Arm9.Sect_dma9.DMA2CNT_L.address ||
+				adr == Regs_Arm9.Sect_dma9.DMA3CNT_L.address)
 			{
 				return 0;
 			}
 			else
 			{
-				UInt16 rwmask = *(UInt16*)&GBRegs.rwmask[adr & 0x3FFE];
+				UInt16 rwmask = *(UInt16*)&Regs_Arm9.rwmask[adr & 0x3FFE];
 
 				if (rwmask == 0)
 				{
@@ -412,8 +413,8 @@ UInt32 MEMORY::read_word(UInt32 address)
 				}
 				else
 				{
-					prepare_read_gbreg(adr);
-					value = *(UInt16*)&GBRegs.data[adr];
+					prepare_read_DSReg(adr);
+					value = *(UInt16*)&Regs_Arm9.data[adr];
 					value &= rwmask;
 				}
 			}
@@ -643,8 +644,8 @@ void MEMORY::write_byte(UInt32 address, byte data)
 		if (address < 0x04000400)
 		{
 			adr = address & 0x3FF;
-			GBRegs.data[adr] = data;
-			write_gbreg(adr & 0xFFFFFFFE, data, false);
+			Regs_Arm9.data[adr] = data;
+			write_DSReg(adr & 0xFFFFFFFE, data, false);
 		}
 		return;
 
@@ -718,9 +719,9 @@ void MEMORY::write_word(UInt32 address, UInt16 data)
 		if (address < 0x04000400)
 		{
 			adr = address & 0x3FF;
-			GBRegs.data[adr] = (byte)(data & 0xFF);
-			GBRegs.data[adr + 1] = (byte)((data >> 8) & 0xFF);
-			write_gbreg(adr, data, false);
+			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
+			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
+			write_DSReg(adr, data, false);
 		}
 		return;
 
@@ -815,13 +816,13 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 		{
 			adr = address & 0x3FF;
 
-			GBRegs.data[adr] = (byte)(data & 0xFF);
-			GBRegs.data[adr + 1] = (byte)((data >> 8) & 0xFF);
-			GBRegs.data[adr + 2] = (byte)((data >> 16) & 0xFF);
-			GBRegs.data[adr + 3] = (byte)((data >> 24) & 0xFF);
+			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
+			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Regs_Arm9.data[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Regs_Arm9.data[adr + 3] = (byte)((data >> 24) & 0xFF);
 
-			write_gbreg(adr, data, true);
-			write_gbreg(adr + 2, data, true);
+			write_DSReg(adr, data, true);
+			write_DSReg(adr + 2, data, true);
 		}
 		return;
 
@@ -881,90 +882,78 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 	}
 }
 
-void MEMORY::prepare_read_gbreg(UInt32 adr)
+void MEMORY::prepare_read_DSReg(UInt32 adr)
 {
-	if (adr == GBRegs.Sect_timer.TM0CNT_L.address)
+	if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address)
 	{
 		UInt16 value = Timer.timers[0].retval;
-		GBRegs.data[adr] = (byte)(value & 0xFF);
-		GBRegs.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
-	else if (adr == GBRegs.Sect_timer.TM1CNT_L.address)
+	else if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address)
 	{
 		UInt16 value = Timer.timers[1].retval;
-		GBRegs.data[adr] = (byte)(value & 0xFF); GBRegs.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
-	else if (adr == GBRegs.Sect_timer.TM2CNT_L.address)
+	else if (adr == Regs_Arm9.Sect_timer9.TM2CNT_L.address)
 	{
-		UInt16 value = Timer.timers[2].retval; GBRegs.data[adr] = (byte)(value & 0xFF);
-		GBRegs.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		UInt16 value = Timer.timers[2].retval; Regs_Arm9.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
-	else if (adr == GBRegs.Sect_timer.TM3CNT_L.address)
+	else if (adr == Regs_Arm9.Sect_timer9.TM3CNT_L.address)
 	{
 		UInt16 value = Timer.timers[3].retval;
-		GBRegs.data[adr] = (byte)(value & 0xFF); GBRegs.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 
-	else if (adr == GBRegs.Sect_sound.SOUNDCNT_X.address)
+	else if (adr == Regs_Arm7.Sect_sound7.SOUNDCNT_X.address)
 	{
-		GBRegs.data[adr] = (byte)(GBRegs.data[adr] & 0x80);
-		if (Sound.soundGenerator.soundchannels[0].on && Sound.soundGenerator.enable_channels_left[0] || Sound.soundGenerator.enable_channels_right[0]) { GBRegs.data[adr] |= 0x01; }
-		if (Sound.soundGenerator.soundchannels[1].on && Sound.soundGenerator.enable_channels_left[1] || Sound.soundGenerator.enable_channels_right[1]) { GBRegs.data[adr] |= 0x02; }
-		if (Sound.soundGenerator.soundchannels[2].on && Sound.soundGenerator.enable_channels_left[2] || Sound.soundGenerator.enable_channels_right[2]) { GBRegs.data[adr] |= 0x04; }
-		if (Sound.soundGenerator.soundchannels[3].on && Sound.soundGenerator.enable_channels_left[3] || Sound.soundGenerator.enable_channels_right[3]) { GBRegs.data[adr] |= 0x08; }
+		Regs_Arm7.data[adr] = (byte)(Regs_Arm7.data[adr] & 0x80);
+		if (Sound.soundGenerator.soundchannels[0].on && Sound.soundGenerator.enable_channels_left[0] || Sound.soundGenerator.enable_channels_right[0]) { Regs_Arm7.data[adr] |= 0x01; }
+		if (Sound.soundGenerator.soundchannels[1].on && Sound.soundGenerator.enable_channels_left[1] || Sound.soundGenerator.enable_channels_right[1]) { Regs_Arm7.data[adr] |= 0x02; }
+		if (Sound.soundGenerator.soundchannels[2].on && Sound.soundGenerator.enable_channels_left[2] || Sound.soundGenerator.enable_channels_right[2]) { Regs_Arm7.data[adr] |= 0x04; }
+		if (Sound.soundGenerator.soundchannels[3].on && Sound.soundGenerator.enable_channels_left[3] || Sound.soundGenerator.enable_channels_right[3]) { Regs_Arm7.data[adr] |= 0x08; }
 	}
 }
 
-void MEMORY::write_gbreg(UInt32 adr, UInt32 value, bool dwaccess)
+void MEMORY::write_DSReg(UInt32 adr, UInt32 value, bool dwaccess)
 {
-	if (adr == GBRegs.Sect_display.DISPCNT.address) { GPU.dispcnt_write(); }
-	if (adr == GBRegs.Sect_display.DISPSTAT.address) { GPU_Timing.dispstat_write(); }
-	else if (adr == GBRegs.Sect_display.BG2RefX.address) { GPU.refpoint_update_2x_new(); }
-	else if (adr == GBRegs.Sect_display.BG2RefX.address + 2) { GPU.refpoint_update_2x_new(); }
-	else if (adr == GBRegs.Sect_display.BG2RefY.address) { GPU.refpoint_update_2y_new(); }
-	else if (adr == GBRegs.Sect_display.BG2RefY.address + 2) { GPU.refpoint_update_2y_new(); }
-	else if (adr == GBRegs.Sect_display.BG3RefX.address) { GPU.refpoint_update_3x_new(); }
-	else if (adr == GBRegs.Sect_display.BG3RefX.address + 2) { GPU.refpoint_update_3x_new(); }
-	else if (adr == GBRegs.Sect_display.BG3RefY.address) { GPU.refpoint_update_3y_new(); }
-	else if (adr == GBRegs.Sect_display.BG3RefY.address + 2) { GPU.refpoint_update_3y_new(); }
+	if (adr == Regs_Arm9.Sect_display9.DISPCNT.address) { GPU.dispcnt_write(); }
+	if (adr == Regs_Arm9.Sect_display9.DISPSTAT.address) { GPU_Timing.dispstat_write(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG2RefX.address) { GPU.refpoint_update_2x_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG2RefX.address + 2) { GPU.refpoint_update_2x_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG2RefY.address) { GPU.refpoint_update_2y_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG2RefY.address + 2) { GPU.refpoint_update_2y_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG3RefX.address) { GPU.refpoint_update_3x_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG3RefX.address + 2) { GPU.refpoint_update_3x_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address) { GPU.refpoint_update_3y_new(); }
+	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address + 2) { GPU.refpoint_update_3y_new(); }
 
-	else if (adr >= GBRegs.Sect_sound.SOUND1CNT_L.address && adr < GBRegs.Sect_sound.FIFO_A.address)
+	else if (adr >= Regs_Arm7.Sect_sound7.SOUND1CNT_L.address && adr < Regs_Arm7.Sect_sound7.FIFO_A.address)
 	{
 		Sound.set_soundreg(adr);
 	}
 
-	else if (adr == GBRegs.Sect_sound.FIFO_A.address) { SoundDMA.fill_fifo(0, value, dwaccess); }
-	else if (adr == GBRegs.Sect_sound.FIFO_B.address) { SoundDMA.fill_fifo(1, value, dwaccess); }
+	else if (adr == Regs_Arm7.Sect_sound7.FIFO_A.address) { SoundDMA.fill_fifo(0, value, dwaccess); }
+	else if (adr == Regs_Arm7.Sect_sound7.FIFO_B.address) { SoundDMA.fill_fifo(1, value, dwaccess); }
 
-	else if (adr == GBRegs.Sect_serial.SIOCNT.address) { Serial.write_SIOCNT(*(UInt16*)&GBRegs.data[GBRegs.Sect_serial.SIOCNT.address]); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address) { Timer.set_reload(0); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address + 2) { Timer.set_settings(0); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address) { Timer.set_reload(1); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address + 2) { Timer.set_settings(1); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address) { Timer.set_reload(2); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address + 2) { Timer.set_settings(2); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address) { Timer.set_reload(3); }
+	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address + 2) { Timer.set_settings(3); }
 
-	else if (adr == GBRegs.Sect_timer.TM0CNT_L.address) { Timer.set_reload(0); }
-	else if (adr == GBRegs.Sect_timer.TM0CNT_L.address + 2) { Timer.set_settings(0); }
-	else if (adr == GBRegs.Sect_timer.TM1CNT_L.address) { Timer.set_reload(1); }
-	else if (adr == GBRegs.Sect_timer.TM1CNT_L.address + 2) { Timer.set_settings(1); }
-	else if (adr == GBRegs.Sect_timer.TM2CNT_L.address) { Timer.set_reload(2); }
-	else if (adr == GBRegs.Sect_timer.TM2CNT_L.address + 2) { Timer.set_settings(2); }
-	else if (adr == GBRegs.Sect_timer.TM3CNT_L.address) { Timer.set_reload(3); }
-	else if (adr == GBRegs.Sect_timer.TM3CNT_L.address + 2) { Timer.set_settings(3); }
+	else if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_H.address + 2) { DMA.set_settings(0); }
+	else if (adr == Regs_Arm9.Sect_dma9.DMA1CNT_H.address + 2) { DMA.set_settings(1); }
+	else if (adr == Regs_Arm9.Sect_dma9.DMA2CNT_H.address + 2) { DMA.set_settings(2); }
+	else if (adr == Regs_Arm9.Sect_dma9.DMA3CNT_H.address + 2) { DMA.set_settings(3); }
 
-	else if (adr == GBRegs.Sect_dma.DMA0CNT_H.address + 2) { DMA.set_settings(0); }
-	else if (adr == GBRegs.Sect_dma.DMA1CNT_H.address + 2) { DMA.set_settings(1); }
-	else if (adr == GBRegs.Sect_dma.DMA2CNT_H.address + 2) { DMA.set_settings(2); }
-	else if (adr == GBRegs.Sect_dma.DMA3CNT_H.address + 2) { DMA.set_settings(3); }
+	else if (adr == Regs_Arm9.Sect_keypad9.KEYINPUT.address) { Joypad.set_reg(); }
 
-	else if (adr == GBRegs.Sect_keypad.KEYINPUT.address) { Joypad.set_reg(); }
-
-	else if (adr == GBRegs.Sect_system.IME.address) { IRP.update_IME(*(UInt16*)&GBRegs.data[GBRegs.Sect_system.IME.address]); }
-	else if (adr == GBRegs.Sect_system.IE.address) { IRP.update_IE(); }
-	else if (adr == GBRegs.Sect_system.IF.address + 2) { IRP.clear_irp_bits(); }
-
-	else if (adr == GBRegs.Sect_system.WAITCNT.address) { BusTiming.update(*(UInt16*)&GBRegs.data[GBRegs.Sect_system.WAITCNT.address]); }
-	else if ((adr == GBRegs.Sect_system.POSTFLG.address) && (value == 1)) {}
-	else if (adr == GBRegs.Sect_system.HALTCNT.address && !gameboy.loading_state)
-	{
-		if ((GBRegs.Sect_system.HALTCNT.read() & 0x80) == 0x80)
-			CPU9.stop = true;
-		else
-			CPU9.halt = true;
-	}
+	else if (adr == Regs_Arm9.Sect_system9.IME.address) { IRP.update_IME(*(UInt16*)&Regs_Arm9.data[Regs_Arm9.Sect_system9.IME.address]); }
+	else if (adr == Regs_Arm9.Sect_system9.IE.address) { IRP.update_IE(); }
+	else if (adr == Regs_Arm9.Sect_system9.IF.address + 2) { IRP.clear_irp_bits(); }
 }

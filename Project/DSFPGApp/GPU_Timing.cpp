@@ -1,5 +1,6 @@
 #include "GPU_Timing.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "DMA.h"
 #include "GPU.h"
 #include "CPU.h"
@@ -18,11 +19,11 @@ void GPUTiming::reset()
 
 void GPUTiming::dispstat_write()
 {
-	UInt16 new_val = (UInt16)GBRegs.Sect_display.DISPSTAT.read();
+	UInt16 new_val = (UInt16)Regs_Arm9.Sect_display9.DISPSTAT.read();
 	new_val &= 0xFF38;
 	old_dispstat &= 0x00C7;
 	new_val |= old_dispstat;
-	GBRegs.Sect_display.DISPSTAT.write(new_val);
+	Regs_Arm9.Sect_display9.DISPSTAT.write(new_val);
 }
 
 void GPUTiming::work()
@@ -41,13 +42,13 @@ void GPUTiming::work()
 				runagain = true;
 				localticks = gameboy.totalticks;
 				gpustate = GPUState::HBLANK;
-				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(1);
+				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(1);
 				DMA.new_hblank = true;
-				if (GBRegs.Sect_display.DISPSTAT_H_Blank_IRQ_Enable.on())
+				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on())
 				{
 					IRP.set_irp_bit(IRP.IRPMASK_LCD_H_Blank);
 				}
-				old_dispstat = GBRegs.data[4];
+				old_dispstat = Regs_Arm9.data[4];
 
 				GPU.once_per_hblank();
 				GPU.next_line(line);
@@ -61,7 +62,7 @@ void GPUTiming::work()
 				localticks = gameboy.totalticks;
 				nextline();
 
-				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(0);
+				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(0);
 				DMA.new_hblank = false;
 				if (line < 160)
 				{
@@ -72,14 +73,14 @@ void GPUTiming::work()
 					gpustate = GPUState::VBLANK;
 					GPU.refpoint_update_all();
 					//Cheats.apply_cheats();
-					GBRegs.Sect_display.DISPSTAT_V_Blank_flag.write(1);
+					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(1);
 					DMA.new_vblank = true;
-					if (GBRegs.Sect_display.DISPSTAT_V_Blank_IRQ_Enable.on())
+					if (Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_IRQ_Enable.on())
 					{
 						IRP.set_irp_bit(IRP.IRPMASK_LCD_V_Blank);
 					}
 				}
-				old_dispstat = GBRegs.data[4];
+				old_dispstat = Regs_Arm9.data[4];
 			}
 			break;
 
@@ -89,13 +90,13 @@ void GPUTiming::work()
 				runagain = true;
 				localticks = gameboy.totalticks;
 				gpustate = GPUState::VBLANKHBLANK;
-				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(1);
+				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(1);
 				//DMA.new_hblank = true; //!!! don't do here!
-				if (GBRegs.Sect_display.DISPSTAT_H_Blank_IRQ_Enable.on())
+				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on())
 				{
 					IRP.set_irp_bit(IRP.IRPMASK_LCD_H_Blank); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
 				}
-				old_dispstat = GBRegs.data[4];
+				old_dispstat = Regs_Arm9.data[4];
 			}
 			break;
 
@@ -105,14 +106,14 @@ void GPUTiming::work()
 				runagain = true;
 				localticks = gameboy.totalticks;
 				nextline();
-				GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(0);
+				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(0);
 				DMA.new_hblank = false;
 				GPU.once_per_hblank();
 				if (line == 0)
 				{
 					gpustate = GPUState::VISIBLE;
 					//GPU.next_line(line);
-					GBRegs.Sect_display.DISPSTAT_V_Blank_flag.write(0);
+					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(0);
 					DMA.new_vblank = false;
 				}
 				else
@@ -120,10 +121,10 @@ void GPUTiming::work()
 					gpustate = GPUState::VBLANK;
 					if (line == 227)
 					{
-						//GBRegs.Sect_display.DISPSTAT_V_Blank_flag.write(0);
+						//Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(0);
 					}
 				}
-				old_dispstat = GBRegs.data[4];
+				old_dispstat = Regs_Arm9.data[4];
 			}
 			break;
 
@@ -138,31 +139,31 @@ void GPUTiming::nextline()
 	{
 		line = 0;
 	}
-	GBRegs.Sect_display.VCOUNT.write(line);
+	Regs_Arm9.Sect_display9.VCOUNT.write(line);
 
-	if (line == GBRegs.Sect_display.DISPSTAT_V_Count_Setting.read())
+	if (line == Regs_Arm9.Sect_display9.DISPSTAT_V_Count_Setting.read())
 	{
-		if (GBRegs.Sect_display.DISPSTAT_V_Counter_IRQ_Enable.on())
+		if (Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_IRQ_Enable.on())
 		{
 			IRP.set_irp_bit(IRP.IRPMASK_LCD_V_Counter_Match);
 		}
-		GBRegs.Sect_display.DISPSTAT_V_Counter_flag.write(1);
+		Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_flag.write(1);
 	}
 	else
 	{
-		GBRegs.Sect_display.DISPSTAT_V_Counter_flag.write(0);
+		Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_flag.write(0);
 	}
 }
 
 void GPUTiming::restart_line()
 {
-	if (!GBRegs.Sect_display.DISPSTAT_V_Blank_flag.on())
+	if (!Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.on())
 	{
 		// really required
 		//  line--;
 		//  nextline();
 		//  gpustate = GPUState::VISIBLE;
-		//  GBRegs.Sect_display.DISPSTAT_V_Blank_flag.write(0);
-		//  GBRegs.Sect_display.DISPSTAT_H_Blank_flag.write(0);
+		//  Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(0);
+		//  Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(0);
 	}
 }

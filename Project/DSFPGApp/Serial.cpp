@@ -1,6 +1,7 @@
 #include "Serial.h"
 #include "CPU.h"
-#include "GBRegs.h"
+#include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "IRP.h"
 
 SERIAL Serial;
@@ -38,7 +39,7 @@ void SERIAL::work()
 				{
 					IRP.set_irp_bit(IRP.IRPMASK_Serial);
 				}
-				GBRegs.Sect_serial.SIOCNT.mask(0xDF7F);
+				//DSRegs.Sect_serial.SIOCNT.mask(0xDF7F);
 				start = false;
 			}
 		}

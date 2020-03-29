@@ -3,15 +3,15 @@
 using namespace std;
 
 #include "types.h"
-#include "GBRegs.h"
+#include "regs_arm7.h"
 
 class SingleSoundDMA
 {
 public:
-	GBReg Enable_RIGHT;
-	GBReg Enable_LEFT;
-	GBReg Timer_Select;
-	GBReg Reset_FIFO;
+	DSReg Enable_RIGHT;
+	DSReg Enable_LEFT;
+	DSReg Timer_Select;
+	DSReg Reset_FIFO;
 
 	byte timerindex;
 	std::queue<byte> fifo;
@@ -21,7 +21,7 @@ public:
 	int tickcount;
 
 	SingleSoundDMA();
-	SingleSoundDMA(GBReg Enable_RIGHT, GBReg Enable_LEFT, GBReg Timer_Select, GBReg Reset_FIFO);
+	SingleSoundDMA(DSReg Enable_RIGHT, DSReg Enable_LEFT, DSReg Timer_Select, DSReg Reset_FIFO);
 
 	void work();
 };
