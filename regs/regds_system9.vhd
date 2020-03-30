@@ -31,6 +31,53 @@ package pReg_ds_system_9 is
    constant IPCFIFORECV                            : regmap_type := (12#FFF#,  31,      0,        1,        0,   readonly ); -- IPC Receive Fifo (R)      
    
    
+   constant AUXSPICNT                              : regmap_type := (12#1A0#,  23,      0,        1,        0,   writeonly); -- Gamecard ROM and SPI Control           
+   constant AUXSPICNT_SPI_Baudrate                 : regmap_type := (12#1A0#,   1,      0,        1,        0,   readwrite); -- 0-1   SPI Baudrate        (0=4MHz/Default, 1=2MHz, 2=1MHz, 3=512KHz)
+   constant AUXSPICNT_SPI_Hold_Chipselect          : regmap_type := (12#1A0#,   6,      6,        1,        0,   readwrite); -- 6     SPI Hold Chipselect (0=Deselect after transfer, 1=Keep selected)
+   constant AUXSPICNT_SPI_Busy                     : regmap_type := (12#1A0#,   7,      7,        1,        0,   readonly ); -- 7     SPI Busy            (0=Ready, 1=Busy) (presumably Read-only)
+   constant AUXSPICNT_NDS_Slot_Mode                : regmap_type := (12#1A0#,  13,     13,        1,        0,   readwrite); -- 13    NDS Slot Mode       (0=Parallel/ROM, 1=Serial/SPI-Backup)
+   constant AUXSPICNT_Transfer_Ready_IRQ           : regmap_type := (12#1A0#,  14,     14,        1,        0,   readwrite); -- 14    Transfer Ready IRQ  (0=Disable, 1=Enable) (for ROM, not for AUXSPI)
+   constant AUXSPICNT_NDS_Slot_Enable              : regmap_type := (12#1A0#,  15,     15,        1,        0,   readwrite); -- 15    NDS Slot Enable     (0=Disable, 1=Enable) (for both ROM and AUXSPI)
+   constant AUXSPIDATA                             : regmap_type := (12#1A0#,  23,     16,        1,        0,   readwrite); -- Gamecard SPI Bus Data/Strobe (R/W)         
+
+   constant ROMCTRL                                : regmap_type := (12#1A4#,  31,      0,        1,        0,   writeonly); -- Gamecard Bus ROMCTRL (R/W)
+   constant ROMCTRL_KEY1_gap1_length               : regmap_type := (12#1A4#,  12,      0,        1,        0,   readwrite); --  0-12  KEY1 gap1 length  (0-1FFFh) (forced min 08F8h by BIOS) (leading gap)
+   constant ROMCTRL_KEY2_encrypt_data              : regmap_type := (12#1A4#,  13,     13,        1,        0,   readwrite); --  13    KEY2 encrypt data (0=Disable, 1=Enable KEY2 Encryption for Data)
+   constant ROMCTRL_SE                             : regmap_type := (12#1A4#,  14,     14,        1,        0,   readwrite); --  14    SE Unknown? (usually same as Bit13) (does NOT affect timing?)
+   constant ROMCTRL_KEY2_Apply_Seed                : regmap_type := (12#1A4#,  15,     15,        1,        0,   readwrite); --  15    KEY2 Apply Seed   (0=No change, 1=Apply Encryption Seed) (Write only)
+   constant ROMCTRL_KEY1_gap2_length               : regmap_type := (12#1A4#,  21,     16,        1,        0,   readwrite); --  16-21 KEY1 gap2 length  (0-3Fh)   (forced min 18h by BIOS) (200h-byte gap)
+   constant ROMCTRL_KEY2_encrypt_cmd               : regmap_type := (12#1A4#,  22,     22,        1,        0,   readwrite); --  22    KEY2 encrypt cmd  (0=Disable, 1=Enable KEY2 Encryption for Commands)
+   constant ROMCTRL_Data_Word_Status               : regmap_type := (12#1A4#,  23,     23,        1,        0,   readwrite); --  23    Data-Word Status  (0=Busy, 1=Ready/DRQ) (Read-only)
+   constant ROMCTRL_Data_Block_size                : regmap_type := (12#1A4#,  26,     24,        1,        0,   readwrite); --  24-26 Data Block size   (0=None, 1..6=100h SHL (1..6) bytes, 7=4 bytes)
+   constant ROMCTRL_Transfer_CLK_rate              : regmap_type := (12#1A4#,  27,     27,        1,        0,   readwrite); --  27    Transfer CLK rate (0=6.7MHz=33.51MHz/5, 1=4.2MHz=33.51MHz/8)
+   constant ROMCTRL_KEY1_Gap_CLKs                  : regmap_type := (12#1A4#,  28,     28,        1,        0,   readwrite); --  28    KEY1 Gap CLKs (0=Hold CLK High during gaps, 1=Output Dummy CLK Pulses)
+   constant ROMCTRL_RESB_Release_Reset             : regmap_type := (12#1A4#,  29,     29,        1,        0,   readwrite); --  29    RESB Release Reset (0=Reset, 1=Release) (cannot be cleared once set)
+   constant ROMCTRL_WR                             : regmap_type := (12#1A4#,  30,     30,        1,        0,   readwrite); --  30    WR   Unknown, maybe data-write? (usually 0) (read/write-able)
+   constant ROMCTRL_Block_Start_Status             : regmap_type := (12#1A4#,  21,     21,        1,        0,   readwrite); --  31    Block Start/Status (0=Ready, 1=Start/Busy) (IRQ See 40001A0h/Bit14)
+  
+   constant Gamecard_bus_Command_1                 : regmap_type := (12#1A8#,  31,      0,        1,        0,   writeonly); -- Gamecard bus 8-byte Command Out
+   constant Gamecard_bus_Command_2                 : regmap_type := (12#1AC#,  31,      0,        1,        0,   writeonly); -- Gamecard bus 8-byte Command Out
+   -- relocate from 0xFFF to 0x100010!
+   constant Gamecard_bus_DataIn                    : regmap_type := (12#FFF#,  31,      0,        1,        0,   readonly ); -- Gamecard bus 4-byte Data In (R)     
+   
+   constant Encryption_Seed_0_Lower                : regmap_type := (12#1B0#,  31,      0,        1,        0,   writeonly); -- Encryption Seed 0 Lower 32bit (W)
+   constant Encryption_Seed_1_Lower                : regmap_type := (12#1B4#,  31,      0,        1,        0,   writeonly); -- Encryption Seed 1 Lower 32bit (W)
+   constant Encryption_Seed_0_Upper                : regmap_type := (12#1B8#,   6,      0,        1,        0,   writeonly); -- Encryption Seed 0 Upper 7bit (bit7-15 unused)
+   constant Encryption_Seed_1_Upper                : regmap_type := (12#1B8#,  22,     16,        1,        0,   writeonly); -- Encryption Seed 1 Upper 7bit (bit7-15 unused)
+   
+   
+   constant EXMEMCNT                               : regmap_type := (12#204#,  25,      0,        1,        0,   readwrite); -- External Memory Control (R/W)
+   constant EXMEMCNT_GBASlot_SRAM_Access_Time      : regmap_type := (12#204#,   1,      0,        1,        0,   readwrite); -- 0-1   32-pin GBA Slot SRAM Access Time    (0-3 = 10, 8, 6, 18 cycles)
+   constant EXMEMCNT_GBASlot_ROM_1st_Access_Time   : regmap_type := (12#204#,   3,      2,        1,        0,   readwrite); -- 2-3   32-pin GBA Slot ROM 1st Access Time (0-3 = 10, 8, 6, 18 cycles)
+   constant EXMEMCNT_GBASlot_ROM_2nd_Access_Time   : regmap_type := (12#204#,   4,      4,        1,        0,   readwrite); -- 4     32-pin GBA Slot ROM 2nd Access Time (0-1 = 6, 4 cycles)
+   constant EXMEMCNT_GBASlot_PHI_pin_out           : regmap_type := (12#204#,   6,      5,        1,        0,   readwrite); -- 5-6   32-pin GBA Slot PHI-pin out   (0-3 = Low, 4.19MHz, 8.38MHz, 16.76MHz)
+   constant EXMEMCNT_GBASlot_Access_Rights         : regmap_type := (12#204#,   7,      7,        1,        0,   readwrite); -- 7     32-pin GBA Slot Access Rights     (0=ARM9, 1=ARM7)
+   constant EXMEMCNT_NDSSlot_Access_Rights         : regmap_type := (12#204#,  11,     11,        1,        0,   readwrite); -- 11    17-pin NDS Slot Access Rights     (0=ARM9, 1=ARM7)
+   constant EXMEMCNT_SET                           : regmap_type := (12#204#,  13,     13,        1,        1,   readwrite); -- 13    NDS:Always set?  ;set/tested by DSi bootcode: Main RAM enable, CE2 pin?
+   constant EXMEMCNT_MainMem_Interface_Mode        : regmap_type := (12#204#,  14,     14,        1,        0,   readonly ); -- 14    Main Memory Interface Mode Switch (0=Async/GBA/Reserved, 1=Synchronous)
+   constant EXMEMCNT_MainMem_Access_Priority       : regmap_type := (12#204#,  15,     15,        1,        0,   readwrite); -- 15    Main Memory Access Priority       (0=ARM9 Priority, 1=ARM7 Priority)   
+   
+   
    constant IME                                    : regmap_type := (12#208#,  31,      0,        1,        0,   readwrite); -- Interrupt Master Enable Register  
          
    constant IE                                     : regmap_type := (12#210#,  31,      0,        1,        0,   writeonly); -- Interrupt Enable              
@@ -75,6 +122,42 @@ package pReg_ds_system_9 is
    constant IF_NDS_Slot_IREQ_MC                    : regmap_type := (12#214#,  20,     20,        1,        0,   readwrite); -- 20    NDS-Slot Game Card IREQ_MC
    constant IF_Geometry_Command_FIFO               : regmap_type := (12#214#,  21,     21,        1,        0,   readwrite); -- 21    NDS9 only: Geometry Command FIFO
          
+         
+   constant MemControl1                            : regmap_type := (12#240#,  31,      0,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_A_MST                 : regmap_type := (12#240#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl1_VRAM_A_Offset              : regmap_type := (12#240#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
+   constant MemControl1_VRAM_A_Enable              : regmap_type := (12#240#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
+   constant MemControl1_VRAM_B_MST                 : regmap_type := (12#240#,   9,      8,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_B_Offset              : regmap_type := (12#240#,  12,     11,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_B_Enable              : regmap_type := (12#240#,  15,     15,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_C_MST                 : regmap_type := (12#240#,  18,     16,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_C_Offset              : regmap_type := (12#240#,  20,     19,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_C_Enable              : regmap_type := (12#240#,  23,     23,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_D_MST                 : regmap_type := (12#240#,  26,     24,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_D_Offset              : regmap_type := (12#240#,  28,     27,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_D_Enable              : regmap_type := (12#240#,  31,     31,        1,        0,   writeonly); --  
+ 
+   constant MemControl2                            : regmap_type := (12#244#,  25,      0,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_E_MST                 : regmap_type := (12#244#,   2,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl1_VRAM_E_Offset              : regmap_type := (12#244#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
+   constant MemControl1_VRAM_E_Enable              : regmap_type := (12#244#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
+   constant MemControl1_VRAM_F_MST                 : regmap_type := (12#244#,  10,      8,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_F_Offset              : regmap_type := (12#244#,  12,     11,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_F_Enable              : regmap_type := (12#244#,  15,     15,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_G_MST                 : regmap_type := (12#244#,  18,     16,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_G_Offset              : regmap_type := (12#244#,  20,     19,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_G_Enable              : regmap_type := (12#244#,  23,     23,        1,        0,   writeonly); -- 
+   constant MemControl2_WRAM                       : regmap_type := (12#244#,  25,     24,        1,        0,   readwrite); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
+
+   constant MemControl3                            : regmap_type := (12#248#,  15,      0,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_H_MST                 : regmap_type := (12#248#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl1_VRAM_H_Offset              : regmap_type := (12#248#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
+   constant MemControl1_VRAM_H_Enable              : regmap_type := (12#248#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
+   constant MemControl1_VRAM_I_MST                 : regmap_type := (12#248#,   9,      8,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_I_Offset              : regmap_type := (12#248#,  12,     11,        1,        0,   writeonly); -- 
+   constant MemControl1_VRAM_I_Enable              : regmap_type := (12#248#,  15,     15,        1,        0,   writeonly); --  
+
+    
    constant DIVCNT                                 : regmap_type := (12#280#,  31,      0,        1,        0,   writeonly); -- Division Control (R/W)             
    constant DIVCNT_Division_Mode                   : regmap_type := (12#280#,   1,      0,        1,        0,   readwrite); -- 0-1   Division Mode    (0-2=See below) (3=Reserved; same as Mode 1)
    constant DIVCNT_Division_by_zero                : regmap_type := (12#280#,  14,     14,        1,        0,   readonly ); -- 14    Division by zero (0=Okay, 1=Division by zero error; 64bit Denom=0)
@@ -96,5 +179,18 @@ package pReg_ds_system_9 is
    constant SQRT_PARAM_Low                         : regmap_type := (12#2BC#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)    
    
    
+   constant POSTFLG                                : regmap_type := (12#300#,   1,      0,        1,        0,   writeonly); -- Post Boot Flag (R/W)    
+   constant POSTFLG_Flag                           : regmap_type := (12#300#,   0,      0,        1,        0,   readonly ); -- Post Boot Flag (0=Boot in progress, 1=Boot completed)
+   constant POSTFLG_RW                             : regmap_type := (12#300#,   1,      1,        1,        0,   readwrite); -- Bit1 is read-writeable   
    
+   
+   constant POWCNT1                                : regmap_type := (12#304#,  15,      0,        1,        0,   writeonly); -- Graphics Power Control Register (R/W)     
+   constant POWCNT1_Enable_Flag_for_both_LCDs      : regmap_type := (12#304#,   0,      0,        1,        0,   readwrite); -- 0     Enable Flag for both LCDs (0=Disable) (Prohibited, see notes)          
+   constant POWCNT1_2D_Graphics_Engine_A           : regmap_type := (12#304#,   1,      1,        1,        0,   readwrite); -- 1     2D Graphics Engine A      (0=Disable) (Ports 008h-05Fh, Pal 5000000h)          
+   constant POWCNT1_3D_Rendering_Engine            : regmap_type := (12#304#,   2,      2,        1,        0,   readwrite); -- 2     3D Rendering Engine       (0=Disable) (Ports 320h-3FFh)          
+   constant POWCNT1_3D_Geometry_Engine             : regmap_type := (12#304#,   3,      3,        1,        0,   readwrite); -- 3     3D Geometry Engine        (0=Disable) (Ports 400h-6FFh)          
+   constant POWCNT1_2D_Graphics_Engine_B           : regmap_type := (12#304#,   9,      9,        1,        0,   readwrite); -- 9     2D Graphics Engine B      (0=Disable) (Ports 1008h-105Fh, Pal 5000400h)          
+   constant POWCNT1_Display_Swap                   : regmap_type := (12#304#,  15,     15,        1,        0,   readwrite); -- 15    Display Swap (0=Send Display A to Lower Screen, 1=To Upper Screen)          
+   
+
 end package;

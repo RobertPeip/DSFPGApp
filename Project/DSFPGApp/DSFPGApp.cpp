@@ -409,7 +409,7 @@ void drawer()
 			std::cout << "(" << GPU.videomode_frames << ")";
 			std::cout << " | AVG Cycles: " << (newcycles / (CPU.commands - oldcommands)) << "\n";
 #endif
-			SDL_SetWindowTitle(window, std::to_string(100 * newcycles / 16780000).c_str());
+			SDL_SetWindowTitle(window, std::to_string(100 * newcycles / 67027964).c_str());
 
 			lastTime_second = SDL_GetPerformanceCounter();
 			frames = 0;

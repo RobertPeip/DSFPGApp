@@ -48,13 +48,22 @@ public:
 	byte read_unreadable_byte(UInt32 offset);
 	UInt16 read_unreadable_word();
 	UInt32 read_unreadable_dword();
-	byte read_byte(UInt32 address);
-	UInt32 read_word(UInt32 address);
-	UInt32 read_dword(UInt32 address);
-	void write_byte(UInt32 address, byte data);
-	void write_word(UInt32 address, UInt16 data);
-	void write_dword(UInt32 address, UInt32 data);
+
 	void prepare_read_DSReg(UInt32 adr);
 	void write_DSReg(UInt32 adr, UInt32 value, bool dwaccess);
 };
 extern MEMORY Memory;
+
+byte read_byte_9(UInt32 address);
+UInt32 read_word_9(UInt32 address);
+UInt32 read_dword_9(UInt32 address);
+void write_byte_9(UInt32 address, byte data);
+void write_word_9(UInt32 address, UInt16 data);
+void write_dword_9(UInt32 address, UInt32 data);
+
+byte read_byte_7(UInt32 address);
+UInt32 read_word_7(UInt32 address);
+UInt32 read_dword_7(UInt32 address);
+void write_byte_7(UInt32 address, byte data);
+void write_word_7(UInt32 address, UInt16 data);
+void write_dword_7(UInt32 address, UInt32 data);

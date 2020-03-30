@@ -1229,6 +1229,25 @@ public:
     RegSect_timer7();
 };
 
+class RegSect_keypad7
+{
+public:
+    /// <summary>
+    /// Key Status 2 R
+    /// </summary>
+    DSReg KEYINPUT;
+    /// <summary>
+    /// Key Interrupt Control 2 R/W
+    /// </summary>
+    DSReg KEYCNT;
+    /// <summary>
+    /// Key X/Y Input (R)
+    /// </summary>
+    DSReg EXTKEYIN;
+
+    RegSect_keypad7();
+};
+
 class RegSect_system7
 {
 public:
@@ -1300,6 +1319,206 @@ public:
     /// IPC Receive Fifo (R)
     /// </summary>
     DSReg IPCFIFORECV;
+    /// <summary>
+    /// Gamecard ROM and SPI Control
+    /// </summary>
+    DSReg AUXSPICNT;
+    /// <summary>
+    /// 0-1 SPI Baudrate (0=4MHz/Default, 1=2MHz, 2=1MHz, 3=512KHz)
+    /// </summary>
+    DSReg AUXSPICNT_SPI_Baudrate;
+    /// <summary>
+    /// 6 SPI Hold Chipselect (0=Deselect after transfer, 1=Keep selected)
+    /// </summary>
+    DSReg AUXSPICNT_SPI_Hold_Chipselect;
+    /// <summary>
+    /// 7 SPI Busy (0=Ready, 1=Busy) (presumably Read-only)
+    /// </summary>
+    DSReg AUXSPICNT_SPI_Busy;
+    /// <summary>
+    /// 13 NDS Slot Mode (0=Parallel/ROM, 1=Serial/SPI-Backup)
+    /// </summary>
+    DSReg AUXSPICNT_NDS_Slot_Mode;
+    /// <summary>
+    /// 14 Transfer Ready IRQ (0=Disable, 1=Enable) (for ROM, not for AUXSPI)
+    /// </summary>
+    DSReg AUXSPICNT_Transfer_Ready_IRQ;
+    /// <summary>
+    /// 15 NDS Slot Enable (0=Disable, 1=Enable) (for both ROM and AUXSPI)
+    /// </summary>
+    DSReg AUXSPICNT_NDS_Slot_Enable;
+    /// <summary>
+    /// Gamecard SPI Bus Data/Strobe (R/W)
+    /// </summary>
+    DSReg AUXSPIDATA;
+    /// <summary>
+    /// Gamecard Bus ROMCTRL (R/W)
+    /// </summary>
+    DSReg ROMCTRL;
+    /// <summary>
+    ///  0-12 KEY1 gap1 length (0-1FFFh) (forced min 08F8h by BIOS) (leading gap)
+    /// </summary>
+    DSReg ROMCTRL_KEY1_gap1_length;
+    /// <summary>
+    ///  13 KEY2 encrypt data (0=Disable, 1=Enable KEY2 Encryption for Data)
+    /// </summary>
+    DSReg ROMCTRL_KEY2_encrypt_data;
+    /// <summary>
+    ///  14 SE Unknown? (usually same as Bit13) (does NOT affect timing?)
+    /// </summary>
+    DSReg ROMCTRL_SE;
+    /// <summary>
+    ///  15 KEY2 Apply Seed (0=No change, 1=Apply Encryption Seed) (Write only)
+    /// </summary>
+    DSReg ROMCTRL_KEY2_Apply_Seed;
+    /// <summary>
+    ///  16-21 KEY1 gap2 length (0-3Fh) (forced min 18h by BIOS) (200h-byte gap)
+    /// </summary>
+    DSReg ROMCTRL_KEY1_gap2_length;
+    /// <summary>
+    ///  22 KEY2 encrypt cmd (0=Disable, 1=Enable KEY2 Encryption for Commands)
+    /// </summary>
+    DSReg ROMCTRL_KEY2_encrypt_cmd;
+    /// <summary>
+    ///  23 Data-Word Status (0=Busy, 1=Ready/DRQ) (Read-only)
+    /// </summary>
+    DSReg ROMCTRL_Data_Word_Status;
+    /// <summary>
+    ///  24-26 Data Block size (0=None, 1..6=100h SHL (1..6) bytes, 7=4 bytes)
+    /// </summary>
+    DSReg ROMCTRL_Data_Block_size;
+    /// <summary>
+    ///  27 Transfer CLK rate (0=6.7MHz=33.51MHz/5, 1=4.2MHz=33.51MHz/8)
+    /// </summary>
+    DSReg ROMCTRL_Transfer_CLK_rate;
+    /// <summary>
+    ///  28 KEY1 Gap CLKs (0=Hold CLK High during gaps, 1=Output Dummy CLK Pulses)
+    /// </summary>
+    DSReg ROMCTRL_KEY1_Gap_CLKs;
+    /// <summary>
+    ///  29 RESB Release Reset (0=Reset, 1=Release) (cannot be cleared once set)
+    /// </summary>
+    DSReg ROMCTRL_RESB_Release_Reset;
+    /// <summary>
+    ///  30 WR Unknown, maybe data-write? (usually 0) (read/write-able)
+    /// </summary>
+    DSReg ROMCTRL_WR;
+    /// <summary>
+    ///  31 Block Start/Status (0=Ready, 1=Start/Busy) (IRQ See 40001A0h/Bit14)
+    /// </summary>
+    DSReg ROMCTRL_Block_Start_Status;
+    /// <summary>
+    /// Gamecard bus 8-byte Command Out
+    /// </summary>
+    DSReg Gamecard_bus_Command_1;
+    /// <summary>
+    /// Gamecard bus 8-byte Command Out
+    /// </summary>
+    DSReg Gamecard_bus_Command_2;
+    /// <summary>
+    /// Gamecard bus 4-byte Data In (R)
+    /// </summary>
+    DSReg Gamecard_bus_DataIn;
+    /// <summary>
+    /// Encryption Seed 0 Lower 32bit (W)
+    /// </summary>
+    DSReg Encryption_Seed_0_Lower;
+    /// <summary>
+    /// Encryption Seed 1 Lower 32bit (W)
+    /// </summary>
+    DSReg Encryption_Seed_1_Lower;
+    /// <summary>
+    /// Encryption Seed 0 Upper 7bit (bit7-15 unused)
+    /// </summary>
+    DSReg Encryption_Seed_0_Upper;
+    /// <summary>
+    /// Encryption Seed 1 Upper 7bit (bit7-15 unused)
+    /// </summary>
+    DSReg Encryption_Seed_1_Upper;
+    /// <summary>
+    ///  SPI Bus Control/Status Register
+    /// </summary>
+    DSReg SPICNT;
+    /// <summary>
+    /// 7 Busy Flag (0=Ready, 1=Busy) (presumably Read-only)
+    /// </summary>
+    DSReg SPICNT_Busy_Flag;
+    /// <summary>
+    /// 8-9 Device Select (0=Powerman., 1=Firmware, 2=Touchscr, 3=Reserved)
+    /// </summary>
+    DSReg SPICNT_Device_Select;
+    /// <summary>
+    /// 10 Transfer Size (0=8bit/Normal, 1=16bit/Bugged)
+    /// </summary>
+    DSReg SPICNT_Transfer_Size;
+    /// <summary>
+    /// 11 Chipselect Hold (0=Deselect after transfer, 1=Keep selected)
+    /// </summary>
+    DSReg SPICNT_Chipselect_Hold;
+    /// <summary>
+    /// 14 Interrupt Request (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg SPICNT_Interrupt_Request;
+    /// <summary>
+    /// 15 SPI Bus Enable (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg SPICNT_SPI_Bus_Enable;
+    /// <summary>
+    /// SPI Bus Data/Strobe Register (R/W)
+    /// </summary>
+    DSReg SPIDATA;
+    /// <summary>
+    /// External Memory Status (R/W..R)
+    /// </summary>
+    DSReg EXMEMSTAT;
+    /// <summary>
+    /// 0-1 32-pin GBA Slot SRAM Access Time (0-3 = 10, 8, 6, 18 cycles)
+    /// </summary>
+    DSReg EXMEMSTAT_GBASlot_SRAM_Access_Time;
+    /// <summary>
+    /// 2-3 32-pin GBA Slot ROM 1st Access Time (0-3 = 10, 8, 6, 18 cycles)
+    /// </summary>
+    DSReg EXMEMSTAT_GBASlot_ROM_1st_Access_Time;
+    /// <summary>
+    /// 4 32-pin GBA Slot ROM 2nd Access Time (0-1 = 6, 4 cycles)
+    /// </summary>
+    DSReg EXMEMSTAT_GBASlot_ROM_2nd_Access_Time;
+    /// <summary>
+    /// 5-6 32-pin GBA Slot PHI-pin out (0-3 = Low, 4.19MHz, 8.38MHz, 16.76MHz)
+    /// </summary>
+    DSReg EXMEMSTAT_GBASlot_PHI_pin_out;
+    /// <summary>
+    /// 7 32-pin GBA Slot Access Rights (0=ARM9, 1=ARM7)
+    /// </summary>
+    DSReg EXMEMSTAT_GBASlot_Access_Rights;
+    /// <summary>
+    /// 11 17-pin NDS Slot Access Rights (0=ARM9, 1=ARM7)
+    /// </summary>
+    DSReg EXMEMSTAT_NDSSlot_Access_Rights;
+    /// <summary>
+    /// 13 NDS:Always set? ;set/tested by DSi bootcode: Main RAM enable, CE2 pin?
+    /// </summary>
+    DSReg EXMEMSTAT_SET;
+    /// <summary>
+    /// 14 Main Memory Interface Mode Switch (0=Async/GBA/Reserved, 1=Synchronous)
+    /// </summary>
+    DSReg EXMEMSTAT_MainMem_Interface_Mode;
+    /// <summary>
+    /// 15 Main Memory Access Priority (0=ARM9 Priority, 1=ARM7 Priority)
+    /// </summary>
+    DSReg EXMEMSTAT_MainMem_Access_Priority;
+    /// <summary>
+    /// Wifi Waitstate Control
+    /// </summary>
+    DSReg WIFIWAITCNT;
+    /// <summary>
+    /// Wifi WS0 Control (0-7) (Ports 4800000h-4807FFFh)
+    /// </summary>
+    DSReg WIFIWAITCNT_WS0;
+    /// <summary>
+    /// Wifi WS1 Control (0-7) (Ports 4808000h-480FFFFh)
+    /// </summary>
+    DSReg WIFIWAITCNT_WS1;
     /// <summary>
     /// Interrupt Master Enable Register
     /// </summary>
@@ -1488,6 +1707,50 @@ public:
     /// 24 NDS7 only: Wifi / DSi9: XpertTeak DSP
     /// </summary>
     DSReg IF_Wifi;
+    /// <summary>
+    /// VRAM Bank Status (R) + WRAM Bank Status (R)
+    /// </summary>
+    DSReg RAMSTAT;
+    /// <summary>
+    /// VRAM C enabled and allocated to NDS7 (0=No, 1=Yes)
+    /// </summary>
+    DSReg RAMSTAT_VRAMSTAT_C;
+    /// <summary>
+    /// VRAM D enabled and allocated to NDS7 (0=No, 1=Yes)
+    /// </summary>
+    DSReg RAMSTAT_VRAMSTAT_D;
+    /// <summary>
+    /// (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
+    /// </summary>
+    DSReg MemControl2_WRAM;
+    /// <summary>
+    /// Post Boot Flag (R/W)
+    /// </summary>
+    DSReg POSTFLG;
+    /// <summary>
+    /// Post Boot Flag (0=Boot in progress, 1=Boot completed)
+    /// </summary>
+    DSReg POSTFLG_Flag;
+    /// <summary>
+    /// Power Down Mode (0=No function, 1=Enter GBA Mode, 2=Halt, 3=Sleep)
+    /// </summary>
+    DSReg POSTFLG_Power_Down_Mode;
+    /// <summary>
+    /// Sound/Wifi Power Control Register (R/W)
+    /// </summary>
+    DSReg POWCNT2;
+    /// <summary>
+    /// Sound Speakers (0=Disable, 1=Enable) (Initial setting = 1)
+    /// </summary>
+    DSReg POWCNT2_Sound;
+    /// <summary>
+    /// Wifi (0=Disable, 1=Enable) (Initial setting = 0)
+    /// </summary>
+    DSReg POWCNT2_Wifi;
+    /// <summary>
+    /// Bios-data-read-protection address
+    /// </summary>
+    DSReg BIOSPROT;
 
     RegSect_system7();
 };
@@ -1499,6 +1762,7 @@ public:
     RegSect_sound7 Sect_sound7;
     RegSect_dma7 Sect_dma7;
     RegSect_timer7 Sect_timer7;
+    RegSect_keypad7 Sect_keypad7;
     RegSect_system7 Sect_system7;
 
     byte data[4208];

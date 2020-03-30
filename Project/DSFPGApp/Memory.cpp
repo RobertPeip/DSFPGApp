@@ -34,12 +34,12 @@ void MEMORY::reset(string filename)
 	for (int i = 0; i < Header.ARM9_CODE_SIZE; i += 4)
 	{
 		uint data = *(UInt32*)&Memory.GameRom[Header.ARM9_CODE_SRC + i];
-		write_dword(Header.ARM9_CODE_DST + i, data);
+		write_dword_9(Header.ARM9_CODE_DST + i, data);
 	}
 	for (int i = 0; i < Header.ARM7_CODE_SIZE; i += 4)
 	{
 		uint data = *(UInt32*)&Memory.GameRom[Header.ARM7_CODE_SRC + i];
-		write_dword(Header.ARM7_CODE_DST + i, data);
+		write_dword_7(Header.ARM7_CODE_DST + i, data);
 	}
 
 	EEPROMEnabled = true;
@@ -111,102 +111,108 @@ void MEMORY::save_gameram(string gamename)
 
 byte MEMORY::read_unreadable_byte(UInt32 offset)
 {
-	byte value;
+	return 0;
 
-	if (CPU9.thumbmode && ((CPU9.regs[15] >> 24) & 15) == 3)
-	{
-		if ((CPU9.regs[15] & 0x3) == 0)
-		{
-			value = read_byte(CPU9.regs[15] - 2 + offset);
-		}
-		else
-		{
-			value = read_byte(CPU9.regs[15] + offset);
-		}
-	}
-	else
-	{
-		value = read_byte(CPU9.regs[15] + offset);
-	}
-
-	unreadable = true;
-
-	return value;
+	//byte value;
+	//
+	//if (CPU9.thumbmode && ((CPU9.regs[15] >> 24) & 15) == 3)
+	//{
+	//	if ((CPU9.regs[15] & 0x3) == 0)
+	//	{
+	//		value = read_byte(CPU9.regs[15] - 2 + offset);
+	//	}
+	//	else
+	//	{
+	//		value = read_byte(CPU9.regs[15] + offset);
+	//	}
+	//}
+	//else
+	//{
+	//	value = read_byte(CPU9.regs[15] + offset);
+	//}
+	//
+	//unreadable = true;
+	//
+	//return value;
 }
 
 UInt16 MEMORY::read_unreadable_word()
 {
-	UInt16 value;
-	if (CPU9.thumbmode && ((CPU9.regs[15] >> 24) & 15) == 3)
-	{
-		if ((CPU9.regs[15] & 0x3) == 0)
-		{
-			value = (UInt16)read_word(CPU9.regs[15] - 2);
-		}
-		else
-		{
-			value = (UInt16)read_word(CPU9.regs[15]);
-		}
-	}
-	else
-	{
-		value = (UInt16)read_word(CPU9.regs[15]);
-	}
+	return 0;
 
-	unreadable = true;
-
-	return value;
+	//UInt16 value;
+	//if (CPU9.thumbmode && ((CPU9.regs[15] >> 24) & 15) == 3)
+	//{
+	//	if ((CPU9.regs[15] & 0x3) == 0)
+	//	{
+	//		value = (UInt16)read_word(CPU9.regs[15] - 2);
+	//	}
+	//	else
+	//	{
+	//		value = (UInt16)read_word(CPU9.regs[15]);
+	//	}
+	//}
+	//else
+	//{
+	//	value = (UInt16)read_word(CPU9.regs[15]);
+	//}
+	//
+	//unreadable = true;
+	//
+	//return value;
 }
 
 UInt32 MEMORY::read_unreadable_dword()
 {
-	if (CPU9.op_since_dma < 2)
-	{
-		return DMA.last_dma_value;
-	}
+	return 0;
 
-	UInt32 value;
-
-	if (CPU9.thumbmode)
-	{
-		//For THUMB code in 32K - WRAM on GBA, GBA SP, GBA Micro, NDS-Lite(but not NDS):
+	//if (CPU9.op_since_dma < 2)
+	//{
+	//	return DMA.last_dma_value;
+	//}
+	//
+	//UInt32 value;
+	//
+	//if (CPU9.thumbmode)
+	//{
+	//	//For THUMB code in 32K - WRAM on GBA, GBA SP, GBA Micro, NDS-Lite(but not NDS):
 		//LSW = [$+4], MSW = OldHI   ; for opcodes at 4 - byte aligned locations
 		//LSW = OldLO, MSW = [$+4]   ; for opcodes at non - 4 - byte aligned locations
 		//OldLO=[$+2], OldHI=[$+2]
-		if (((CPU9.regs[15] >> 24) & 15) == 3)
-		{
-			if ((CPU9.regs[15] & 0x3) == 0)
-			{
-				UInt32 retval_low = read_word(CPU9.regs[15]) & 0xFFFF;
-				UInt32 retval_high = read_word(CPU9.regs[15] - 2) & 0xFFFF;
-				value = retval_high << 16 | retval_low;
-			}
-			else
-			{
-				UInt32 retval_low = read_word(CPU9.regs[15] - 2) & 0xFFFF;
-				UInt32 retval_high = read_word(CPU9.regs[15]) & 0xFFFF;
-				value = retval_high << 16 | retval_low;
-			}
-		}
-		else // standard case LSW = [$+4], MSW = [$+4]
-		{
-			UInt32 retval = read_word(CPU9.regs[15]);
-			value = retval << 16 | retval;
-		}
-	}
-	else
-	{
-		value = read_dword(CPU9.regs[15]);
-	}
-
-	unreadable = true;
-
-	return value;
+	//	if (((CPU9.regs[15] >> 24) & 15) == 3)
+	//	{
+	//		if ((CPU9.regs[15] & 0x3) == 0)
+	//		{
+	//			UInt32 retval_low = read_word(CPU9.regs[15]) & 0xFFFF;
+	//			UInt32 retval_high = read_word(CPU9.regs[15] - 2) & 0xFFFF;
+	//			value = retval_high << 16 | retval_low;
+	//		}
+	//		else
+	//		{
+	//			UInt32 retval_low = read_word(CPU9.regs[15] - 2) & 0xFFFF;
+	//			UInt32 retval_high = read_word(CPU9.regs[15]) & 0xFFFF;
+	//			value = retval_high << 16 | retval_low;
+	//		}
+	//	}
+	//	else // standard case LSW = [$+4], MSW = [$+4]
+	//	{
+	//		UInt32 retval = read_word(CPU9.regs[15]);
+	//		value = retval << 16 | retval;
+	//	}
+	//}
+	//else
+	//{
+	//	value = read_dword(CPU9.regs[15]);
+	//}
+	//
+	//unreadable = true;
+	//
+	//return value;
 }
 
-byte MEMORY::read_byte(UInt32 address)
+byte read_byte_9(UInt32 address)
 {
-	unreadable = false;
+	Memory.unreadable = false;
 	uint adr;
 
 	byte select = (byte)(address >> 24);
@@ -217,34 +223,34 @@ byte MEMORY::read_byte(UInt32 address)
 		{
 			if (address < 0x4000)
 			{
-				return biosProtected[address & 3];
+				return Memory.biosProtected[address & 3];
 			}
 			else
 			{
-				return read_unreadable_byte(address & 1);
+				return Memory.read_unreadable_byte(address & 1);
 			}
 		}
 		else
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				biosProtected[i] = GBRom[((address + 8) & 0x3FFC) + i];
+				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
 			}
-			return GBRom[address & 0x3FFF];
+			return Memory.GBRom[address & 0x3FFF];
 		}
 
-	case 1: return read_unreadable_byte(address & 1);
-	case 2: return WRAM_Large[address & 0x03FFFFF];
+	case 1: return Memory.read_unreadable_byte(address & 1);
+	case 2: return Memory.WRAM_Large[address & 0x03FFFFF];
 	case 3: 
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
-			return WRAM_Small[adr]; break;
+			return Memory.WRAM_Small[adr]; break;
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			return WRAM_Small[0x8000 + adr]; break;
+			return Memory.WRAM_Small[0x8000 + adr]; break;
 		}
 		
 	case 4:
@@ -255,11 +261,11 @@ byte MEMORY::read_byte(UInt32 address)
 
 			if (rwmask == 0)
 			{
-				return read_unreadable_byte(address & 1);
+				return Memory.read_unreadable_byte(address & 1);
 			}
 			else
 			{
-				prepare_read_DSReg(adr);
+				Memory.prepare_read_DSReg(adr);
 				byte value = Regs_Arm9.data[adr];
 				value &= rwmask;
 				return value;
@@ -267,26 +273,26 @@ byte MEMORY::read_byte(UInt32 address)
 		}
 		else
 		{
-			return read_unreadable_byte(address & 1);
+			return Memory.read_unreadable_byte(address & 1);
 		}
 
-	case 5: return PaletteRAM[address & 0x3FF];
+	case 5: return Memory.PaletteRAM[address & 0x3FF];
 
 	case 6:
 		adr = address & 0x1FFFF;
 		if (adr > 0x17FFF) { adr -= 0x8000; }
-		return VRAM[adr & 0x1FFFF];
+		return Memory.VRAM[adr & 0x1FFFF];
 
-	case 7: return OAMRAM[address & 0x3FF];
+	case 7: return Memory.OAMRAM[address & 0x3FF];
 
 	case 8:
 	case 9:
 	case 0xA:
 	case 0xB:
 	case 0xC:
-		if ((address & 0x01FFFFFF) < GameRom_max)
+		if ((address & 0x01FFFFFF) < Memory.GameRom_max)
 		{
-			return GameRom[address & 0x01FFFFFF];
+			return Memory.GameRom[address & 0x01FFFFFF];
 		}
 		else
 		{
@@ -301,51 +307,51 @@ byte MEMORY::read_byte(UInt32 address)
 		}
 
 	case 0xD:
-		if (EEPROMEnabled)
+		if (Memory.EEPROMEnabled)
 		{
 			return (byte)EEProm.read();
 		}
 		else
 		{
-			return read_unreadable_byte(address & 1);
+			return Memory.read_unreadable_byte(address & 1);
 		}
 
 	case 0xE:
 	case 0xF:
-		if (has_tilt && address == 0x0E008200)
+		if (Memory.has_tilt && address == 0x0E008200)
 		{
-			return (byte)tiltx;
+			return (byte)Memory.tiltx;
 		}
-		if (has_tilt && address == 0x0E008300)
+		if (Memory.has_tilt && address == 0x0E008300)
 		{
-			return (byte)(0x80 | ((tiltx >> 8) & 0xF));
+			return (byte)(0x80 | ((Memory.tiltx >> 8) & 0xF));
 		}
-		if (has_tilt && address == 0x0E008400)
+		if (Memory.has_tilt && address == 0x0E008400)
 		{
-			return (byte)tilty;
+			return (byte)Memory.tilty;
 		}
-		if (has_tilt && address == 0x0E008500)
+		if (Memory.has_tilt && address == 0x0E008500)
 		{
-			return (byte)((tilty >> 8) & 0xF);
+			return (byte)((Memory.tilty >> 8) & 0xF);
 		}
 
-		if (FlashEnabled | SramEnabled)
+		if (Memory.FlashEnabled | Memory.SramEnabled)
 		{
 			return Flash.flashRead(address);
 		}
 		else
 		{
-			return read_unreadable_byte(address);
+			return Memory.read_unreadable_byte(address);
 		}
 
-	default: return read_unreadable_byte(address & 1);
+	default: return Memory.read_unreadable_byte(address & 1);
 
 	}
 }
 
-UInt32 MEMORY::read_word(UInt32 address)
+UInt32 read_word_9(UInt32 address)
 {
-	unreadable = false;
+	Memory.unreadable = false;
 
 	UInt32 value = 0;
 	byte rotate = (byte)(address & 1);
@@ -360,35 +366,35 @@ UInt32 MEMORY::read_word(UInt32 address)
 		{
 			if (address < 0x4000)
 			{
-				value = *(UInt16*)&biosProtected[address & 2];
+				value = *(UInt16*)&Memory.biosProtected[address & 2];
 			}
 			else
 			{
-				value = read_unreadable_word();
+				value = Memory.read_unreadable_word();
 			}
 		}
 		else
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				biosProtected[i] = GBRom[((address + 8) & 0x3FFC) + i];
+				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
 			}
-			value = *(UInt16*)&GBRom[address & 0x3FFE];
+			value = *(UInt16*)&Memory.GBRom[address & 0x3FFE];
 		}
 		break;
 
-	case 1: value = read_unreadable_word(); break;
-	case 2: value = *(UInt16*)&WRAM_Large[address & 0x03FFFFF]; break;
+	case 1: value = Memory.read_unreadable_word(); break;
+	case 2: value = *(UInt16*)&Memory.WRAM_Large[address & 0x03FFFFF]; break;
 	case 3: 
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
-			value = *(UInt16*)&WRAM_Small[adr]; break;
+			value = *(UInt16*)&Memory.WRAM_Small[adr]; break;
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			value = *(UInt16*)&WRAM_Small[0x8000 + adr]; break;
+			value = *(UInt16*)&Memory.WRAM_Small[0x8000 + adr]; break;
 		}
 		
 	case 4:
@@ -409,11 +415,11 @@ UInt32 MEMORY::read_word(UInt32 address)
 
 				if (rwmask == 0)
 				{
-					value = read_unreadable_word();
+					value = Memory.read_unreadable_word();
 				}
 				else
 				{
-					prepare_read_DSReg(adr);
+					Memory.prepare_read_DSReg(adr);
 					value = *(UInt16*)&Regs_Arm9.data[adr];
 					value &= rwmask;
 				}
@@ -421,34 +427,34 @@ UInt32 MEMORY::read_word(UInt32 address)
 		}
 		else
 		{
-			value = read_unreadable_word();
+			value = Memory.read_unreadable_word();
 		}
 		break;
 
-	case 5: value = *(UInt16*)&PaletteRAM[address & 0x3FF]; break;
+	case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x3FF]; break;
 
 	case 6:
 		adr = address & 0x1FFFF;
 		if (adr > 0x17FFF) { adr -= 0x8000; }
-		value = *(UInt16*)&VRAM[adr];
+		value = *(UInt16*)&Memory.VRAM[adr];
 		break;
 
-	case 7: value = *(UInt16*)&OAMRAM[address & 0x3FF]; break;
+	case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
 
 	case 8:
 	case 9:
 	case 0xA:
 	case 0xB:
 	case 0xC:
-		if (gpio_enable && gpio_used && address >= 0x80000c4 && address <= 0x80000c8)
+		if (Memory.gpio_enable && Memory.gpio_used && address >= 0x80000c4 && address <= 0x80000c8)
 		{
 			value = gpio.gpioRead(address);
 		}
 		else
 		{
-			if ((address & 0x01FFFFFF) < GameRom_max)
+			if ((address & 0x01FFFFFF) < Memory.GameRom_max)
 			{
-				value = *(UInt16*)&GameRom[address & 0x01FFFFFF];
+				value = *(UInt16*)&Memory.GameRom[address & 0x01FFFFFF];
 			}
 			else
 			{
@@ -458,7 +464,7 @@ UInt32 MEMORY::read_word(UInt32 address)
 		break;
 
 	case 0xD:
-		if (EEPROMEnabled)
+		if (Memory.EEPROMEnabled)
 		{
 			value = (UInt32)EEProm.read();
 		}
@@ -466,20 +472,20 @@ UInt32 MEMORY::read_word(UInt32 address)
 
 	case 0xE:
 	case 0xF:
-		if (FlashEnabled | SramEnabled)
+		if (Memory.FlashEnabled | Memory.SramEnabled)
 		{
 			value = Flash.flashRead(address + rotate) * (UInt32)0x0101;
 		}
 		else
 		{
-			value = read_unreadable_word();
+			value = Memory.read_unreadable_word();
 		}
 		break;
 
-	default: value = read_unreadable_word(); break;
+	default: value = Memory.read_unreadable_word(); break;
 	}
 
-	lastreadvalue = value;
+	Memory.lastreadvalue = value;
 
 	if (rotate == 0)
 	{
@@ -493,9 +499,9 @@ UInt32 MEMORY::read_word(UInt32 address)
 	return value;
 }
 
-UInt32 MEMORY::read_dword(UInt32 address)
+UInt32 read_dword_9(UInt32 address)
 {
-	unreadable = false;
+	Memory.unreadable = false;
 
 	UInt32 value = 0;
 	byte rotate = (byte)(address & 3);
@@ -510,72 +516,72 @@ UInt32 MEMORY::read_dword(UInt32 address)
 		{
 			if (address < 0x4000)
 			{
-				value = *(UInt32*)&biosProtected[0];
+				value = *(UInt32*)&Memory.biosProtected[0];
 			}
 			else
 			{
-				value = read_unreadable_dword();
+				value = Memory.read_unreadable_dword();
 			}
 		}
 		else
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				biosProtected[i] = GBRom[((address + 8) & 0x3FFC) + i];
+				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
 			}
-			value = *(UInt32*)&GBRom[address & 0x3FFC];
+			value = *(UInt32*)&Memory.GBRom[address & 0x3FFC];
 		}
 		break;
 
-	case 1: value = read_unreadable_dword(); break;
-	case 2: value = *(UInt32*)&WRAM_Large[address & 0x03FFFFF]; break;
+	case 1: value = Memory.read_unreadable_dword(); break;
+	case 2: value = *(UInt32*)&Memory.WRAM_Large[address & 0x03FFFFF]; break;
 	case 3: 
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
-			value = *(UInt32*)&WRAM_Small[adr]; break;
+			value = *(UInt32*)&Memory.WRAM_Small[adr]; break;
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			value = *(UInt32*)&WRAM_Small[0x8000 + adr]; break;
+			value = *(UInt32*)&Memory.WRAM_Small[0x8000 + adr]; break;
 		}
 
 	case 4:
 		if (address < 0x04000400)
 		{
-			value = (UInt16)read_word(address) | (read_word(address + 2) << 16);
+			value = (UInt16)read_word_9(address) | (read_word_9(address + 2) << 16);
 		}
 		else
 		{
-			value = read_unreadable_dword();
+			value = Memory.read_unreadable_dword();
 		}
 		break;
 
-	case 5: value = *(UInt32*)&PaletteRAM[address & 0x3FF]; break;
+	case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x3FF]; break;
 
 	case 6:
 		adr = address & 0x1FFFF;
 		if (adr > 0x17FFF) { adr -= 0x8000; }
-		value = *(UInt32*)&VRAM[adr];
+		value = *(UInt32*)&Memory.VRAM[adr];
 		break;
 
-	case 7: value = *(UInt32*)&OAMRAM[address & 0x3FF]; break;
+	case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
 
 	case 8:
 	case 9:
 	case 0xA:
 	case 0xB:
 	case 0xC:
-		if (gpio_enable && gpio_used && address >= 0x80000c4 && address <= 0x80000c8)
+		if (Memory.gpio_enable && Memory.gpio_used && address >= 0x80000c4 && address <= 0x80000c8)
 		{
 			value = gpio.gpioRead(address);
 		}
 		else
 		{
-			if ((address & 0x01FFFFFF) < GameRom_max)
+			if ((address & 0x01FFFFFF) < Memory.GameRom_max)
 			{
-				value = *(UInt32*)&GameRom[address & 0x01FFFFFF];
+				value = *(UInt32*)&Memory.GameRom[address & 0x01FFFFFF];
 			}
 			else
 			{
@@ -585,7 +591,7 @@ UInt32 MEMORY::read_dword(UInt32 address)
 		break;
 
 	case 0xD:
-		if (EEPROMEnabled)
+		if (Memory.EEPROMEnabled)
 		{
 			value = (UInt32)EEProm.read();
 		}
@@ -593,20 +599,20 @@ UInt32 MEMORY::read_dword(UInt32 address)
 
 	case 0xE:
 	case 0xF:
-		if (FlashEnabled | SramEnabled)
+		if (Memory.FlashEnabled | Memory.SramEnabled)
 		{
-			value = Flash.flashRead(address + rotate + blockcmd_lowerbits) * (UInt32)0x01010101;
+			value = Flash.flashRead(address + rotate + Memory.blockcmd_lowerbits) * (UInt32)0x01010101;
 		}
 		else
 		{
-			value = read_unreadable_dword();
+			value = Memory.read_unreadable_dword();
 		}
 		break;
 
-	default: value = read_unreadable_dword(); break;
+	default: value = Memory.read_unreadable_dword(); break;
 	}
 
-	lastreadvalue = value;
+	Memory.lastreadvalue = value;
 
 	if (rotate == 0)
 	{
@@ -620,23 +626,23 @@ UInt32 MEMORY::read_dword(UInt32 address)
 	return value;
 }
 
-void MEMORY::write_byte(UInt32 address, byte data)
+void write_byte_9(UInt32 address, byte data)
 {
 	uint adr;
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
-	case 2: WRAM_Large[address & 0x03FFFFF] = (byte)(data & 0xFF); return;
+	case 2: Memory.WRAM_Large[address & 0x03FFFFF] = (byte)(data & 0xFF); return;
 	case 3: 
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
-			WRAM_Small[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
 			return;
 		}
 
@@ -645,7 +651,7 @@ void MEMORY::write_byte(UInt32 address, byte data)
 		{
 			adr = address & 0x3FF;
 			Regs_Arm9.data[adr] = data;
-			write_DSReg(adr & 0xFFFFFFFE, data, false);
+			Memory.write_DSReg(adr & 0xFFFFFFFE, data, false);
 		}
 		return;
 
@@ -654,22 +660,22 @@ void MEMORY::write_byte(UInt32 address, byte data)
 		// Writes to OBJ(6010000h - 6017FFFh)(or 6014000h - 6017FFFh in Bitmap mode) and to OAM(7000000h - 70003FFh) are ignored, the memory content remains unchanged.
 		// Writes to BG(6000000h - 600FFFFh)(or 6000000h - 6013FFFh in Bitmap mode) and to Palette(5000000h - 50003FFh) are writing the new 8bit value to BOTH upper and lower 8bits of the addressed halfword, ie. "[addr AND NOT 1]=data*101h".
 
-	case 5: PaletteRAM[address & 0x3FE] = data; PaletteRAM[(address & 0x3FE) + 1] = data; return;
+	case 5: Memory.PaletteRAM[address & 0x3FE] = data; Memory.PaletteRAM[(address & 0x3FE) + 1] = data; return;
 
 	case 6:
 		adr = address & 0x1FFFE;
 		if ((GPU.videomode <= 2 && adr <= 0xFFFF) || GPU.videomode >= 3 && adr <= 0x013FFF)
 		{
 			if (adr > 0x17FFF) { adr -= 0x8000; }
-			VRAM[adr] = data;
-			VRAM[adr + 1] = data;
+			Memory.VRAM[adr] = data;
+			Memory.VRAM[adr + 1] = data;
 		}
 		return;
 
 	case 7: return; // no saving here!
 
 	case 0xD:
-		if (EEPROMEnabled)
+		if (Memory.EEPROMEnabled)
 		{
 			EEProm.write(data);
 		}
@@ -677,7 +683,7 @@ void MEMORY::write_byte(UInt32 address, byte data)
 
 	case 0xE:
 	case 0xF:
-		if (!EEPROMEnabled || FlashEnabled || SramEnabled)
+		if (!Memory.EEPROMEnabled || Memory.FlashEnabled || Memory.SramEnabled)
 		{
 			Flash.flashSaveDecide(address, data);
 		}
@@ -685,7 +691,7 @@ void MEMORY::write_byte(UInt32 address, byte data)
 	}
 }
 
-void MEMORY::write_word(UInt32 address, UInt16 data)
+void write_word_9(UInt32 address, UInt16 data)
 {
 	byte offset = (byte)(address & 1);
 	address = address & 0xFFFFFFFE;
@@ -696,22 +702,22 @@ void MEMORY::write_word(UInt32 address, UInt16 data)
 	{
 	case 2:
 		adr = address & 0x03FFFFF;
-		WRAM_Large[adr] = (byte)(data & 0xFF);
-		WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.WRAM_Large[adr] = (byte)(data & 0xFF);
+		Memory.WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
 
 	case 3:
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
-			WRAM_Small[adr] = (byte)(data & 0xFF);
-			WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
 		return;
 
@@ -721,14 +727,14 @@ void MEMORY::write_word(UInt32 address, UInt16 data)
 			adr = address & 0x3FF;
 			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
 			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
-			write_DSReg(adr, data, false);
+			Memory.write_DSReg(adr, data, false);
 		}
 		return;
 
 	case 5:
 		adr = address & 0x3FF;
-		PaletteRAM[adr] = (byte)(data & 0xFF);
-		PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
+		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
 
 	case 6:
@@ -736,30 +742,30 @@ void MEMORY::write_word(UInt32 address, UInt16 data)
 		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
 		{
 			if (adr > 0x17FFF) { adr -= 0x8000; }
-			VRAM[adr] = (byte)(data & 0xFF);
-			VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
+			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
 		return;
 
 	case 7:
 		adr = address & 0x3FF;
-		OAMRAM[adr] = (byte)(data & 0xFF);
-		OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
+		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
 
 	case 0x8:
-		if (gpio_enable)
+		if (Memory.gpio_enable)
 		{
 			if (address >= 0x80000c4 && address <= 0x80000c8)
 			{
-				gpio_used = true;
+				Memory.gpio_used = true;
 				gpio.gpioWrite(address, (ushort)data);
 			}
 		}
 		return;
 
 	case 0xD:
-		if (EEPROMEnabled)
+		if (Memory.EEPROMEnabled)
 		{
 			EEProm.write((byte)data);
 		}
@@ -767,15 +773,15 @@ void MEMORY::write_word(UInt32 address, UInt16 data)
 
 	case 0xE:
 	case 0xF:
-		if (!EEPROMEnabled || FlashEnabled || SramEnabled)
+		if (!Memory.EEPROMEnabled || Memory.FlashEnabled || Memory.SramEnabled)
 		{
-			Flash.flashSaveDecide(address + offset + blockcmd_lowerbits, (byte)data);
+			Flash.flashSaveDecide(address + offset + Memory.blockcmd_lowerbits, (byte)data);
 		}
 		return;
 	}
 }
 
-void MEMORY::write_dword(UInt32 address, UInt32 data)
+void write_dword_9(UInt32 address, UInt32 data)
 {
 	byte offset = (byte)(address & 3);
 	address = address & 0xFFFFFFFC;
@@ -786,28 +792,28 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 	{
 	case 2:
 		adr = address & 0x03FFFFF;
-		WRAM_Large[adr] = (byte)(data & 0xFF);
-		WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
-		WRAM_Large[adr + 2] = (byte)((data >> 16) & 0xFF);
-		WRAM_Large[adr + 3] = (byte)((data >> 24) & 0xFF);
+		Memory.WRAM_Large[adr] = (byte)(data & 0xFF);
+		Memory.WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.WRAM_Large[adr + 2] = (byte)((data >> 16) & 0xFF);
+		Memory.WRAM_Large[adr + 3] = (byte)((data >> 24) & 0xFF);
 		return;
 
 	case 3:
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
-			WRAM_Small[adr] = (byte)(data & 0xFF);
-			WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
-			WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
-			WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
+			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
-			WRAM_Small[0x8000 + adr + 2] = (byte)((data >> 16) & 0xFF);
-			WRAM_Small[0x8000 + adr + 3] = (byte)((data >> 24) & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 3] = (byte)((data >> 24) & 0xFF);
 		}
 		return;
 
@@ -821,17 +827,17 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 			Regs_Arm9.data[adr + 2] = (byte)((data >> 16) & 0xFF);
 			Regs_Arm9.data[adr + 3] = (byte)((data >> 24) & 0xFF);
 
-			write_DSReg(adr, data, true);
-			write_DSReg(adr + 2, data, true);
+			Memory.write_DSReg(adr, data, true);
+			Memory.write_DSReg(adr + 2, data, true);
 		}
 		return;
 
 	case 5:
 		adr = address & 0x3FF;
-		PaletteRAM[adr] = (byte)(data & 0xFF);
-		PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-		PaletteRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-		PaletteRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
+		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.PaletteRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+		Memory.PaletteRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
 		return;
 
 	case 6:
@@ -839,34 +845,34 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
 		{
 			if (adr > 0x17FFF) { adr -= 0x8000; }
-			VRAM[adr] = (byte)(data & 0xFF);
-			VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-			VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-			VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
+			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
 		}
 		return;
 
 	case 7:
 		adr = address & 0x3FF;
-		OAMRAM[adr] = (byte)(data & 0xFF);
-		OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-		OAMRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-		OAMRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
+		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.OAMRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+		Memory.OAMRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
 		return;
 
 	case 0x8:
-		if (gpio_enable)
+		if (Memory.gpio_enable)
 		{
 			if (address >= 0x80000c4 && address <= 0x80000c8)
 			{
-				gpio_used = true;
+				Memory.gpio_used = true;
 				gpio.gpioWrite(address, (ushort)data);
 			}
 		}
 		return;
 
 	case 0xD:
-		if (EEPROMEnabled)
+		if (Memory.EEPROMEnabled)
 		{
 			EEProm.write((byte)data);
 		}
@@ -874,13 +880,695 @@ void MEMORY::write_dword(UInt32 address, UInt32 data)
 
 	case 0xE:
 	case 0xF:
-		if (!EEPROMEnabled || FlashEnabled || SramEnabled)
+		if (!Memory.EEPROMEnabled || Memory.FlashEnabled || Memory.SramEnabled)
 		{
-			Flash.flashSaveDecide(address + offset + blockcmd_lowerbits, (byte)data);
+			Flash.flashSaveDecide(address + offset + Memory.blockcmd_lowerbits, (byte)data);
 		}
 		return;
 	}
 }
+
+byte read_byte_7(UInt32 address)
+{
+	Memory.unreadable = false;
+	uint adr;
+
+	byte select = (byte)(address >> 24);
+	switch (select)
+	{
+	case 0:
+		if ((CPU9.regs[15] >> 24) > 0)
+		{
+			if (address < 0x4000)
+			{
+				return Memory.biosProtected[address & 3];
+			}
+			else
+			{
+				return Memory.read_unreadable_byte(address & 1);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
+			}
+			return Memory.GBRom[address & 0x3FFF];
+		}
+
+	case 1: return Memory.read_unreadable_byte(address & 1);
+	case 2: return Memory.WRAM_Large[address & 0x03FFFFF];
+	case 3:
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			return Memory.WRAM_Small[adr]; break;
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			return Memory.WRAM_Small[0x8000 + adr]; break;
+		}
+
+	case 4:
+		if (address < 0x04000400)
+		{
+			adr = address & 0x3FF;
+			byte rwmask = Regs_Arm9.rwmask[adr];
+
+			if (rwmask == 0)
+			{
+				return Memory.read_unreadable_byte(address & 1);
+			}
+			else
+			{
+				Memory.prepare_read_DSReg(adr);
+				byte value = Regs_Arm9.data[adr];
+				value &= rwmask;
+				return value;
+			}
+		}
+		else
+		{
+			return Memory.read_unreadable_byte(address & 1);
+		}
+
+	case 5: return Memory.PaletteRAM[address & 0x3FF];
+
+	case 6:
+		adr = address & 0x1FFFF;
+		if (adr > 0x17FFF) { adr -= 0x8000; }
+		return Memory.VRAM[adr & 0x1FFFF];
+
+	case 7: return Memory.OAMRAM[address & 0x3FF];
+
+	case 8:
+	case 9:
+	case 0xA:
+	case 0xB:
+	case 0xC:
+		if ((address & 0x01FFFFFF) < Memory.GameRom_max)
+		{
+			return Memory.GameRom[address & 0x01FFFFFF];
+		}
+		else
+		{
+			if ((address & 1) == 0)
+			{
+				return (byte)(address / 2);
+			}
+			else
+			{
+				return (byte)((address >> 8) / 2);
+			}
+		}
+
+	case 0xD:
+		if (Memory.EEPROMEnabled)
+		{
+			return (byte)EEProm.read();
+		}
+		else
+		{
+			return Memory.read_unreadable_byte(address & 1);
+		}
+
+	case 0xE:
+	case 0xF:
+		if (Memory.has_tilt && address == 0x0E008200)
+		{
+			return (byte)Memory.tiltx;
+		}
+		if (Memory.has_tilt && address == 0x0E008300)
+		{
+			return (byte)(0x80 | ((Memory.tiltx >> 8) & 0xF));
+		}
+		if (Memory.has_tilt && address == 0x0E008400)
+		{
+			return (byte)Memory.tilty;
+		}
+		if (Memory.has_tilt && address == 0x0E008500)
+		{
+			return (byte)((Memory.tilty >> 8) & 0xF);
+		}
+
+		if (Memory.FlashEnabled | Memory.SramEnabled)
+		{
+			return Flash.flashRead(address);
+		}
+		else
+		{
+			return Memory.read_unreadable_byte(address);
+		}
+
+	default: return Memory.read_unreadable_byte(address & 1);
+
+	}
+}
+
+UInt32 read_word_7(UInt32 address)
+{
+	Memory.unreadable = false;
+
+	UInt32 value = 0;
+	byte rotate = (byte)(address & 1);
+	address = address & 0xFFFFFFFE;
+	uint adr;
+
+	byte select = (byte)(address >> 24);
+	switch (select)
+	{
+	case 0:
+		if ((CPU9.regs[15] >> 24) > 0)
+		{
+			if (address < 0x4000)
+			{
+				value = *(UInt16*)&Memory.biosProtected[address & 2];
+			}
+			else
+			{
+				value = Memory.read_unreadable_word();
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
+			}
+			value = *(UInt16*)&Memory.GBRom[address & 0x3FFE];
+		}
+		break;
+
+	case 1: value = Memory.read_unreadable_word(); break;
+	case 2: value = *(UInt16*)&Memory.WRAM_Large[address & 0x03FFFFF]; break;
+	case 3:
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			value = *(UInt16*)&Memory.WRAM_Small[adr]; break;
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			value = *(UInt16*)&Memory.WRAM_Small[0x8000 + adr]; break;
+		}
+
+	case 4:
+		if (address < 0x04000400)
+		{
+			adr = address & 0x3FF;
+
+			if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_L.address ||
+				adr == Regs_Arm9.Sect_dma9.DMA1CNT_L.address ||
+				adr == Regs_Arm9.Sect_dma9.DMA2CNT_L.address ||
+				adr == Regs_Arm9.Sect_dma9.DMA3CNT_L.address)
+			{
+				return 0;
+			}
+			else
+			{
+				UInt16 rwmask = *(UInt16*)&Regs_Arm9.rwmask[adr & 0x3FFE];
+
+				if (rwmask == 0)
+				{
+					value = Memory.read_unreadable_word();
+				}
+				else
+				{
+					Memory.prepare_read_DSReg(adr);
+					value = *(UInt16*)&Regs_Arm9.data[adr];
+					value &= rwmask;
+				}
+			}
+		}
+		else
+		{
+			value = Memory.read_unreadable_word();
+		}
+		break;
+
+	case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x3FF]; break;
+
+	case 6:
+		adr = address & 0x1FFFF;
+		if (adr > 0x17FFF) { adr -= 0x8000; }
+		value = *(UInt16*)&Memory.VRAM[adr];
+		break;
+
+	case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
+
+	case 8:
+	case 9:
+	case 0xA:
+	case 0xB:
+	case 0xC:
+		if (Memory.gpio_enable && Memory.gpio_used && address >= 0x80000c4 && address <= 0x80000c8)
+		{
+			value = gpio.gpioRead(address);
+		}
+		else
+		{
+			if ((address & 0x01FFFFFF) < Memory.GameRom_max)
+			{
+				value = *(UInt16*)&Memory.GameRom[address & 0x01FFFFFF];
+			}
+			else
+			{
+				value = (address / 2) & 0xFFFF;
+			}
+		}
+		break;
+
+	case 0xD:
+		if (Memory.EEPROMEnabled)
+		{
+			value = (UInt32)EEProm.read();
+		}
+		break;
+
+	case 0xE:
+	case 0xF:
+		if (Memory.FlashEnabled | Memory.SramEnabled)
+		{
+			value = Flash.flashRead(address + rotate) * (UInt32)0x0101;
+		}
+		else
+		{
+			value = Memory.read_unreadable_word();
+		}
+		break;
+
+	default: value = Memory.read_unreadable_word(); break;
+	}
+
+	Memory.lastreadvalue = value;
+
+	if (rotate == 0)
+	{
+		return value;
+	}
+	else
+	{
+		value = ((value & 0xFF) << 24) | (value >> 8);
+	}
+
+	return value;
+}
+
+UInt32 read_dword_7(UInt32 address)
+{
+	Memory.unreadable = false;
+
+	UInt32 value = 0;
+	byte rotate = (byte)(address & 3);
+	address = address & 0xFFFFFFFC;
+	uint adr;
+
+	byte select = (byte)(address >> 24);
+	switch (select)
+	{
+	case 0:
+		if ((CPU9.regs[15] >> 24) > 0)
+		{
+			if (address < 0x4000)
+			{
+				value = *(UInt32*)&Memory.biosProtected[0];
+			}
+			else
+			{
+				value = Memory.read_unreadable_dword();
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
+			}
+			value = *(UInt32*)&Memory.GBRom[address & 0x3FFC];
+		}
+		break;
+
+	case 1: value = Memory.read_unreadable_dword(); break;
+	case 2: value = *(UInt32*)&Memory.WRAM_Large[address & 0x03FFFFF]; break;
+	case 3:
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			value = *(UInt32*)&Memory.WRAM_Small[adr]; break;
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			value = *(UInt32*)&Memory.WRAM_Small[0x8000 + adr]; break;
+		}
+
+	case 4:
+		if (address < 0x04000400)
+		{
+			value = (UInt16)read_word_7(address) | (read_word_7(address + 2) << 16);
+		}
+		else
+		{
+			value = Memory.read_unreadable_dword();
+		}
+		break;
+
+	case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x3FF]; break;
+
+	case 6:
+		adr = address & 0x1FFFF;
+		if (adr > 0x17FFF) { adr -= 0x8000; }
+		value = *(UInt32*)&Memory.VRAM[adr];
+		break;
+
+	case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
+
+	case 8:
+	case 9:
+	case 0xA:
+	case 0xB:
+	case 0xC:
+		if (Memory.gpio_enable && Memory.gpio_used && address >= 0x80000c4 && address <= 0x80000c8)
+		{
+			value = gpio.gpioRead(address);
+		}
+		else
+		{
+			if ((address & 0x01FFFFFF) < Memory.GameRom_max)
+			{
+				value = *(UInt32*)&Memory.GameRom[address & 0x01FFFFFF];
+			}
+			else
+			{
+				value = ((address / 2) & 0xFFFF) + ((((address / 2) + 1) & 0xFFFF) << 16);
+			}
+		}
+		break;
+
+	case 0xD:
+		if (Memory.EEPROMEnabled)
+		{
+			value = (UInt32)EEProm.read();
+		}
+		break;
+
+	case 0xE:
+	case 0xF:
+		if (Memory.FlashEnabled | Memory.SramEnabled)
+		{
+			value = Flash.flashRead(address + rotate + Memory.blockcmd_lowerbits) * (UInt32)0x01010101;
+		}
+		else
+		{
+			value = Memory.read_unreadable_dword();
+		}
+		break;
+
+	default: value = Memory.read_unreadable_dword(); break;
+	}
+
+	Memory.lastreadvalue = value;
+
+	if (rotate == 0)
+	{
+		return value;
+	}
+	else
+	{
+		value = CPU9.RotateRight(value, 8 * rotate);
+	}
+
+	return value;
+}
+
+void write_byte_7(UInt32 address, byte data)
+{
+	uint adr;
+	byte select = (byte)(address >> 24);
+	switch (select)
+	{
+	case 2: Memory.WRAM_Large[address & 0x03FFFFF] = (byte)(data & 0xFF); return;
+	case 3:
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			return;
+		}
+
+	case 4:
+		if (address < 0x04000400)
+		{
+			adr = address & 0x3FF;
+			Regs_Arm9.data[adr] = data;
+			Memory.write_DSReg(adr & 0xFFFFFFFE, data, false);
+		}
+		return;
+
+		// Writing 8bit Data to Video Memory
+		// Video Memory(BG, OBJ, OAM, Palette) can be written to in 16bit and 32bit units only.Attempts to write 8bit data(by STRB opcode) won't work:
+		// Writes to OBJ(6010000h - 6017FFFh)(or 6014000h - 6017FFFh in Bitmap mode) and to OAM(7000000h - 70003FFh) are ignored, the memory content remains unchanged.
+		// Writes to BG(6000000h - 600FFFFh)(or 6000000h - 6013FFFh in Bitmap mode) and to Palette(5000000h - 50003FFh) are writing the new 8bit value to BOTH upper and lower 8bits of the addressed halfword, ie. "[addr AND NOT 1]=data*101h".
+
+	case 5: Memory.PaletteRAM[address & 0x3FE] = data; Memory.PaletteRAM[(address & 0x3FE) + 1] = data; return;
+
+	case 6:
+		adr = address & 0x1FFFE;
+		if ((GPU.videomode <= 2 && adr <= 0xFFFF) || GPU.videomode >= 3 && adr <= 0x013FFF)
+		{
+			if (adr > 0x17FFF) { adr -= 0x8000; }
+			Memory.VRAM[adr] = data;
+			Memory.VRAM[adr + 1] = data;
+		}
+		return;
+
+	case 7: return; // no saving here!
+
+	case 0xD:
+		if (Memory.EEPROMEnabled)
+		{
+			EEProm.write(data);
+		}
+		return;
+
+	case 0xE:
+	case 0xF:
+		if (!Memory.EEPROMEnabled || Memory.FlashEnabled || Memory.SramEnabled)
+		{
+			Flash.flashSaveDecide(address, data);
+		}
+		return;
+	}
+}
+
+void write_word_7(UInt32 address, UInt16 data)
+{
+	byte offset = (byte)(address & 1);
+	address = address & 0xFFFFFFFE;
+	uint adr;
+
+	byte select = (byte)(address >> 24);
+	switch (select)
+	{
+	case 2:
+		adr = address & 0x03FFFFF;
+		Memory.WRAM_Large[adr] = (byte)(data & 0xFF);
+		Memory.WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
+		return;
+
+	case 3:
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+		}
+		return;
+
+	case 4:
+		if (address < 0x04000400)
+		{
+			adr = address & 0x3FF;
+			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
+			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.write_DSReg(adr, data, false);
+		}
+		return;
+
+	case 5:
+		adr = address & 0x3FF;
+		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
+		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		return;
+
+	case 6:
+		adr = address & 0x1FFFF;
+		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
+		{
+			if (adr > 0x17FFF) { adr -= 0x8000; }
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
+			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		}
+		return;
+
+	case 7:
+		adr = address & 0x3FF;
+		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
+		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		return;
+
+	case 0x8:
+		if (Memory.gpio_enable)
+		{
+			if (address >= 0x80000c4 && address <= 0x80000c8)
+			{
+				Memory.gpio_used = true;
+				gpio.gpioWrite(address, (ushort)data);
+			}
+		}
+		return;
+
+	case 0xD:
+		if (Memory.EEPROMEnabled)
+		{
+			EEProm.write((byte)data);
+		}
+		return;
+
+	case 0xE:
+	case 0xF:
+		if (!Memory.EEPROMEnabled || Memory.FlashEnabled || Memory.SramEnabled)
+		{
+			Flash.flashSaveDecide(address + offset + Memory.blockcmd_lowerbits, (byte)data);
+		}
+		return;
+	}
+}
+
+void write_dword_7(UInt32 address, UInt32 data)
+{
+	byte offset = (byte)(address & 3);
+	address = address & 0xFFFFFFFC;
+	uint adr;
+
+	byte select = (byte)(address >> 24);
+	switch (select)
+	{
+	case 2:
+		adr = address & 0x03FFFFF;
+		Memory.WRAM_Large[adr] = (byte)(data & 0xFF);
+		Memory.WRAM_Large[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.WRAM_Large[adr + 2] = (byte)((data >> 16) & 0xFF);
+		Memory.WRAM_Large[adr + 3] = (byte)((data >> 24) & 0xFF);
+		return;
+
+	case 3:
+		if (address < 0x3800000)
+		{
+			adr = address & 0x7FFF;
+			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
+		}
+		else
+		{
+			adr = address & 0xFFFF;
+			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small[0x8000 + adr + 3] = (byte)((data >> 24) & 0xFF);
+		}
+		return;
+
+	case 4:
+		if (address < 0x04000400)
+		{
+			adr = address & 0x3FF;
+
+			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
+			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Regs_Arm9.data[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Regs_Arm9.data[adr + 3] = (byte)((data >> 24) & 0xFF);
+
+			Memory.write_DSReg(adr, data, true);
+			Memory.write_DSReg(adr + 2, data, true);
+		}
+		return;
+
+	case 5:
+		adr = address & 0x3FF;
+		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
+		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.PaletteRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+		Memory.PaletteRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		return;
+
+	case 6:
+		adr = address & 0x1FFFF;
+		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
+		{
+			if (adr > 0x17FFF) { adr -= 0x8000; }
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
+			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		}
+		return;
+
+	case 7:
+		adr = address & 0x3FF;
+		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
+		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		Memory.OAMRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+		Memory.OAMRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		return;
+
+	case 0x8:
+		if (Memory.gpio_enable)
+		{
+			if (address >= 0x80000c4 && address <= 0x80000c8)
+			{
+				Memory.gpio_used = true;
+				gpio.gpioWrite(address, (ushort)data);
+			}
+		}
+		return;
+
+	case 0xD:
+		if (Memory.EEPROMEnabled)
+		{
+			EEProm.write((byte)data);
+		}
+		return;
+
+	case 0xE:
+	case 0xF:
+		if (!Memory.EEPROMEnabled || Memory.FlashEnabled || Memory.SramEnabled)
+		{
+			Flash.flashSaveDecide(address + offset + Memory.blockcmd_lowerbits, (byte)data);
+		}
+		return;
+	}
+}
+
+
+
+
 
 void MEMORY::prepare_read_DSReg(UInt32 adr)
 {

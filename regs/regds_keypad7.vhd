@@ -5,7 +5,7 @@ use IEEE.numeric_std.all;
 use work.pProc_bus_gb.all;
 use work.pRegmap.all;
 
-package pReg_ds_keypad_9 is
+package pReg_ds_keypad_7 is
 
    -- range 0x130 .. 0x136
    --   (                              adr      upper    lower    size   default   accesstype)                                     

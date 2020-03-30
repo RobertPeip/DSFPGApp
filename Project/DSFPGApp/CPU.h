@@ -65,6 +65,13 @@ public:
 	void set_CPSR(UInt32 value);
 	UInt32 RotateRight(UInt32 x, int n);
 
+	byte(*read_byte)(UInt32 address);
+	UInt32(*read_word)(UInt32 address);
+	UInt32(*read_dword)(UInt32 address);
+	void (*write_byte)(UInt32 address, byte data);
+	void (*write_word)(UInt32 address, UInt16 data);
+	void (*write_dword)(UInt32 address, UInt32 data);
+
 #ifdef DEBUG
 	uint lastinstruction;
 #endif DEBUG

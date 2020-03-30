@@ -215,7 +215,7 @@ void Dma::work()
 					UInt32 value;
 					if (DMAs[i].addr_source >= 0x02000000)
 					{
-						value = Memory.read_dword(DMAs[i].addr_source);
+						value = read_dword_9(DMAs[i].addr_source);
 						if (!Memory.unreadable)
 						{
 							last_dma_value = value;
@@ -228,7 +228,7 @@ void Dma::work()
 					{
 						value = last_dma_value;
 					}
-					Memory.write_dword(DMAs[i].addr_target, value);
+					write_dword_9(DMAs[i].addr_target, value);
 
 					if (DMAs[i].source_Adr_Control == 0 || DMAs[i].source_Adr_Control == 3 || (DMAs[i].addr_source >= 0x08000000 && DMAs[i].addr_source < 0x0E000000)) { DMAs[i].addr_source += 4; }
 					else if (DMAs[i].source_Adr_Control == 1) { DMAs[i].addr_source -= 4; }
@@ -241,7 +241,7 @@ void Dma::work()
 					UInt16 value;
 					if (DMAs[i].addr_source >= 0x02000000)
 					{
-						UInt32 newvalue = Memory.read_word(DMAs[i].addr_source) & 0xFFFF;
+						UInt32 newvalue = read_word_9(DMAs[i].addr_source) & 0xFFFF;
 						if (!Memory.unreadable)
 						{
 							last_dma_value = (UInt32)newvalue | ((UInt32)newvalue << 16);
@@ -255,7 +255,7 @@ void Dma::work()
 						value = (UInt16)last_dma_value;
 					}
 					value = (UInt16)last_dma_value;
-					Memory.write_word(DMAs[i].addr_target, value);
+					write_word_9(DMAs[i].addr_target, value);
 
 					if (DMAs[i].source_Adr_Control == 0 || DMAs[i].source_Adr_Control == 3 || (DMAs[i].addr_source >= 0x08000000 && DMAs[i].addr_source < 0x0E000000)) { DMAs[i].addr_source += 2; }
 					else if (DMAs[i].source_Adr_Control == 1) { DMAs[i].addr_source -= 2; }

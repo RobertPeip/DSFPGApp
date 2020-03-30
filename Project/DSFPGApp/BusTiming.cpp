@@ -140,14 +140,6 @@ int BUSTiming::dataTicksAccess32(bool isArm9, UInt32 address, bool isRead, uint&
 	}
 }
 
-int BUSTiming::dataTicksAccessSeq32(UInt32 address, int cycleadd) // DATA 32bits SEQ
-{
-	UInt32 addr = (address >> 24) & 15;
-	int value = 0; //memoryWait32Arm9[addr];
-
-	return value;
-}
-
 int BUSTiming::codeTicksAccess16(UInt32 address) // THUMB NON SEQ
 {
 	UInt32 addr = (address >> 24) & 15;

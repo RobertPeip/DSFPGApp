@@ -70,35 +70,29 @@ void Gameboy::run()
 	while (on)
 	{
 #if DEBUG
-		bool newinstr = false;
-		if (tracer.traclist_ptr == 1233)
+		if (tracer.traclist_ptr == 6545)
 		{
 			int stop = 1;
 		}
 #endif
+
 		if (CPU9.totalticks <= totalticks)
 		{
 		   CPU9.nextInstr();
-#if DEBUG
-		   newinstr = true;
-#endif
 		}
 		if (CPU7.totalticks <= totalticks)
 		{
 			CPU7.nextInstr();
-#if DEBUG
-		    newinstr = true;
-#endif
 		}
 
 #if DEBUG
 		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 2000;
+			tracer.runmoretrace = 10000;
 		}
 
-		if (newinstr && tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
+		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
 		{
 			tracer.Tracelist[tracer.traclist_ptr][0].update(true);
 			tracer.Tracelist[tracer.traclist_ptr][1].update(false);
@@ -117,13 +111,13 @@ void Gameboy::run()
 
 		DMA.work();
 		GPU_Timing.work();
-		Sound.work();
-		if (GPU.lockSpeed)
-		{
-			Sound.soundGenerator.fill();
-		}
+		//Sound.work();
+		//if (GPU.lockSpeed)
+		//{
+		//	Sound.soundGenerator.fill();
+		//}
 		Timer.work();
-		Serial.work();
+		//Serial.work();
 
 		checkcount++;
 		if (checkcount == 0)

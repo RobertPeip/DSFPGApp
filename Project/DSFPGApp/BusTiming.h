@@ -14,7 +14,6 @@ public:
 	void update(UInt16 value);
 	int dataTicksAccess16(bool isArm9, UInt32 address, bool isRead, uint& lastAddress); // DATA 8/16bits NON SEQ
 	int dataTicksAccess32(bool isArm9, UInt32 address, bool isRead, uint& lastAddress); // DATA 32bits NON SE
-	int dataTicksAccessSeq32(UInt32 address, int cycleadd); // DATA 32bits SEQ
 	int codeTicksAccess16(UInt32 address); // THUMB NON SEQ
 	int codeTicksAccess32(UInt32 address); // ARM NON SEQ
 	int codeTicksAccessSeq16(UInt32 address); // THUMB SEQ
