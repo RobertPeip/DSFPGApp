@@ -18,14 +18,15 @@
 #include "Joypad.h"
 #include "Serial.h"
 #include "Header.h"
+#include "spi_intern.h"
+#include "IPC.h"
 
 MEMORY Memory;
 
 void MEMORY::reset(string filename)
 {
-	//string biosname = "gba_bios.bin";
-	//string biosname = "gba_bios_fast.bin";
-	//FileIO.readfile(GBRom, biosname, false);
+	FileIO.readfile(Bios7, "bios7.bin", false);
+	FileIO.readfile(Bios9, "bios9.bin", false);
 
 	// read in and analyze rom
 	GameRom_max = FileIO.readfile(GameRom, filename, true);
@@ -218,26 +219,7 @@ byte read_byte_9(UInt32 address)
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
-	case 0:
-		if ((CPU9.regs[15] >> 24) > 0)
-		{
-			if (address < 0x4000)
-			{
-				return Memory.biosProtected[address & 3];
-			}
-			else
-			{
-				return Memory.read_unreadable_byte(address & 1);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
-			}
-			return Memory.GBRom[address & 0x3FFF];
-		}
+	case 0: return 0;
 
 	case 1: return Memory.read_unreadable_byte(address & 1);
 	case 2: return Memory.WRAM_Large[address & 0x03FFFFF];
@@ -265,7 +247,7 @@ byte read_byte_9(UInt32 address)
 			}
 			else
 			{
-				Memory.prepare_read_DSReg(adr);
+				Memory.prepare_read_DSReg9(adr);
 				byte value = Regs_Arm9.data[adr];
 				value &= rwmask;
 				return value;
@@ -362,25 +344,7 @@ UInt32 read_word_9(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU9.regs[15] >> 24) > 0)
-		{
-			if (address < 0x4000)
-			{
-				value = *(UInt16*)&Memory.biosProtected[address & 2];
-			}
-			else
-			{
-				value = Memory.read_unreadable_word();
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
-			}
-			value = *(UInt16*)&Memory.GBRom[address & 0x3FFE];
-		}
+		value = 0;
 		break;
 
 	case 1: value = Memory.read_unreadable_word(); break;
@@ -419,7 +383,7 @@ UInt32 read_word_9(UInt32 address)
 				}
 				else
 				{
-					Memory.prepare_read_DSReg(adr);
+					Memory.prepare_read_DSReg9(adr);
 					value = *(UInt16*)&Regs_Arm9.data[adr];
 					value &= rwmask;
 				}
@@ -512,25 +476,7 @@ UInt32 read_dword_9(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU9.regs[15] >> 24) > 0)
-		{
-			if (address < 0x4000)
-			{
-				value = *(UInt32*)&Memory.biosProtected[0];
-			}
-			else
-			{
-				value = Memory.read_unreadable_dword();
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
-			}
-			value = *(UInt32*)&Memory.GBRom[address & 0x3FFC];
-		}
+		value = 0;
 		break;
 
 	case 1: value = Memory.read_unreadable_dword(); break;
@@ -651,7 +597,7 @@ void write_byte_9(UInt32 address, byte data)
 		{
 			adr = address & 0x3FF;
 			Regs_Arm9.data[adr] = data;
-			Memory.write_DSReg(adr & 0xFFFFFFFE, data, false);
+			Memory.write_DSReg9(adr & 0xFFFFFFFE, data, false);
 		}
 		return;
 
@@ -727,7 +673,7 @@ void write_word_9(UInt32 address, UInt16 data)
 			adr = address & 0x3FF;
 			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
 			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.write_DSReg(adr, data, false);
+			Memory.write_DSReg9(adr, data, false);
 		}
 		return;
 
@@ -827,8 +773,8 @@ void write_dword_9(UInt32 address, UInt32 data)
 			Regs_Arm9.data[adr + 2] = (byte)((data >> 16) & 0xFF);
 			Regs_Arm9.data[adr + 3] = (byte)((data >> 24) & 0xFF);
 
-			Memory.write_DSReg(adr, data, true);
-			Memory.write_DSReg(adr + 2, data, true);
+			Memory.write_DSReg9(adr, data, true);
+			Memory.write_DSReg9(adr + 2, data, true);
 		}
 		return;
 
@@ -897,25 +843,7 @@ byte read_byte_7(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU9.regs[15] >> 24) > 0)
-		{
-			if (address < 0x4000)
-			{
-				return Memory.biosProtected[address & 3];
-			}
-			else
-			{
-				return Memory.read_unreadable_byte(address & 1);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
-			}
-			return Memory.GBRom[address & 0x3FFF];
-		}
+		return Memory.Bios7[address & 0x3FFF];
 
 	case 1: return Memory.read_unreadable_byte(address & 1);
 	case 2: return Memory.WRAM_Large[address & 0x03FFFFF];
@@ -935,7 +863,13 @@ byte read_byte_7(UInt32 address)
 		if (address < 0x04000400)
 		{
 			adr = address & 0x3FF;
-			byte rwmask = Regs_Arm9.rwmask[adr];
+
+			if (adr == Regs_Arm7.Sect_system7.RTC_reg.address)
+			{
+				return 0;
+			}
+
+			byte rwmask = Regs_Arm7.rwmask[adr];
 
 			if (rwmask == 0)
 			{
@@ -943,8 +877,8 @@ byte read_byte_7(UInt32 address)
 			}
 			else
 			{
-				Memory.prepare_read_DSReg(adr);
-				byte value = Regs_Arm9.data[adr];
+				Memory.prepare_read_DSReg7(adr);
+				byte value = Regs_Arm7.data[adr];
 				value &= rwmask;
 				return value;
 			}
@@ -1040,25 +974,7 @@ UInt32 read_word_7(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU9.regs[15] >> 24) > 0)
-		{
-			if (address < 0x4000)
-			{
-				value = *(UInt16*)&Memory.biosProtected[address & 2];
-			}
-			else
-			{
-				value = Memory.read_unreadable_word();
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
-			}
-			value = *(UInt16*)&Memory.GBRom[address & 0x3FFE];
-		}
+		value = *(UInt16*)&Memory.Bios7[address & 0x3FFE];
 		break;
 
 	case 1: value = Memory.read_unreadable_word(); break;
@@ -1080,16 +996,17 @@ UInt32 read_word_7(UInt32 address)
 		{
 			adr = address & 0x3FF;
 
-			if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_L.address ||
-				adr == Regs_Arm9.Sect_dma9.DMA1CNT_L.address ||
-				adr == Regs_Arm9.Sect_dma9.DMA2CNT_L.address ||
-				adr == Regs_Arm9.Sect_dma9.DMA3CNT_L.address)
+			if (adr == Regs_Arm7.Sect_dma7.DMA0CNT_L.address ||
+				adr == Regs_Arm7.Sect_dma7.DMA1CNT_L.address ||
+				adr == Regs_Arm7.Sect_dma7.DMA2CNT_L.address ||
+				adr == Regs_Arm7.Sect_dma7.DMA3CNT_L.address || 
+				adr == Regs_Arm7.Sect_system7.RTC_reg.address)
 			{
 				return 0;
 			}
 			else
 			{
-				UInt16 rwmask = *(UInt16*)&Regs_Arm9.rwmask[adr & 0x3FFE];
+				UInt16 rwmask = *(UInt16*)&Regs_Arm7.rwmask[adr & 0x3FFE];
 
 				if (rwmask == 0)
 				{
@@ -1097,8 +1014,8 @@ UInt32 read_word_7(UInt32 address)
 				}
 				else
 				{
-					Memory.prepare_read_DSReg(adr);
-					value = *(UInt16*)&Regs_Arm9.data[adr];
+					Memory.prepare_read_DSReg7(adr);
+					value = *(UInt16*)&Regs_Arm7.data[adr];
 					value &= rwmask;
 				}
 			}
@@ -1190,25 +1107,7 @@ UInt32 read_dword_7(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		if ((CPU9.regs[15] >> 24) > 0)
-		{
-			if (address < 0x4000)
-			{
-				value = *(UInt32*)&Memory.biosProtected[0];
-			}
-			else
-			{
-				value = Memory.read_unreadable_dword();
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				Memory.biosProtected[i] = Memory.GBRom[((address + 8) & 0x3FFC) + i];
-			}
-			value = *(UInt32*)&Memory.GBRom[address & 0x3FFC];
-		}
+		value = *(UInt32*)&Memory.Bios7[address & 0x3FFC];
 		break;
 
 	case 1: value = Memory.read_unreadable_dword(); break;
@@ -1328,8 +1227,8 @@ void write_byte_7(UInt32 address, byte data)
 		if (address < 0x04000400)
 		{
 			adr = address & 0x3FF;
-			Regs_Arm9.data[adr] = data;
-			Memory.write_DSReg(adr & 0xFFFFFFFE, data, false);
+			Regs_Arm7.data[adr] = data;
+			Memory.write_DSReg7(adr & 0xFFFFFFFE, data, false);
 		}
 		return;
 
@@ -1403,9 +1302,9 @@ void write_word_7(UInt32 address, UInt16 data)
 		if (address < 0x04000400)
 		{
 			adr = address & 0x3FF;
-			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
-			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.write_DSReg(adr, data, false);
+			Regs_Arm7.data[adr] = (byte)(data & 0xFF);
+			Regs_Arm7.data[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.write_DSReg7(adr, data, false);
 		}
 		return;
 
@@ -1500,13 +1399,13 @@ void write_dword_7(UInt32 address, UInt32 data)
 		{
 			adr = address & 0x3FF;
 
-			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
-			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
-			Regs_Arm9.data[adr + 2] = (byte)((data >> 16) & 0xFF);
-			Regs_Arm9.data[adr + 3] = (byte)((data >> 24) & 0xFF);
+			Regs_Arm7.data[adr] = (byte)(data & 0xFF);
+			Regs_Arm7.data[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Regs_Arm7.data[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Regs_Arm7.data[adr + 3] = (byte)((data >> 24) & 0xFF);
 
-			Memory.write_DSReg(adr, data, true);
-			Memory.write_DSReg(adr + 2, data, true);
+			Memory.write_DSReg7(adr, data, true);
+			Memory.write_DSReg7(adr + 2, data, true);
 		}
 		return;
 
@@ -1567,10 +1466,7 @@ void write_dword_7(UInt32 address, UInt32 data)
 }
 
 
-
-
-
-void MEMORY::prepare_read_DSReg(UInt32 adr)
+void MEMORY::prepare_read_DSReg9(UInt32 adr)
 {
 	if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address)
 	{
@@ -1593,6 +1489,31 @@ void MEMORY::prepare_read_DSReg(UInt32 adr)
 		UInt16 value = Timer.timers[3].retval;
 		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
+}
+
+void MEMORY::prepare_read_DSReg7(UInt32 adr)
+{
+	if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address)
+	{
+		UInt16 value = Timer.timers[0].retval;
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+	}
+	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address)
+	{
+		UInt16 value = Timer.timers[1].retval;
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+	}
+	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address)
+	{
+		UInt16 value = Timer.timers[2].retval; Regs_Arm9.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+	}
+	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address)
+	{
+		UInt16 value = Timer.timers[3].retval;
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+	}
 
 	else if (adr == Regs_Arm7.Sect_sound7.SOUNDCNT_X.address)
 	{
@@ -1604,7 +1525,7 @@ void MEMORY::prepare_read_DSReg(UInt32 adr)
 	}
 }
 
-void MEMORY::write_DSReg(UInt32 adr, UInt32 value, bool dwaccess)
+void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 {
 	if (adr == Regs_Arm9.Sect_display9.DISPCNT.address) { GPU.dispcnt_write(); }
 	if (adr == Regs_Arm9.Sect_display9.DISPSTAT.address) { GPU_Timing.dispstat_write(); }
@@ -1644,4 +1565,13 @@ void MEMORY::write_DSReg(UInt32 adr, UInt32 value, bool dwaccess)
 	else if (adr == Regs_Arm9.Sect_system9.IME.address) { IRP.update_IME(*(UInt16*)&Regs_Arm9.data[Regs_Arm9.Sect_system9.IME.address]); }
 	else if (adr == Regs_Arm9.Sect_system9.IE.address) { IRP.update_IE(); }
 	else if (adr == Regs_Arm9.Sect_system9.IF.address + 2) { IRP.clear_irp_bits(); }
+
+	if (adr == Regs_Arm9.Sect_system9.IPCFIFOCNT.address) { IPC9to7.write_control(); return; }
+}
+
+void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
+{
+	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }
+
+	if (adr == Regs_Arm7.Sect_system7.SPICNT.address + 2) { SPI_Intern.write_data((byte)value); return; }
 }

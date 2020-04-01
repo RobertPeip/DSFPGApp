@@ -89,6 +89,12 @@
     <ClCompile Include="regs_arm7.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="spi_intern.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="IPC.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameboy.h">
@@ -167,6 +173,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="regs_arm7.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="spi_intern.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="IPC.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

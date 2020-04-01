@@ -987,7 +987,7 @@ public:
     /// <summary>
     /// 2 R/W Send Fifo Empty IRQ (0=Disable, 1=Enable)
     /// </summary>
-    DSReg IPCFIFOCNT_Send_Fifo_Empty;
+    DSReg IPCFIFOCNT_Send_Fifo_Empty_IRQ;
     /// <summary>
     /// 3 W Send Fifo Clear (0=Nothing, 1=Flush Send Fifo)
     /// </summary>
@@ -1260,6 +1260,10 @@ public:
     /// 21 NDS9 only: Geometry Command FIFO
     /// </summary>
     DSReg IE_Geometry_Command_FIFO;
+    /// <summary>
+    /// 22-31 unused
+    /// </summary>
+    DSReg IE_unused;
     /// <summary>
     /// Interrupt Request Flags / IRQ Acknowledge
     /// </summary>

@@ -78,7 +78,7 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(0x04000000); // display settings
-	this->memory02 = 0;// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = (*CPU.read_dword)(0x04000184);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
 	this->memory03 = (*CPU.read_dword)(0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -263,7 +263,7 @@ void Tracer::vcd_file_last()
 			if (i == 0 || state.thumbmode != laststate.thumbmode) fprintf(file, "%s%dAT\n", std::bitset<1>(state.thumbmode).to_string().c_str(), cpuindex);
 			if (i == 0 || state.armmode != laststate.armmode) fprintf(file, "b%s %dM\n", std::bitset<8>(state.armmode).to_string().c_str(), cpuindex);
 			if (i == 0 || state.irpdisable != laststate.irpdisable) fprintf(file, "%s%dI\n", std::bitset<1>(state.irpdisable).to_string().c_str(), cpuindex);
-			if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s %dIF\n", std::bitset<16>(state.IF_intern).to_string().c_str(), cpuindex);
+			if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s %dIF\n", std::bitset<32>(state.IF_intern).to_string().c_str(), cpuindex);
 			if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s %dIW\n", std::bitset<8>(state.irp_wait).to_string().c_str(), cpuindex);
 
 			if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s %dT0\n", std::bitset<32>(state.timer0).to_string().c_str(), cpuindex);
@@ -660,7 +660,7 @@ void Cpu::unconditional_branch(UInt16 SOffset11)
 		PC = (UInt32)(regs[15] + (SOffset11 << 1));
 	}
 	PC &= 0xFFFFFFFE;
-	newticks = 3 + (BusTiming.codeTicksAccessSeq16(PC) * 2) + BusTiming.codeTicksAccess16(PC);
+	newticks = 3 + BusTiming.codeTicksAccessSeq16(PC) + BusTiming.codeTicksAccess16(PC);
 	PC -= 2;
 }
 
@@ -924,9 +924,9 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 void Cpu::pc_relative_load(byte Rd, byte word8)
 {
 	uint addr = regs[15] + (UInt32)(word8 << 2);
-	regs[Rd] = (*read_dword)(addr & 0xFFFFFFFC);
+	addr &= 0xFFFFFFFC;
+	regs[Rd] = (*read_dword)(addr);
 	newticks = 3 + BusTiming.dataTicksAccess32(isArm9, addr, true, lastAddress);
-	newticks += BusTiming.codeTicksAccess16(PC + 4);
 }
 
 void Cpu::thumbbranch_by_R15_write()
@@ -1306,12 +1306,12 @@ void Cpu::software_interrupt()
 
 	if (old_thumb)
 	{
-		PC = 6; // will be 8 after end of thumb command
+		PC = irpTarget + 6; // will be 8 after end of thumb command
 		newticks = 3;
 	}
 	else
 	{
-		PC = 4; // will be 8 after end of arm command
+		PC = irpTarget + 4; // will be 8 after end of arm command
 		newticks = BusTiming.codeTicksAccessSeq32(PC) + 1;
 		newticks = (newticks * 2) + BusTiming.codeTicksAccess32(PC) + 1;
 	}

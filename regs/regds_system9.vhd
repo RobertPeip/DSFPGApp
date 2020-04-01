@@ -18,7 +18,7 @@ package pReg_ds_system_9 is
    constant IPCFIFOCNT                             : regmap_type := (12#184#,  15,      0,        1,        0,   writeonly); -- IPC Fifo Control Register (R/W)           
    constant IPCFIFOCNT_Send_Fifo_Empty_Status      : regmap_type := (12#184#,   0,      0,        1,        0,   readonly ); -- 0     R    Send Fifo Empty Status      (0=Not Empty, 1=Empty)
    constant IPCFIFOCNT_Send_Fifo_Full_Status       : regmap_type := (12#184#,   1,      1,        1,        0,   readonly ); -- 1     R    Send Fifo Full Status       (0=Not Full, 1=Full)
-   constant IPCFIFOCNT_Send_Fifo_Empty IRQ         : regmap_type := (12#184#,   2,      2,        1,        0,   readwrite); -- 2     R/W  Send Fifo Empty IRQ         (0=Disable, 1=Enable)
+   constant IPCFIFOCNT_Send_Fifo_Empty_IRQ         : regmap_type := (12#184#,   2,      2,        1,        0,   readwrite); -- 2     R/W  Send Fifo Empty IRQ         (0=Disable, 1=Enable)
    constant IPCFIFOCNT_Send_Fifo_Clear             : regmap_type := (12#184#,   3,      3,        1,        0,   writeonly); -- 3     W    Send Fifo Clear             (0=Nothing, 1=Flush Send Fifo)
    constant IPCFIFOCNT_Receive_Fifo_Empty          : regmap_type := (12#184#,   8,      8,        1,        0,   readonly ); -- 8     R    Receive Fifo Empty          (0=Not Empty, 1=Empty)
    constant IPCFIFOCNT_Receive_Fifo_Full           : regmap_type := (12#184#,   9,      9,        1,        0,   readonly ); -- 9     R    Receive Fifo Full           (0=Not Full, 1=Full)
@@ -100,6 +100,7 @@ package pReg_ds_system_9 is
    constant IE_NDS_Slot_Transfer_Complete          : regmap_type := (12#210#,  19,     19,        1,        0,   readwrite); -- 19    NDS-Slot Game Card Data Transfer Completion
    constant IE_NDS_Slot_IREQ_MC                    : regmap_type := (12#210#,  20,     20,        1,        0,   readwrite); -- 20    NDS-Slot Game Card IREQ_MC
    constant IE_Geometry_Command_FIFO               : regmap_type := (12#210#,  21,     21,        1,        0,   readwrite); -- 21    NDS9 only: Geometry Command FIFO
+   constant IE_unused                              : regmap_type := (12#210#,  31,     22,        1,        0,   readwrite); -- 22-31 unused
                                        
    constant IF                                     : regmap_type := (12#214#,  31,     16,        1,        0,   writeonly); -- Interrupt Request Flags / IRQ Acknowledge
    constant IF_LCD_V_Blank                         : regmap_type := (12#214#,   0,      0,        1,        0,   readwrite); -- 0     LCD V-Blank

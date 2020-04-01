@@ -258,7 +258,7 @@ RegSect_system9::RegSect_system9()
     IPCFIFOCNT = DSReg(0x184, 15, 0, 1, 0, "writeonly", Regs_Arm9.data);
     IPCFIFOCNT_Send_Fifo_Empty_Status = DSReg(0x184, 0, 0, 1, 0, "readonly", Regs_Arm9.data);
     IPCFIFOCNT_Send_Fifo_Full_Status = DSReg(0x184, 1, 1, 1, 0, "readonly", Regs_Arm9.data);
-    IPCFIFOCNT_Send_Fifo_Empty = DSReg(0x184, 2, 2, 1, 0, "readwrite", Regs_Arm9.data);
+    IPCFIFOCNT_Send_Fifo_Empty_IRQ = DSReg(0x184, 2, 2, 1, 0, "readwrite", Regs_Arm9.data);
     IPCFIFOCNT_Send_Fifo_Clear = DSReg(0x184, 3, 3, 1, 0, "writeonly", Regs_Arm9.data);
     IPCFIFOCNT_Receive_Fifo_Empty = DSReg(0x184, 8, 8, 1, 0, "readonly", Regs_Arm9.data);
     IPCFIFOCNT_Receive_Fifo_Full = DSReg(0x184, 9, 9, 1, 0, "readonly", Regs_Arm9.data);
@@ -327,6 +327,7 @@ RegSect_system9::RegSect_system9()
     IE_NDS_Slot_Transfer_Complete = DSReg(0x210, 19, 19, 1, 0, "readwrite", Regs_Arm9.data);
     IE_NDS_Slot_IREQ_MC = DSReg(0x210, 20, 20, 1, 0, "readwrite", Regs_Arm9.data);
     IE_Geometry_Command_FIFO = DSReg(0x210, 21, 21, 1, 0, "readwrite", Regs_Arm9.data);
+    IE_unused = DSReg(0x210, 31, 22, 1, 0, "readwrite", Regs_Arm9.data);
     IF = DSReg(0x214, 31, 16, 1, 0, "writeonly", Regs_Arm9.data);
     IF_LCD_V_Blank = DSReg(0x214, 0, 0, 1, 0, "readwrite", Regs_Arm9.data);
     IF_LCD_H_Blank = DSReg(0x214, 1, 1, 1, 0, "readwrite", Regs_Arm9.data);
@@ -757,11 +758,11 @@ void REGS_Arm9::reset()
     rwmask[521] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[522] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[523] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
-    // IE at 0x210 = 0x3F3F7F;
-    rwmask[528] = (byte)(0x3F3F7F & 0xFF);
-    rwmask[529] = (byte)((0x3F3F7F >> 8) & 0xFF);
-    rwmask[530] = (byte)((0x3F3F7F >> 16) & 0xFF);
-    rwmask[531] = (byte)((0x3F3F7F >> 24) & 0xFF);
+    // IE at 0x210 = 0xFFFF3F7F;
+    rwmask[528] = (byte)(0xFFFF3F7F & 0xFF);
+    rwmask[529] = (byte)((0xFFFF3F7F >> 8) & 0xFF);
+    rwmask[530] = (byte)((0xFFFF3F7F >> 16) & 0xFF);
+    rwmask[531] = (byte)((0xFFFF3F7F >> 24) & 0xFF);
     // IF at 0x214 = 0x3F3F7F;
     rwmask[532] = (byte)(0x3F3F7F & 0xFF);
     rwmask[533] = (byte)((0x3F3F7F >> 8) & 0xFF);

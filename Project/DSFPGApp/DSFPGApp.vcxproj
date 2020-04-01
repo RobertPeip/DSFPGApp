@@ -33,6 +33,7 @@
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GPU_Timing.cpp" />
     <ClCompile Include="Header.cpp" />
+    <ClCompile Include="IPC.cpp" />
     <ClCompile Include="IRP.cpp" />
     <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="Memory.cpp" />
@@ -44,6 +45,7 @@
     <ClCompile Include="SoundChannel.cpp" />
     <ClCompile Include="SoundDMA.cpp" />
     <ClCompile Include="SoundGenerator.cpp" />
+    <ClCompile Include="spi_intern.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +62,7 @@
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GPU_Timing.h" />
     <ClInclude Include="Header.h" />
+    <ClInclude Include="IPC.h" />
     <ClInclude Include="IRP.h" />
     <ClInclude Include="Joypad.h" />
     <ClInclude Include="Memory.h" />
@@ -71,6 +74,7 @@
     <ClInclude Include="SoundChannel.h" />
     <ClInclude Include="SoundDMA.h" />
     <ClInclude Include="SoundGenerator.h" />
+    <ClInclude Include="spi_intern.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

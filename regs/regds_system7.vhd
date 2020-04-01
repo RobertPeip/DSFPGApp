@@ -7,8 +7,21 @@ use work.pRegmap.all;
 
 package pReg_ds_system_7 is
 
-   -- range 0x200 .. 0x800
-   --   (                                                      adr      upper    lower    size   default   accesstype)                       
+   -- range 0x138 .. 0x800
+   --   (                                                      adr      upper    lower    size   default   accesstype)     
+   constant RTC_reg                                : regmap_type := (12#138#,  15,      0,        1,        0,   writeonly); -- Real Time Clock Register         
+   constant RTC_reg_Data_IO                        : regmap_type := (12#138#,   0,      0,        1,        0,   readwrite); -- 0        Data I/O   (0=Low, 1=High)     
+   constant RTC_reg_Clock                          : regmap_type := (12#138#,   1,      1,        1,        0,   readwrite); -- 1        Clock Out  (0=Low, 1=High)     
+   constant RTC_reg_Select                         : regmap_type := (12#138#,   2,      2,        1,        0,   readwrite); -- 2        Select Out (0=Low, 1=High/Select) 
+   constant RTC_reg_Unused_IO_Line3                : regmap_type := (12#138#,   3,      3,        1,        0,   readwrite); -- 3        Unused I/O Lines    
+   constant RTC_reg_Data_Direction                 : regmap_type := (12#138#,   4,      4,        1,        0,   readwrite); -- 4        Data  Direction  (0=Read, 1=Write)     
+   constant RTC_reg_Clock_Direction                : regmap_type := (12#138#,   5,      5,        1,        0,   readwrite); -- 5        Clock Direction  (should be 1=Write)     
+   constant RTC_reg_Select_Direction               : regmap_type := (12#138#,   6,      6,        1,        0,   readwrite); -- 6        Select Direction (should be 1=Write)    
+   constant RTC_reg_Direction_unused3              : regmap_type := (12#138#,   7,      7,        1,        0,   readwrite); -- 7        Direction for Bit3 (usually 0)     
+   constant RTC_reg_Unused_IO_Lines811             : regmap_type := (12#138#,  11,      8,        1,        0,   readwrite); -- 8-11     Unused I/O Lines     
+   constant RTC_reg_Direction_unused811            : regmap_type := (12#138#,  15,     12,        1,        0,   readwrite); -- 12-15  Direction for Bit8-11 (usually 0)     
+   
+   
    constant IPCSYNC                                : regmap_type := (12#180#,  15,      0,        1,        0,   writeonly); -- IPC Synchronize Register (R/W)            
    constant IPCSYNC_Data_from_IPCSYNC              : regmap_type := (12#180#,   3,      0,        1,        0,   readonly ); -- 0-3   R    Data input from IPCSYNC Bit8-11 of remote CPU (00h..0Fh)
    constant IPCSYNC_Data_to_IPCSYNC                : regmap_type := (12#180#,  11,      8,        1,        0,   readwrite); -- 8-11  R/W  Data output to IPCSYNC Bit0-3 of remote CPU   (00h..0Fh)
@@ -18,7 +31,7 @@ package pReg_ds_system_7 is
    constant IPCFIFOCNT                             : regmap_type := (12#184#,  15,      0,        1,        0,   writeonly); -- IPC Fifo Control Register (R/W)           
    constant IPCFIFOCNT_Send_Fifo_Empty_Status      : regmap_type := (12#184#,   0,      0,        1,        0,   readonly ); -- 0     R    Send Fifo Empty Status      (0=Not Empty, 1=Empty)
    constant IPCFIFOCNT_Send_Fifo_Full_Status       : regmap_type := (12#184#,   1,      1,        1,        0,   readonly ); -- 1     R    Send Fifo Full Status       (0=Not Full, 1=Full)
-   constant IPCFIFOCNT_Send_Fifo_Empty IRQ         : regmap_type := (12#184#,   2,      2,        1,        0,   readwrite); -- 2     R/W  Send Fifo Empty IRQ         (0=Disable, 1=Enable)
+   constant IPCFIFOCNT_Send_Fifo_Empty_IRQ         : regmap_type := (12#184#,   2,      2,        1,        0,   readwrite); -- 2     R/W  Send Fifo Empty IRQ         (0=Disable, 1=Enable)
    constant IPCFIFOCNT_Send_Fifo_Clear             : regmap_type := (12#184#,   3,      3,        1,        0,   writeonly); -- 3     W    Send Fifo Clear             (0=Nothing, 1=Flush Send Fifo)
    constant IPCFIFOCNT_Receive_Fifo_Empty          : regmap_type := (12#184#,   8,      8,        1,        0,   readonly ); -- 8     R    Receive Fifo Empty          (0=Not Empty, 1=Empty)
    constant IPCFIFOCNT_Receive_Fifo_Full           : regmap_type := (12#184#,   9,      9,        1,        0,   readonly ); -- 9     R    Receive Fifo Full           (0=Not Full, 1=Full)
@@ -65,6 +78,7 @@ package pReg_ds_system_7 is
    constant Encryption_Seed_1_Upper                : regmap_type := (12#1B8#,  22,     16,        1,        0,   writeonly); -- Encryption Seed 1 Upper 7bit (bit7-15 unused)
    
    constant SPICNT                                 : regmap_type := (12#1C0#,  23,      0,        1,        0,   writeonly); --  SPI Bus Control/Status Register           
+   constant SPICNT_Baudrate                        : regmap_type := (12#1C0#,   1,      0,        1,        0,   readwrite); -- 0-1   Baudrate (0=4MHz/Firmware, 1=2MHz/Touchscr, 2=1MHz/Powerman., 3=512KHz)
    constant SPICNT_Busy_Flag                       : regmap_type := (12#1C0#,   7,      7,        1,        0,   readonly ); -- 7     Busy Flag           (0=Ready, 1=Busy) (presumably Read-only)
    constant SPICNT_Device_Select                   : regmap_type := (12#1C0#,   9,      8,        1,        0,   readwrite); -- 8-9   Device Select       (0=Powerman., 1=Firmware, 2=Touchscr, 3=Reserved)
    constant SPICNT_Transfer_Size                   : regmap_type := (12#1C0#,  10,     10,        1,        0,   readwrite); -- 10    Transfer Size       (0=8bit/Normal, 1=16bit/Bugged)
@@ -111,9 +125,10 @@ package pReg_ds_system_7 is
    constant IE_IPC_Recv_FIFO_Not_Empty             : regmap_type := (12#210#,  18,     18,        1,        0,   readwrite); -- 18    IPC Recv FIFO Not Empty
    constant IE_NDS_Slot_Transfer_Complete          : regmap_type := (12#210#,  19,     19,        1,        0,   readwrite); -- 19    NDS-Slot Game Card Data Transfer Completion
    constant IE_NDS_Slot_IREQ_MC                    : regmap_type := (12#210#,  20,     20,        1,        0,   readwrite); -- 20    NDS-Slot Game Card IREQ_MC
-   constant IE_Screens_unfolding                   : regmap_type := (12#210#,  22,     22,        1,        0,   writeonly); -- 22    NDS7 only: Screens unfolding
-   constant IE_SPI_bus                             : regmap_type := (12#210#,  23,     23,        1,        0,   writeonly); -- 23    NDS7 only: SPI bus
-   constant IE_Wifi                                : regmap_type := (12#210#,  24,     24,        1,        0,   writeonly); -- 24    NDS7 only: Wifi    / DSi9: XpertTeak DSP
+   constant IE_Screens_unfolding                   : regmap_type := (12#210#,  22,     22,        1,        0,   readwrite); -- 22    NDS7 only: Screens unfolding
+   constant IE_SPI_bus                             : regmap_type := (12#210#,  23,     23,        1,        0,   readwrite); -- 23    NDS7 only: SPI bus
+   constant IE_Wifi                                : regmap_type := (12#210#,  24,     24,        1,        0,   readwrite); -- 24    NDS7 only: Wifi    / DSi9: XpertTeak DSP
+   constant IE_unused                              : regmap_type := (12#210#,  31,     25,        1,        0,   readwrite); -- 25-31 unused
                                        
    constant IF                                     : regmap_type := (12#214#,  31,     16,        1,        0,   writeonly); -- Interrupt Request Flags / IRQ Acknowledge
    constant IF_LCD_V_Blank                         : regmap_type := (12#214#,   0,      0,        1,        0,   readwrite); -- 0     LCD V-Blank
@@ -150,7 +165,7 @@ package pReg_ds_system_7 is
    constant POSTFLG_Power_Down_Mode                : regmap_type := (12#300#,  15,     14,        1,        0,   readwrite); -- Power Down Mode  (0=No function, 1=Enter GBA Mode, 2=Halt, 3=Sleep)
    
    constant POWCNT2                                : regmap_type := (12#304#,   1,      0,        1,        0,   writeonly); -- Sound/Wifi Power Control Register (R/W)   
-   constant POWCNT2_Sound                          : regmap_type := (12#304#,   0,      0,        1,        0,   readwrite); -- Sound Speakers (0=Disable, 1=Enable) (Initial setting = 1)     
+   constant POWCNT2_Sound                          : regmap_type := (12#304#,   0,      0,        1,        1,   readwrite); -- Sound Speakers (0=Disable, 1=Enable) (Initial setting = 1)     
    constant POWCNT2_Wifi                           : regmap_type := (12#304#,   1,      1,        1,        0,   readwrite); -- Wifi           (0=Disable, 1=Enable) (Initial setting = 0)   
 
    constant BIOSPROT                               : regmap_type := (12#308#,  15,      0,        1, 16#1205#,   readonly ); -- Bios-data-read-protection address

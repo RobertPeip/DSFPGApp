@@ -327,6 +327,17 @@ RegSect_keypad7::RegSect_keypad7()
 
 RegSect_system7::RegSect_system7()
 {
+    RTC_reg = DSReg(0x138, 15, 0, 1, 0, "writeonly", Regs_Arm7.data);
+    RTC_reg_Data_IO = DSReg(0x138, 0, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Clock = DSReg(0x138, 1, 1, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Select = DSReg(0x138, 2, 2, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Unused_IO_Line3 = DSReg(0x138, 3, 3, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Data_Direction = DSReg(0x138, 4, 4, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Clock_Direction = DSReg(0x138, 5, 5, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Select_Direction = DSReg(0x138, 6, 6, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Direction_unused3 = DSReg(0x138, 7, 7, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Unused_IO_Lines811 = DSReg(0x138, 11, 8, 1, 0, "readwrite", Regs_Arm7.data);
+    RTC_reg_Direction_unused811 = DSReg(0x138, 15, 12, 1, 0, "readwrite", Regs_Arm7.data);
     IPCSYNC = DSReg(0x180, 15, 0, 1, 0, "writeonly", Regs_Arm7.data);
     IPCSYNC_Data_from_IPCSYNC = DSReg(0x180, 3, 0, 1, 0, "readonly", Regs_Arm7.data);
     IPCSYNC_Data_to_IPCSYNC = DSReg(0x180, 11, 8, 1, 0, "readwrite", Regs_Arm7.data);
@@ -335,7 +346,7 @@ RegSect_system7::RegSect_system7()
     IPCFIFOCNT = DSReg(0x184, 15, 0, 1, 0, "writeonly", Regs_Arm7.data);
     IPCFIFOCNT_Send_Fifo_Empty_Status = DSReg(0x184, 0, 0, 1, 0, "readonly", Regs_Arm7.data);
     IPCFIFOCNT_Send_Fifo_Full_Status = DSReg(0x184, 1, 1, 1, 0, "readonly", Regs_Arm7.data);
-    IPCFIFOCNT_Send_Fifo_Empty = DSReg(0x184, 2, 2, 1, 0, "readwrite", Regs_Arm7.data);
+    IPCFIFOCNT_Send_Fifo_Empty_IRQ = DSReg(0x184, 2, 2, 1, 0, "readwrite", Regs_Arm7.data);
     IPCFIFOCNT_Send_Fifo_Clear = DSReg(0x184, 3, 3, 1, 0, "writeonly", Regs_Arm7.data);
     IPCFIFOCNT_Receive_Fifo_Empty = DSReg(0x184, 8, 8, 1, 0, "readonly", Regs_Arm7.data);
     IPCFIFOCNT_Receive_Fifo_Full = DSReg(0x184, 9, 9, 1, 0, "readonly", Regs_Arm7.data);
@@ -374,6 +385,7 @@ RegSect_system7::RegSect_system7()
     Encryption_Seed_0_Upper = DSReg(0x1B8, 6, 0, 1, 0, "writeonly", Regs_Arm7.data);
     Encryption_Seed_1_Upper = DSReg(0x1B8, 22, 16, 1, 0, "writeonly", Regs_Arm7.data);
     SPICNT = DSReg(0x1C0, 23, 0, 1, 0, "writeonly", Regs_Arm7.data);
+    SPICNT_Baudrate = DSReg(0x1C0, 1, 0, 1, 0, "readwrite", Regs_Arm7.data);
     SPICNT_Busy_Flag = DSReg(0x1C0, 7, 7, 1, 0, "readonly", Regs_Arm7.data);
     SPICNT_Device_Select = DSReg(0x1C0, 9, 8, 1, 0, "readwrite", Regs_Arm7.data);
     SPICNT_Transfer_Size = DSReg(0x1C0, 10, 10, 1, 0, "readwrite", Regs_Arm7.data);
@@ -415,9 +427,10 @@ RegSect_system7::RegSect_system7()
     IE_IPC_Recv_FIFO_Not_Empty = DSReg(0x210, 18, 18, 1, 0, "readwrite", Regs_Arm7.data);
     IE_NDS_Slot_Transfer_Complete = DSReg(0x210, 19, 19, 1, 0, "readwrite", Regs_Arm7.data);
     IE_NDS_Slot_IREQ_MC = DSReg(0x210, 20, 20, 1, 0, "readwrite", Regs_Arm7.data);
-    IE_Screens_unfolding = DSReg(0x210, 22, 22, 1, 0, "writeonly", Regs_Arm7.data);
-    IE_SPI_bus = DSReg(0x210, 23, 23, 1, 0, "writeonly", Regs_Arm7.data);
-    IE_Wifi = DSReg(0x210, 24, 24, 1, 0, "writeonly", Regs_Arm7.data);
+    IE_Screens_unfolding = DSReg(0x210, 22, 22, 1, 0, "readwrite", Regs_Arm7.data);
+    IE_SPI_bus = DSReg(0x210, 23, 23, 1, 0, "readwrite", Regs_Arm7.data);
+    IE_Wifi = DSReg(0x210, 24, 24, 1, 0, "readwrite", Regs_Arm7.data);
+    IE_unused = DSReg(0x210, 31, 25, 1, 0, "readwrite", Regs_Arm7.data);
     IF = DSReg(0x214, 31, 16, 1, 0, "writeonly", Regs_Arm7.data);
     IF_LCD_V_Blank = DSReg(0x214, 0, 0, 1, 0, "readwrite", Regs_Arm7.data);
     IF_LCD_H_Blank = DSReg(0x214, 1, 1, 1, 0, "readwrite", Regs_Arm7.data);
@@ -449,7 +462,7 @@ RegSect_system7::RegSect_system7()
     POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 0, "readonly", Regs_Arm7.data);
     POSTFLG_Power_Down_Mode = DSReg(0x300, 15, 14, 1, 0, "readwrite", Regs_Arm7.data);
     POWCNT2 = DSReg(0x304, 1, 0, 1, 0, "writeonly", Regs_Arm7.data);
-    POWCNT2_Sound = DSReg(0x304, 0, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    POWCNT2_Sound = DSReg(0x304, 0, 0, 1, 1, "readwrite", Regs_Arm7.data);
     POWCNT2_Wifi = DSReg(0x304, 1, 1, 1, 0, "readwrite", Regs_Arm7.data);
     BIOSPROT = DSReg(0x308, 15, 0, 1, 0x1205, "readonly", Regs_Arm7.data);
 }
@@ -480,6 +493,8 @@ void REGS_Arm7::reset()
       // EXMEMSTAT_SET at 0x204 = 1;
       data[516] = 8192 & 0xFF;
       data[517] = (8192 >> 8) & 0xFF;
+      // POWCNT2_Sound at 0x304 = 1;
+      data[772] = 1 & 0xFF;
       // BIOSPROT at 0x308 = 0x1205;
       data[776] = 4613 & 0xFF;
       data[777] = (4613 >> 8) & 0xFF;
@@ -799,6 +814,11 @@ void REGS_Arm7::reset()
     rwmask[309] = (byte)((0xFF0000 >> 8) & 0xFF);
     rwmask[310] = (byte)((0xFF0000 >> 16) & 0xFF);
     rwmask[311] = (byte)((0xFF0000 >> 24) & 0xFF);
+    // RTC_reg at 0x138 = 0xFFFF;
+    rwmask[312] = (byte)(0xFFFF & 0xFF);
+    rwmask[313] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[314] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[315] = (byte)((0xFFFF >> 24) & 0xFF);
     // IPCSYNC at 0x180 = 0x6F0F;
     rwmask[384] = (byte)(0x6F0F & 0xFF);
     rwmask[385] = (byte)((0x6F0F >> 8) & 0xFF);
@@ -849,11 +869,11 @@ void REGS_Arm7::reset()
     rwmask[441] = (byte)((0x0 >> 8) & 0xFF);
     rwmask[442] = (byte)((0x0 >> 16) & 0xFF);
     rwmask[443] = (byte)((0x0 >> 24) & 0xFF);
-    // SPICNT at 0x1C0 = 0xFFCF80;
-    rwmask[448] = (byte)(0xFFCF80 & 0xFF);
-    rwmask[449] = (byte)((0xFFCF80 >> 8) & 0xFF);
-    rwmask[450] = (byte)((0xFFCF80 >> 16) & 0xFF);
-    rwmask[451] = (byte)((0xFFCF80 >> 24) & 0xFF);
+    // SPICNT at 0x1C0 = 0xFFCF83;
+    rwmask[448] = (byte)(0xFFCF83 & 0xFF);
+    rwmask[449] = (byte)((0xFFCF83 >> 8) & 0xFF);
+    rwmask[450] = (byte)((0xFFCF83 >> 16) & 0xFF);
+    rwmask[451] = (byte)((0xFFCF83 >> 24) & 0xFF);
     // EXMEMSTAT at 0x204 = 0x3FFFFFFF;
     rwmask[516] = (byte)(0x3FFFFFFF & 0xFF);
     rwmask[517] = (byte)((0x3FFFFFFF >> 8) & 0xFF);
@@ -864,11 +884,11 @@ void REGS_Arm7::reset()
     rwmask[521] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[522] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[523] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
-    // IE at 0x210 = 0x1F3FFF;
-    rwmask[528] = (byte)(0x1F3FFF & 0xFF);
-    rwmask[529] = (byte)((0x1F3FFF >> 8) & 0xFF);
-    rwmask[530] = (byte)((0x1F3FFF >> 16) & 0xFF);
-    rwmask[531] = (byte)((0x1F3FFF >> 24) & 0xFF);
+    // IE at 0x210 = 0xFFDF3FFF;
+    rwmask[528] = (byte)(0xFFDF3FFF & 0xFF);
+    rwmask[529] = (byte)((0xFFDF3FFF >> 8) & 0xFF);
+    rwmask[530] = (byte)((0xFFDF3FFF >> 16) & 0xFF);
+    rwmask[531] = (byte)((0xFFDF3FFF >> 24) & 0xFF);
     // IF at 0x214 = 0x1F3FFF;
     rwmask[532] = (byte)(0x1F3FFF & 0xFF);
     rwmask[533] = (byte)((0x1F3FFF >> 8) & 0xFF);

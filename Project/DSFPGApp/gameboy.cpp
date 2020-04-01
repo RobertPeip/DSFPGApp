@@ -18,6 +18,8 @@
 #include "IRP.h"
 #include "Header.h"
 #include "CPUCache.h"
+#include "spi_intern.h"
+#include "IPC.h"
 
 Gameboy gameboy;
 
@@ -48,6 +50,9 @@ void Gameboy::reset()
 	BusTiming.reset();
 	//gpio.rtcReset();
 	Serial.reset();
+	SPI_Intern.reset();
+	IPC9to7.reset(true);
+	IPC7to9.reset(false);
 
 	loading_state = false;
 	coldreset = false;
@@ -70,7 +75,7 @@ void Gameboy::run()
 	while (on)
 	{
 #if DEBUG
-		if (tracer.traclist_ptr == 6545)
+		if (tracer.traclist_ptr == 6443)
 		{
 			int stop = 1;
 		}
@@ -89,7 +94,7 @@ void Gameboy::run()
 		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 10000;
+			tracer.runmoretrace = 50000;
 		}
 
 		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)

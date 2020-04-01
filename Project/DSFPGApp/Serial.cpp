@@ -37,7 +37,7 @@ void SERIAL::work()
 			{
 				if (IRP_enable)
 				{
-					IRP.set_irp_bit(IRP.IRPMASK_Serial);
+					//IRP.set_irp_bit(IRP.IRPMASK_Serial);
 				}
 				//DSRegs.Sect_serial.SIOCNT.mask(0xDF7F);
 				start = false;

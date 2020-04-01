@@ -1252,6 +1252,50 @@ class RegSect_system7
 {
 public:
     /// <summary>
+    /// Real Time Clock Register
+    /// </summary>
+    DSReg RTC_reg;
+    /// <summary>
+    /// 0 Data I/O (0=Low, 1=High)
+    /// </summary>
+    DSReg RTC_reg_Data_IO;
+    /// <summary>
+    /// 1 Clock Out (0=Low, 1=High)
+    /// </summary>
+    DSReg RTC_reg_Clock;
+    /// <summary>
+    /// 2 Select Out (0=Low, 1=High/Select)
+    /// </summary>
+    DSReg RTC_reg_Select;
+    /// <summary>
+    /// 3 Unused I/O Lines
+    /// </summary>
+    DSReg RTC_reg_Unused_IO_Line3;
+    /// <summary>
+    /// 4 Data Direction (0=Read, 1=Write)
+    /// </summary>
+    DSReg RTC_reg_Data_Direction;
+    /// <summary>
+    /// 5 Clock Direction (should be 1=Write)
+    /// </summary>
+    DSReg RTC_reg_Clock_Direction;
+    /// <summary>
+    /// 6 Select Direction (should be 1=Write)
+    /// </summary>
+    DSReg RTC_reg_Select_Direction;
+    /// <summary>
+    /// 7 Direction for Bit3 (usually 0)
+    /// </summary>
+    DSReg RTC_reg_Direction_unused3;
+    /// <summary>
+    /// 8-11 Unused I/O Lines
+    /// </summary>
+    DSReg RTC_reg_Unused_IO_Lines811;
+    /// <summary>
+    /// 12-15 Direction for Bit8-11 (usually 0)
+    /// </summary>
+    DSReg RTC_reg_Direction_unused811;
+    /// <summary>
     /// IPC Synchronize Register (R/W)
     /// </summary>
     DSReg IPCSYNC;
@@ -1286,7 +1330,7 @@ public:
     /// <summary>
     /// 2 R/W Send Fifo Empty IRQ (0=Disable, 1=Enable)
     /// </summary>
-    DSReg IPCFIFOCNT_Send_Fifo_Empty;
+    DSReg IPCFIFOCNT_Send_Fifo_Empty_IRQ;
     /// <summary>
     /// 3 W Send Fifo Clear (0=Nothing, 1=Flush Send Fifo)
     /// </summary>
@@ -1439,6 +1483,10 @@ public:
     ///  SPI Bus Control/Status Register
     /// </summary>
     DSReg SPICNT;
+    /// <summary>
+    /// 0-1 Baudrate (0=4MHz/Firmware, 1=2MHz/Touchscr, 2=1MHz/Powerman., 3=512KHz)
+    /// </summary>
+    DSReg SPICNT_Baudrate;
     /// <summary>
     /// 7 Busy Flag (0=Ready, 1=Busy) (presumably Read-only)
     /// </summary>
@@ -1615,6 +1663,10 @@ public:
     /// 24 NDS7 only: Wifi / DSi9: XpertTeak DSP
     /// </summary>
     DSReg IE_Wifi;
+    /// <summary>
+    /// 25-31 unused
+    /// </summary>
+    DSReg IE_unused;
     /// <summary>
     /// Interrupt Request Flags / IRQ Acknowledge
     /// </summary>

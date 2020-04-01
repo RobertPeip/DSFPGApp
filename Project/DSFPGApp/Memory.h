@@ -23,7 +23,8 @@ public:
 	Byte GameRamSnapshot[131072 + 8192];
 	bool createGameRAMSnapshot;
 
-	Byte GBRom[16384];
+	Byte Bios7[16384];
+	Byte Bios9[4096];
 
 	bool EEPROMEnabled;
 	bool FlashEnabled;
@@ -49,8 +50,10 @@ public:
 	UInt16 read_unreadable_word();
 	UInt32 read_unreadable_dword();
 
-	void prepare_read_DSReg(UInt32 adr);
-	void write_DSReg(UInt32 adr, UInt32 value, bool dwaccess);
+	void prepare_read_DSReg9(UInt32 adr);
+	void prepare_read_DSReg7(UInt32 adr);
+	void write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess);
+	void write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess);
 };
 extern MEMORY Memory;
 
