@@ -11,7 +11,7 @@ public:
 	byte SUBTAGBITS; // bits for lower address below tag
 	uint LINEMASK;
 	uint TAGMASK;
-	byte rrb;
+	byte rrb[64]; // upper 32 for datacache unused, but this way it's static
 
 	uint tags[64][4];  // upper 32 for datacache unused, but this way it's static
 

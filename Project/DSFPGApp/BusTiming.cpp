@@ -22,6 +22,11 @@ int BUSTiming::dataTicksAccess16(bool isArm9, UInt32 address, bool isRead, uint&
 
 	if (isArm9)
 	{
+		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+		{
+			return 1;
+		}
+
 		if (addr == 2)
 		{
 			if (DataCache.inCache(address, isRead))
@@ -84,6 +89,12 @@ int BUSTiming::dataTicksAccess32(bool isArm9, UInt32 address, bool isRead, uint&
 
 	if (isArm9)
 	{
+		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+		{
+			lastAddress = address;
+			return 1;
+		}
+
 		if (addr == 2)
 		{
 			if (DataCache.inCache(address, isRead))
@@ -140,31 +151,37 @@ int BUSTiming::dataTicksAccess32(bool isArm9, UInt32 address, bool isRead, uint&
 	}
 }
 
-int BUSTiming::codeTicksAccess16(UInt32 address) // THUMB NON SEQ
+int BUSTiming::codeTicksAccess16(bool isArm9, UInt32 address) // THUMB NON SEQ
 {
 	UInt32 addr = (address >> 24) & 15;
 
-	return 0; // memoryWait16Arm9[addr];
+	return 1; // memoryWait16Arm9[addr];
 }
 
-int BUSTiming::codeTicksAccess32(UInt32 address) // ARM NON SEQ
+int BUSTiming::codeTicksAccess32(bool isArm9, UInt32 address) // ARM NON SEQ
 {
 	UInt32 addr = (address >> 24) & 15;
 
-	return 0; // memoryWait32[addr];
+	return 1; // memoryWait32[addr];
 }
 
-int BUSTiming::codeTicksAccessSeq16(UInt32 address) // THUMB SEQ
+int BUSTiming::codeTicksAccessSeq16(bool isArm9, UInt32 address) // THUMB SEQ
 {
 	UInt32 addr = (address >> 24) & 15;
 
-	return 0; //memoryWaitSeq[addr];
+	return 1; //memoryWaitSeq[addr];
 }
 
-int BUSTiming::codeTicksAccessSeq32(UInt32 address) // ARM SEQ
+int BUSTiming::codeTicksAccessSeq32(bool isArm9, UInt32 address) // ARM SEQ
 {
 	UInt32 addr = (address >> 24) & 15;
-
-	return 0; // memoryWaitSeq32[addr];
+	if (isArm9)
+	{
+		return 1;
+	}
+	else
+	{
+		return memoryWait32Arm7[addr];
+	}
 }
 

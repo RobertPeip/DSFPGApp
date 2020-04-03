@@ -25,8 +25,9 @@ void CPUCache::reset()
 		{
 			tags[i][a] = 0xFFFFFFFF;
 		}
+		rrb[i] = 0;
 	}
-	rrb = 0;
+
 }
 
 bool CPUCache::inCache(uint address, bool isRead)
@@ -42,8 +43,8 @@ bool CPUCache::inCache(uint address, bool isRead)
 	}
 	if (isRead)
 	{
-		tags[line][rrb] = maskedaddress;
-		rrb = (rrb + 1) % 4;
+		tags[line][rrb[line]] = maskedaddress;
+		rrb[line] = (rrb[line] + 1) % 4;
 	}
 	return false;
 }

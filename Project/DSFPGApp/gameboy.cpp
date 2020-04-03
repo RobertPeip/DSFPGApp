@@ -77,7 +77,7 @@ void Gameboy::run()
 		UInt64 nexteventtotal = next_event_time();
 
 #if DEBUG
-		if (tracer.traclist_ptr == 48941)
+		if (tracer.traclist_ptr == 34288)
 		{
 			int stop = 1;
 		}
@@ -100,7 +100,7 @@ void Gameboy::run()
 		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 50000;
+			tracer.runmoretrace = 100000;
 		}
 
 		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
@@ -117,6 +117,7 @@ void Gameboy::run()
 				tracer.vcd_file_last();
 			}
 		}
+		tracer.commands++;
 #endif
 
 		DMA.work();
