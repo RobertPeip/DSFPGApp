@@ -4,9 +4,13 @@
 
 enum class GPUState
 {
+	HSTART,
+	HIRQ,
 	VISIBLE,
 	HBLANK,
-	VBLANK,
+	VBLANK_START,
+	VBLANK_HIRQ,
+	VBLANK_DRAWIDLE,
 	VBLANKHBLANK
 };
 
@@ -26,6 +30,8 @@ public:
 	GPUState gpustate;
 
 	UInt16 old_dispstat;
+
+	UInt64 next_event_time;
 
 	void reset();
 	void dispstat_write();

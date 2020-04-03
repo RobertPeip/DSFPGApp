@@ -74,8 +74,10 @@ void Gameboy::run()
 
 	while (on)
 	{
+		UInt64 nexteventtotal = next_event_time();
+
 #if DEBUG
-		if (tracer.traclist_ptr == 6443)
+		if (tracer.traclist_ptr == 48941)
 		{
 			int stop = 1;
 		}
@@ -83,12 +85,16 @@ void Gameboy::run()
 
 		if (CPU9.totalticks <= totalticks)
 		{
-		   CPU9.nextInstr();
+		   CPU9.nextInstr(nexteventtotal);
 		}
 		if (CPU7.totalticks <= totalticks)
 		{
-			CPU7.nextInstr();
+			CPU7.nextInstr(nexteventtotal);
 		}
+		totalticks = min(CPU9.totalticks, CPU7.totalticks);
+
+		if (CPU9.halt) { CPU9.totalticks = totalticks; }
+		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
 		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
@@ -112,7 +118,6 @@ void Gameboy::run()
 			}
 		}
 #endif
-		totalticks = min(CPU9.totalticks, CPU7.totalticks);
 
 		DMA.work();
 		GPU_Timing.work();
@@ -149,6 +154,13 @@ void Gameboy::run()
 			}
 		}
 	}
+}
+
+UInt64 Gameboy::next_event_time()
+{
+	UInt64 nexttime = GPU_Timing.next_event_time;
+
+	return nexttime;
 }
 
 void Gameboy::create_savestate()

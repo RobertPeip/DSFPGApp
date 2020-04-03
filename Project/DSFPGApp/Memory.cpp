@@ -1574,4 +1574,6 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }
 
 	if (adr == Regs_Arm7.Sect_system7.SPICNT.address + 2) { SPI_Intern.write_data((byte)value); return; }
+
+	if (adr == Regs_Arm7.Sect_system7.POSTFLG_Flag.address) { CPU7.halt = true; return; }
 }

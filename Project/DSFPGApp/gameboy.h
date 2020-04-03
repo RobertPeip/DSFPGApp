@@ -23,6 +23,7 @@ public:
 
 	void reset();
 	void run();
+	UInt64 next_event_time();
 	void create_savestate();
 	void load_savestate();
 };

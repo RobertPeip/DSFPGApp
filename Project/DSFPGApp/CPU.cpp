@@ -370,7 +370,7 @@ void Cpu::reset(bool isArm9)
 #endif
 }
 
-void Cpu::nextInstr()
+void Cpu::nextInstr(UInt64 next_event_time)
 {
 	if (DMA.dma_active)
 	{
@@ -440,7 +440,8 @@ void Cpu::nextInstr()
 	}
 	else
 	{
-		newticks++;
+		totalticks = next_event_time;
+		return;
 	}
 
 #if DEBUG

@@ -13,7 +13,7 @@ void GPUTiming::reset()
 {
 	localticks = 0;
 	line = 0;
-	gpustate = GPUState::VISIBLE;
+	gpustate = GPUState::HSTART;
 	old_dispstat = 0;
 }
 
@@ -36,11 +36,32 @@ void GPUTiming::work()
 
 		switch (gpustate)
 		{
-		case GPUState::VISIBLE:
-			if (cycles >= 3204)
+		case GPUState::HSTART:
+			if (cycles >= 12)
 			{
 				runagain = true;
-				localticks += 3204;
+				localticks += 12;
+				next_event_time = localticks + 84;
+				gpustate = GPUState::HIRQ;
+			}
+			break;
+
+		case GPUState::HIRQ:
+			if (cycles >= 84)
+			{
+				runagain = true;
+				localticks += 84;
+				next_event_time = localticks + 3108;
+				gpustate = GPUState::VISIBLE;
+			}
+			break;
+
+		case GPUState::VISIBLE:
+			if (cycles >= 3108)
+			{
+				runagain = true;
+				localticks += 3108;
+				next_event_time = localticks + 1056;
 				gpustate = GPUState::HBLANK;
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(1);
 				Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_flag.write(1);
@@ -59,6 +80,7 @@ void GPUTiming::work()
 			{
 				runagain = true;
 				localticks += 1056;
+				next_event_time = localticks + 12;
 				nextline();
 
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(0);
@@ -66,11 +88,11 @@ void GPUTiming::work()
 				DMA.new_hblank = false;
 				if (line < 160)
 				{
-					gpustate = GPUState::VISIBLE;
+					gpustate = GPUState::HSTART;
 				}
 				else
 				{
-					gpustate = GPUState::VBLANK;
+					gpustate = GPUState::VBLANK_START;
 					GPU.refpoint_update_all();
 					//Cheats.apply_cheats();
 					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(1);
@@ -83,11 +105,32 @@ void GPUTiming::work()
 			}
 			break;
 
-		case GPUState::VBLANK:
-			if (cycles >= 3204)
+		case GPUState::VBLANK_START:
+			if (cycles >= 12)
 			{
 				runagain = true;
-				localticks += 3204;
+				localticks += 12;
+				next_event_time = localticks + 84;
+				gpustate = GPUState::VBLANK_HIRQ;
+			}
+			break;
+
+		case GPUState::VBLANK_HIRQ:
+			if (cycles >= 84)
+			{
+				runagain = true;
+				localticks += 84;
+				next_event_time = localticks + 3108;
+				gpustate = GPUState::VBLANK_DRAWIDLE;
+			}
+			break;
+
+		case GPUState::VBLANK_DRAWIDLE:
+			if (cycles >= 3108)
+			{
+				runagain = true;
+				localticks += 3108;
+				next_event_time = localticks + 1056;
 				gpustate = GPUState::VBLANKHBLANK;
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(1);
 				Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_flag.write(1);
@@ -103,6 +146,7 @@ void GPUTiming::work()
 			{
 				runagain = true;
 				localticks += 1056;
+				next_event_time = localticks + 12;
 				nextline();
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(0);
 				Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_flag.write(0);
@@ -118,7 +162,7 @@ void GPUTiming::work()
 				}
 				else
 				{
-					gpustate = GPUState::VBLANK;
+					gpustate = GPUState::VBLANK_START;
 					if (line == 227)
 					{
 						//Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(0);

@@ -58,7 +58,7 @@ public:
 	int op_since_dma = 0; // dma bus value - e.g. hello kitty
 
 	void reset(bool isArm9);
-	void nextInstr();
+	void nextInstr(UInt64 next_event_time);
 
 	CPUMODES get_mode_from_value(uint value);
 	UInt32 get_CPSR();
