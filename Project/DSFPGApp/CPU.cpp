@@ -78,7 +78,7 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(0x04000000); // display settings
-	this->memory02 = (*CPU.read_dword)(0x04000184);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = (*CPU.read_dword)(0x04000204);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
 	this->memory03 = (*CPU.read_dword)(0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -308,7 +308,7 @@ void Tracer::vcd_file_last()
 			//if (i == 0 || state.debug_dmatranfers != laststate.debug_dmatranfers) fprintf(file, "b%s DMA\n", std::bitset<32>(state.debug_dmatranfers).to_string().c_str(), cpuindex);
 			
 			if (i == 0 || state.R16 != laststate.R16) fprintf(file, "b%s %dR16\n", std::bitset<32>(state.R16).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s %dR17\n", std::bitset<32>(state.R17).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s %dR17\n", std::bitset<32>(state.R17).to_string().c_str(), cpuindex);
 			if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
 			if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s %dR14u\n", std::bitset<32>(state.R14_USR).to_string().c_str(), cpuindex);
 			if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s %dR13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str(), cpuindex);
@@ -342,6 +342,8 @@ void Cpu::reset(bool isArm9)
 		write_dword = write_dword_9;
 
 		Co15.ctrl = 0x00012078;
+		Co15.DaccessPerm = 0x22222222;
+		Co15.IaccessPerm = 0x22222222;
 	}
 	else
 	{
@@ -1235,13 +1237,20 @@ void Cpu::arm_command()
 				break;
 
 			default:
-				opcode_mid = (Byte)((asmcmd >> 21) & 0xF); // bit 24..21
-				use_imm = (((asmcmd >> 25) & 1) == 1);
-				updateflags = (((asmcmd >> 20) & 1) == 1);
-				Rn_op1 = (Byte)((asmcmd >> 16) & 0xF);   // bit 19..16
-				Rdest = (Byte)((asmcmd >> 12) & 0xF);   // bit 15..12
-				OP2 = (UInt16)(asmcmd & 0xFFF);   // bit 11..0
-				data_processing(use_imm, opcode_mid, updateflags, Rn_op1, Rdest, OP2, asmcmd);
+				if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && opcode_low == 0x3)
+				{
+					branch_with_Link_and_Exchange((Byte)(asmcmd & 0xF));
+				}
+				else
+				{
+					opcode_mid = (Byte)((asmcmd >> 21) & 0xF); // bit 24..21
+					use_imm = (((asmcmd >> 25) & 1) == 1);
+					updateflags = (((asmcmd >> 20) & 1) == 1);
+					Rn_op1 = (Byte)((asmcmd >> 16) & 0xF);   // bit 19..16
+					Rdest = (Byte)((asmcmd >> 12) & 0xF);   // bit 15..12
+					OP2 = (UInt16)(asmcmd & 0xFFF);   // bit 11..0
+					data_processing(use_imm, opcode_mid, updateflags, Rn_op1, Rdest, OP2, asmcmd);
+				}
 				break;
 			}
 			break;
@@ -1674,7 +1683,7 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		}
 		if ((opcode & 2) == 2) // byte transfer
 		{
-			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
+			newticks = BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
 			(*write_byte)(address, (byte)value);
 		}
 		else // word transfer
@@ -1835,9 +1844,10 @@ void Cpu::single_data_swap(bool byteswap, byte Rn_op1, byte Rdest, UInt16 Op2)
 	}
 
 	// shouldn't this use access8 for byte?
-	newticks = 3 + BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], true, lastAddress);
+	newticks = BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], true, lastAddress);
 	newticks += BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], false, lastAddress);
-	newticks += BusTiming.codeTicksAccess32(isArm9, PC + 4);
+	if (!isArm9) newticks += 4;
+	if (newticks < 4) newticks = 4;
 }
 
 void Cpu::multiply(byte add, bool s_updateflags, byte Rn_op1, byte Rdest, byte reg1, byte reg2)
@@ -2595,6 +2605,27 @@ void Cpu::CPUSwitchMode(CPUMODES mode, bool saveState)
 	cpu_mode = mode;
 }
 
+// ArmV5
+
+void Cpu::branch_with_Link_and_Exchange(byte reg)
+{
+	regs[14] = regs[15] - 4;
+	PC = regs[reg];
+	if ((PC & 1) == 1) // thumb
+	{
+		thumbmode = true;
+		PC &= 0xFFFFFFFE;
+		PC -= 2;
+	}
+	else
+	{
+		PC &= 0xFFFFFFFC;
+		PC -= 4;
+	}
+	newticks = 3;
+}
+
+
 void Cpu::coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset)
 {
 	int br = 1;
@@ -2647,10 +2678,10 @@ void Cpu::coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte
 			switch (coInfo)
 			{
 			case 0:
-				//*R = DCConfig;
+				regs[armSrcDstReg] = Co15.DCConfig;
 				return;
 			case 1:
-				//*R = ICConfig;
+				regs[armSrcDstReg] = Co15.ICConfig;
 				return;
 			default:
 				return;
@@ -2660,8 +2691,7 @@ void Cpu::coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte
 	case 3:
 		if ((opMode == 0) && (coInfo == 0) && (opRegm == 0))
 		{
-			//*R = writeBuffCtrl;
-			//LOG("CP15: CPtoARM writeBuffer ctrl %08X\n", writeBuffCtrl);
+			regs[armSrcDstReg] = Co15.writeBuffCtrl;
 			return;
 		}
 		return;
@@ -2671,10 +2701,10 @@ void Cpu::coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte
 			switch (coInfo)
 			{
 			case 2:
-				//*R = DaccessPerm;
+				regs[armSrcDstReg] = Co15.DaccessPerm;
 				return;
 			case 3:
-				//*R = IaccessPerm;
+				regs[armSrcDstReg] = Co15.IaccessPerm;
 				return;
 			default:
 				return;
@@ -2686,7 +2716,7 @@ void Cpu::coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte
 		{
 			if (opRegm < 8)
 			{
-				//*R = protectBaseSize[opRegm];
+				regs[armSrcDstReg] = Co15.protectBaseSize[opRegm];
 				return;
 			}
 		}
@@ -2763,10 +2793,10 @@ void Cpu::coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byt
 			switch (coInfo)
 			{
 			case 0:
-				//DCConfig = val;
+				Co15.DCConfig = value; // no function, just write/readable?
 				return;
 			case 1:
-				//ICConfig = val;
+				Co15.ICConfig = value; // no function, just write/readable?
 				return;
 			default:
 				return;
@@ -2786,11 +2816,11 @@ void Cpu::coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byt
 			switch (coInfo)
 			{
 			case 2:
-				//DaccessPerm = val;
+				Co15.DaccessPerm = value;
 				//maskPrecalc();
 				return;
 			case 3:
-				//IaccessPerm = val;
+				Co15.IaccessPerm = value;
 				//maskPrecalc();
 				return;
 			default:
@@ -2803,7 +2833,7 @@ void Cpu::coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byt
 		{
 			if (opRegm < 8)
 			{
-				//protectBaseSize[CRm] = val;
+				Co15.protectBaseSize[opRegm] = value;
 				//maskPrecalc();
 				return;
 			}

@@ -14,6 +14,11 @@ void IPC::reset(bool isArm9)
 
 	if (isArm9)
 	{
+		IPCSYNC_Data_from_IPCSYNC    = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_Data_to_IPCSYNC      = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_to            = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_from          = Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
+
 		IPCFIFOCNT					 = Regs_Arm9.Sect_system9.IPCFIFOCNT                             ;
 		Send_Fifo_Empty_Status       = Regs_Arm9.Sect_system9.IPCFIFOCNT_Send_Fifo_Empty_Status      ;
 		Send_Fifo_Full_Status		 = Regs_Arm9.Sect_system9.IPCFIFOCNT_Send_Fifo_Full_Status		 ;	
@@ -27,6 +32,11 @@ void IPC::reset(bool isArm9)
 	}
 	else
 	{
+		IPCSYNC_Data_from_IPCSYNC	 = Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_Data_to_IPCSYNC		 = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_to		     = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_from			 = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
+
 		IPCFIFOCNT					 = Regs_Arm7.Sect_system7.IPCFIFOCNT                             ;
 		Send_Fifo_Empty_Status       = Regs_Arm7.Sect_system7.IPCFIFOCNT_Send_Fifo_Empty_Status      ;
 		Send_Fifo_Full_Status		 = Regs_Arm7.Sect_system7.IPCFIFOCNT_Send_Fifo_Full_Status		 ;	
@@ -40,6 +50,12 @@ void IPC::reset(bool isArm9)
 	}
 
 	update_status();
+}
+
+void IPC::write_sync()
+{
+	IPCSYNC_EXTERN_from.write(IPCSYNC_Data_to_IPCSYNC.read());
+	IPCSYNC_Data_from_IPCSYNC.write(IPCSYNC_EXTERN_to.read()); // must refresh, as it may be overwritten by 16 bit write
 }
 
 void IPC::write_control()

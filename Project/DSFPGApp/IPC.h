@@ -9,9 +9,15 @@ class IPC
 {
 public:
 	void reset(bool isArm9);
+	void write_sync();
 	void write_control();
 
 private:
+	DSReg IPCSYNC_Data_from_IPCSYNC;
+	DSReg IPCSYNC_Data_to_IPCSYNC;
+	DSReg IPCSYNC_EXTERN_to;
+	DSReg IPCSYNC_EXTERN_from;
+
 	DSReg IPCFIFOCNT;
 	DSReg Send_Fifo_Empty_Status;
 	DSReg Send_Fifo_Full_Status;

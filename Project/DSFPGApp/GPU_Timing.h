@@ -26,7 +26,7 @@ public:
 	const int BITPOS_V_Count_Setting = 8;
 
 	UInt64 localticks;
-	byte line;
+	UInt16 line;
 	GPUState gpustate;
 
 	UInt16 old_dispstat;

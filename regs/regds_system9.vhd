@@ -73,7 +73,7 @@ package pReg_ds_system_9 is
    constant EXMEMCNT_GBASlot_PHI_pin_out           : regmap_type := (12#204#,   6,      5,        1,        0,   readwrite); -- 5-6   32-pin GBA Slot PHI-pin out   (0-3 = Low, 4.19MHz, 8.38MHz, 16.76MHz)
    constant EXMEMCNT_GBASlot_Access_Rights         : regmap_type := (12#204#,   7,      7,        1,        0,   readwrite); -- 7     32-pin GBA Slot Access Rights     (0=ARM9, 1=ARM7)
    constant EXMEMCNT_NDSSlot_Access_Rights         : regmap_type := (12#204#,  11,     11,        1,        0,   readwrite); -- 11    17-pin NDS Slot Access Rights     (0=ARM9, 1=ARM7)
-   constant EXMEMCNT_SET                           : regmap_type := (12#204#,  13,     13,        1,        1,   readwrite); -- 13    NDS:Always set?  ;set/tested by DSi bootcode: Main RAM enable, CE2 pin?
+   constant EXMEMCNT_SET                           : regmap_type := (12#204#,  13,     13,        1,        0,   readwrite); -- 13    NDS:Always set?  ;set/tested by DSi bootcode: Main RAM enable, CE2 pin?
    constant EXMEMCNT_MainMem_Interface_Mode        : regmap_type := (12#204#,  14,     14,        1,        0,   readonly ); -- 14    Main Memory Interface Mode Switch (0=Async/GBA/Reserved, 1=Synchronous)
    constant EXMEMCNT_MainMem_Access_Priority       : regmap_type := (12#204#,  15,     15,        1,        0,   readwrite); -- 15    Main Memory Access Priority       (0=ARM9 Priority, 1=ARM7 Priority)   
    

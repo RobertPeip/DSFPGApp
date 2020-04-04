@@ -101,6 +101,10 @@ public:
     /// </summary>
     DSReg DISPSTAT_V_Counter_IRQ_Enable;
     /// <summary>
+    /// NDS: MSB of V-Vcount Setting (LYC.Bit8) (0..262)(R/W)
+    /// </summary>
+    DSReg DISPSTAT_V_Count_Setting8;
+    /// <summary>
     /// V-Count Setting (LYC) (0..227) (R/W)
     /// </summary>
     DSReg DISPSTAT_V_Count_Setting;

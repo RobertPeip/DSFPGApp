@@ -28,6 +28,7 @@ RegSect_display7::RegSect_display7()
     DISPSTAT_V_Blank_IRQ_Enable = DSReg(0x004, 3, 3, 1, 0, "readwrite", Regs_Arm7.data);
     DISPSTAT_H_Blank_IRQ_Enable = DSReg(0x004, 4, 4, 1, 0, "readwrite", Regs_Arm7.data);
     DISPSTAT_V_Counter_IRQ_Enable = DSReg(0x004, 5, 5, 1, 0, "readwrite", Regs_Arm7.data);
+    DISPSTAT_V_Count_Setting8 = DSReg(0x004, 7, 7, 1, 0, "readwrite", Regs_Arm7.data);
     DISPSTAT_V_Count_Setting = DSReg(0x004, 15, 8, 1, 0, "readwrite", Regs_Arm7.data);
     VCOUNT = DSReg(0x004, 31, 16, 1, 0, "readwrite", Regs_Arm7.data);
     BG0CNT = DSReg(0x008, 15, 0, 1, 0, "writeonly", Regs_Arm7.data);
@@ -400,7 +401,7 @@ RegSect_system7::RegSect_system7()
     EXMEMSTAT_GBASlot_PHI_pin_out = DSReg(0x204, 6, 5, 1, 0, "readwrite", Regs_Arm7.data);
     EXMEMSTAT_GBASlot_Access_Rights = DSReg(0x204, 7, 7, 1, 0, "readonly", Regs_Arm7.data);
     EXMEMSTAT_NDSSlot_Access_Rights = DSReg(0x204, 11, 11, 1, 0, "readonly", Regs_Arm7.data);
-    EXMEMSTAT_SET = DSReg(0x204, 13, 13, 1, 1, "readonly", Regs_Arm7.data);
+    EXMEMSTAT_SET = DSReg(0x204, 13, 13, 1, 0, "readonly", Regs_Arm7.data);
     EXMEMSTAT_MainMem_Interface_Mode = DSReg(0x204, 14, 14, 1, 0, "readonly", Regs_Arm7.data);
     EXMEMSTAT_MainMem_Access_Priority = DSReg(0x204, 15, 15, 1, 0, "readonly", Regs_Arm7.data);
     WIFIWAITCNT = DSReg(0x204, 29, 24, 1, 0, "readwrite", Regs_Arm7.data);
@@ -490,9 +491,6 @@ void REGS_Arm7::reset()
       // SOUNDBIAS at 0x088 = 0x0200;
       data[136] = 512 & 0xFF;
       data[137] = (512 >> 8) & 0xFF;
-      // EXMEMSTAT_SET at 0x204 = 1;
-      data[516] = 8192 & 0xFF;
-      data[517] = (8192 >> 8) & 0xFF;
       // POWCNT2_Sound at 0x304 = 1;
       data[772] = 1 & 0xFF;
       // BIOSPROT at 0x308 = 0x1205;

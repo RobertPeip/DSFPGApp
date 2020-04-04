@@ -77,7 +77,7 @@ void Gameboy::run()
 		UInt64 nexteventtotal = next_event_time();
 
 #if DEBUG
-		if (tracer.traclist_ptr == 34288)
+		if (tracer.traclist_ptr == 252646)
 		{
 			int stop = 1;
 		}
@@ -97,10 +97,10 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 0000000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 1000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 100000;
+			tracer.runmoretrace = 260000;
 		}
 
 		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)

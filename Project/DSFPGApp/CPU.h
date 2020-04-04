@@ -129,6 +129,9 @@ private:
 	void data_processing(bool imm, byte opcode, bool s_updateflags, byte Rn_op1, byte Rdest, UInt16 Op2, UInt32 asmcmd);
 	void CPUSwitchMode(CPUMODES mode, bool saveState);
 
+	//ArmV5
+	void branch_with_Link_and_Exchange(byte reg);
+
 	void coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset);
 	void coprocessor_data_operation(byte opCode, byte opRegn, byte dstReg, byte coNumber, byte coInfo, byte opRegm);
 	void coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byte armSrcDstReg, byte coNumber, byte coInfo, byte opRegm);

@@ -28,6 +28,7 @@ RegSect_display9::RegSect_display9()
     DISPSTAT_V_Blank_IRQ_Enable = DSReg(0x004, 3, 3, 1, 0, "readwrite", Regs_Arm9.data);
     DISPSTAT_H_Blank_IRQ_Enable = DSReg(0x004, 4, 4, 1, 0, "readwrite", Regs_Arm9.data);
     DISPSTAT_V_Counter_IRQ_Enable = DSReg(0x004, 5, 5, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPSTAT_V_Count_Setting8 = DSReg(0x004, 7, 7, 1, 0, "readwrite", Regs_Arm9.data);
     DISPSTAT_V_Count_Setting = DSReg(0x004, 15, 8, 1, 0, "readwrite", Regs_Arm9.data);
     VCOUNT = DSReg(0x004, 31, 16, 1, 0, "readwrite", Regs_Arm9.data);
     BG0CNT = DSReg(0x008, 15, 0, 1, 0, "writeonly", Regs_Arm9.data);
@@ -303,7 +304,7 @@ RegSect_system9::RegSect_system9()
     EXMEMCNT_GBASlot_PHI_pin_out = DSReg(0x204, 6, 5, 1, 0, "readwrite", Regs_Arm9.data);
     EXMEMCNT_GBASlot_Access_Rights = DSReg(0x204, 7, 7, 1, 0, "readwrite", Regs_Arm9.data);
     EXMEMCNT_NDSSlot_Access_Rights = DSReg(0x204, 11, 11, 1, 0, "readwrite", Regs_Arm9.data);
-    EXMEMCNT_SET = DSReg(0x204, 13, 13, 1, 1, "readwrite", Regs_Arm9.data);
+    EXMEMCNT_SET = DSReg(0x204, 13, 13, 1, 0, "readwrite", Regs_Arm9.data);
     EXMEMCNT_MainMem_Interface_Mode = DSReg(0x204, 14, 14, 1, 0, "readonly", Regs_Arm9.data);
     EXMEMCNT_MainMem_Access_Priority = DSReg(0x204, 15, 15, 1, 0, "readwrite", Regs_Arm9.data);
     IME = DSReg(0x208, 31, 0, 1, 0, "readwrite", Regs_Arm9.data);
@@ -429,9 +430,6 @@ void REGS_Arm9::reset()
       data[53] = (16777216 >> 8) & 0xFF;
       data[54] = (16777216 >> 16) & 0xFF;
       data[55] = (16777216 >> 24) & 0xFF;
-      // EXMEMCNT_SET at 0x204 = 1;
-      data[516] = 8192 & 0xFF;
-      data[517] = (8192 >> 8) & 0xFF;
 
     // DISPCNT at 0x000 = 0xFFFFFFFF;
     rwmask[0] = (byte)(0xFFFFFFFF & 0xFF);

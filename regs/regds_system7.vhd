@@ -95,7 +95,7 @@ package pReg_ds_system_7 is
    constant EXMEMSTAT_GBASlot_PHI_pin_out          : regmap_type := (12#204#,   6,      5,        1,        0,   readwrite); -- 5-6   32-pin GBA Slot PHI-pin out   (0-3 = Low, 4.19MHz, 8.38MHz, 16.76MHz)
    constant EXMEMSTAT_GBASlot_Access_Rights        : regmap_type := (12#204#,   7,      7,        1,        0,   readonly ); -- 7     32-pin GBA Slot Access Rights     (0=ARM9, 1=ARM7)
    constant EXMEMSTAT_NDSSlot_Access_Rights        : regmap_type := (12#204#,  11,     11,        1,        0,   readonly ); -- 11    17-pin NDS Slot Access Rights     (0=ARM9, 1=ARM7)
-   constant EXMEMSTAT_SET                          : regmap_type := (12#204#,  13,     13,        1,        1,   readonly ); -- 13    NDS:Always set?  ;set/tested by DSi bootcode: Main RAM enable, CE2 pin?
+   constant EXMEMSTAT_SET                          : regmap_type := (12#204#,  13,     13,        1,        0,   readonly ); -- 13    NDS:Always set?  ;set/tested by DSi bootcode: Main RAM enable, CE2 pin?
    constant EXMEMSTAT_MainMem_Interface_Mode       : regmap_type := (12#204#,  14,     14,        1,        0,   readonly ); -- 14    Main Memory Interface Mode Switch (0=Async/GBA/Reserved, 1=Synchronous)
    constant EXMEMSTAT_MainMem_Access_Priority      : regmap_type := (12#204#,  15,     15,        1,        0,   readonly ); -- 15    Main Memory Access Priority       (0=ARM9 Priority, 1=ARM7 Priority)   
    constant WIFIWAITCNT                            : regmap_type := (12#204#,  29,     24,        1,        0,   readwrite); -- Wifi Waitstate Control
