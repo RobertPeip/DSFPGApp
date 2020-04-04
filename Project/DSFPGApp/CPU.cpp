@@ -160,9 +160,26 @@ void Tracer::trace_file_last()
 */
 }
 
+void print_bits(FILE* file, uint value, int bits)
+{
+	bool first = false;
+	for (int b = (bits - 1); b >= 0; b--)
+	{
+		if ((value >> b) & 1)
+		{
+			fprintf(file, "1");
+			first = true;
+		}
+		else if (first)
+		{
+			fprintf(file, "0");
+		}
+	}
+}
+
 void Tracer::vcd_file_last()
 {
-	FILE* file = fopen("..\\..\\debug.vcd", "w");
+	FILE* file = fopen("R:\\debug.vcd", "w");
 
 	fprintf(file, "$date Feb 29, 2134 $end\n");
 	fprintf(file, "$version 0.1 $end\n");
@@ -239,44 +256,57 @@ void Tracer::vcd_file_last()
 			// all changes for this timestamp
 			for (int j = 0; j < 16; j++)
 			{
-				if (i == 0 || state.debugregs[j] != laststate.debugregs[j]) fprintf(file, "b%s %dR%d\n", std::bitset<32>(state.debugregs[j]).to_string().c_str(), cpuindex, j);
+				if (i == 0 || state.debugregs[j] != laststate.debugregs[j])
+				{
+					fprintf(file, "b");
+					print_bits(file, state.debugregs[j], 32);
+					fprintf(file, " %dR%d\n", cpuindex, j);
+				}
 			}
 			if (i == 0 || state.opcode != laststate.opcode)
 			{
+				fprintf(file, "b");
 				if (state.thumbmode)
 				{
-					fprintf(file, "b%s %dO\n", std::bitset<16>(state.opcode).to_string().c_str(), cpuindex);
+					print_bits(file, state.opcode, 16);
 				}
 				else
 				{
-					fprintf(file, "b%s %dO\n", std::bitset<32>(state.opcode).to_string().c_str(), cpuindex);
+					print_bits(file, state.opcode, 32);
 				}
+				fprintf(file, " %dO\n", cpuindex);
 			}
-
+			
 			if (i == 0 || state.flag_Negative != laststate.flag_Negative) fprintf(file, "%s%dFN\n", std::bitset<1>(state.flag_Negative).to_string().c_str(), cpuindex);
 			if (i == 0 || state.flag_Carry != laststate.flag_Carry) fprintf(file, "%s%dFC\n", std::bitset<1>(state.flag_Carry).to_string().c_str(), cpuindex);
 			if (i == 0 || state.flag_Zero != laststate.flag_Zero) fprintf(file, "%s%dFZ\n", std::bitset<1>(state.flag_Zero).to_string().c_str(), cpuindex);
 			if (i == 0 || state.flag_V_Overflow != laststate.flag_V_Overflow) fprintf(file, "%s%dFV\n", std::bitset<1>(state.flag_V_Overflow).to_string().c_str(), cpuindex);
+			
+			if (i == 0 || state.newticks != laststate.newticks)
+			{
+				fprintf(file, "b");
+				print_bits(file, (state.newticks - laststate.newticks), 16);
+				fprintf(file, " %dTK\n", cpuindex);
+			}
 
-			if (i == 0 || state.newticks != laststate.newticks) fprintf(file, "b%s %dTK\n", std::bitset<16>(state.newticks).to_string().c_str(), cpuindex);
 			if (i == 0 || state.busprefetch != laststate.busprefetch) fprintf(file, "b%s %dPF\n", std::bitset<12>(state.busprefetch).to_string().c_str(), cpuindex);
 			if (i == 0 || state.thumbmode != laststate.thumbmode) fprintf(file, "%s%dAT\n", std::bitset<1>(state.thumbmode).to_string().c_str(), cpuindex);
 			if (i == 0 || state.armmode != laststate.armmode) fprintf(file, "b%s %dM\n", std::bitset<8>(state.armmode).to_string().c_str(), cpuindex);
 			if (i == 0 || state.irpdisable != laststate.irpdisable) fprintf(file, "%s%dI\n", std::bitset<1>(state.irpdisable).to_string().c_str(), cpuindex);
 			if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s %dIF\n", std::bitset<32>(state.IF_intern).to_string().c_str(), cpuindex);
 			if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s %dIW\n", std::bitset<8>(state.irp_wait).to_string().c_str(), cpuindex);
-
+			
 			if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s %dT0\n", std::bitset<32>(state.timer0).to_string().c_str(), cpuindex);
 			if (i == 0 || state.timer1 != laststate.timer1) fprintf(file, "b%s %dT1\n", std::bitset<32>(state.timer1).to_string().c_str(), cpuindex);
 			if (i == 0 || state.timer2 != laststate.timer2) fprintf(file, "b%s %dT2\n", std::bitset<32>(state.timer2).to_string().c_str(), cpuindex);
 			if (i == 0 || state.timer3 != laststate.timer3) fprintf(file, "b%s %dT3\n", std::bitset<32>(state.timer3).to_string().c_str(), cpuindex);
-
+			
 			if (i == 0 || state.memory01 != laststate.memory01) fprintf(file, "b%s %dM1\n", std::bitset<32>(state.memory01).to_string().c_str(), cpuindex);
 			if (i == 0 || state.memory02 != laststate.memory02) fprintf(file, "b%s %dM2\n", std::bitset<32>(state.memory02).to_string().c_str(), cpuindex);
 			if (i == 0 || state.memory03 != laststate.memory03) fprintf(file, "b%s %dM3\n", std::bitset<32>(state.memory03).to_string().c_str(), cpuindex);
-
+			
 			//if (i == 0 || state.debug_dmatranfers != laststate.debug_dmatranfers) fprintf(file, "b%s DMA\n", std::bitset<32>(state.debug_dmatranfers).to_string().c_str(), cpuindex);
-
+			
 			if (i == 0 || state.R16 != laststate.R16) fprintf(file, "b%s %dR16\n", std::bitset<32>(state.R16).to_string().c_str(), cpuindex);
 			if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s %dR17\n", std::bitset<32>(state.R17).to_string().c_str(), cpuindex);
 			if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
