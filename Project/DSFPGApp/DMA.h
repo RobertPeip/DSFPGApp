@@ -8,7 +8,7 @@
 class SingleDMA
 {
 public:
-    Cpu CPU;
+    Cpu* CPU;
 
 	UInt16 irpmask;
 
@@ -43,12 +43,11 @@ public:
 	UInt32 addr_target;
 	UInt32 count;
 	UInt32 fullcount;
-	int totalTicks;
 	int waitTicks;
 	bool skipdebugout;
 
 	SingleDMA();
-	SingleDMA(Cpu CPU, UInt16 irpmask,
+	SingleDMA(Cpu* CPU, UInt16 irpmask,
 		DSReg SAD, DSReg DAD, DSReg CNT_L,
 		DSReg Dest_Addr_Control, DSReg Source_Adr_Control, DSReg DMA_Repeat, DSReg DMA_Transfer_Type,
 		DSReg Game_Pak_DRQ, DSReg DMA_Start_Timing, DSReg IRQ_on, DSReg DMA_Enable, bool hasDRQ);

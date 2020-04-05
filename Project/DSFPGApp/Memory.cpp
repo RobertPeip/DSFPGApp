@@ -1198,17 +1198,20 @@ void MEMORY::prepare_read_DSReg9(UInt32 adr)
 	else if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address)
 	{
 		UInt16 value = Timer.timers[1].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF); 
+		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 	else if (adr == Regs_Arm9.Sect_timer9.TM2CNT_L.address)
 	{
-		UInt16 value = Timer.timers[2].retval; Regs_Arm9.data[adr] = (byte)(value & 0xFF);
+		UInt16 value = Timer.timers[2].retval; 
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
 		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 	else if (adr == Regs_Arm9.Sect_timer9.TM3CNT_L.address)
 	{
 		UInt16 value = Timer.timers[3].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 }
 
@@ -1217,23 +1220,26 @@ void MEMORY::prepare_read_DSReg7(UInt32 adr)
 	if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address)
 	{
 		UInt16 value = Timer.timers[0].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address)
 	{
 		UInt16 value = Timer.timers[1].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm7.data[adr] = (byte)(value & 0xFF); 
+		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address)
 	{
-		UInt16 value = Timer.timers[2].retval; Regs_Arm9.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		UInt16 value = Timer.timers[2].retval; 
+		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address)
 	{
 		UInt16 value = Timer.timers[3].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF); Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
+		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 
 	else if (adr == Regs_Arm7.Sect_sound7.SOUNDCNT_X.address)
@@ -1267,14 +1273,14 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	else if (adr == Regs_Arm7.Sect_sound7.FIFO_A.address) { SoundDMA.fill_fifo(0, value, dwaccess); }
 	else if (adr == Regs_Arm7.Sect_sound7.FIFO_B.address) { SoundDMA.fill_fifo(1, value, dwaccess); }
 
-	else if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address) { Timer.set_reload(0); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address + 2) { Timer.set_settings(0); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address) { Timer.set_reload(1); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address + 2) { Timer.set_settings(1); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address) { Timer.set_reload(2); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address + 2) { Timer.set_settings(2); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address) { Timer.set_reload(3); }
-	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address + 2) { Timer.set_settings(3); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address) { Timer.set_reload(0); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address + 2) { Timer.set_settings(0); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address) { Timer.set_reload(1); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address + 2) { Timer.set_settings(1); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM2CNT_L.address) { Timer.set_reload(2); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM2CNT_L.address + 2) { Timer.set_settings(2); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM3CNT_L.address) { Timer.set_reload(3); }
+	else if (adr == Regs_Arm9.Sect_timer9.TM3CNT_L.address + 2) { Timer.set_settings(3); }
 
 	else if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_H.address + 2) { DMA.set_settings(0); }
 	else if (adr == Regs_Arm9.Sect_dma9.DMA1CNT_H.address + 2) { DMA.set_settings(1); }
@@ -1300,6 +1306,20 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 
 void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 {
+	if (adr == Regs_Arm7.Sect_dma7.DMA0CNT_H.address + 2) { DMA.set_settings(4); return; }
+	if (adr == Regs_Arm7.Sect_dma7.DMA1CNT_H.address + 2) { DMA.set_settings(5); return; }
+	if (adr == Regs_Arm7.Sect_dma7.DMA2CNT_H.address + 2) { DMA.set_settings(6); return; }
+	if (adr == Regs_Arm7.Sect_dma7.DMA3CNT_H.address + 2) { DMA.set_settings(7); return; }
+
+	if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address) { Timer.set_reload(4); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address + 2) { Timer.set_settings(4); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address) { Timer.set_reload(5); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address + 2) { Timer.set_settings(5); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address) { Timer.set_reload(6); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address + 2) { Timer.set_settings(6); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address) { Timer.set_reload(7); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address + 2) { Timer.set_settings(7); return; }
+
 	if (adr == Regs_Arm7.Sect_system7.IPCSYNC.address) { IPC7to9.write_sync(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }
 

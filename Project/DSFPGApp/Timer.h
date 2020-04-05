@@ -34,7 +34,7 @@ public:
 class TIMER
 {
 public:
-	SingleTimer timers[4];
+	SingleTimer timers[8];
 
 	void reset();
 	void set_reload(int index);
