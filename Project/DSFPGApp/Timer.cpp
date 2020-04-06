@@ -28,7 +28,6 @@ SingleTimer::SingleTimer(UInt16 irpmask, DSReg CNT_L, DSReg Prescaler, DSReg Cou
 	value = -1;
 	prescale = 0x10000;
 	retval = 0;
-	prescalevalue = 0;
 	countup = false;
 }
 
@@ -65,22 +64,25 @@ void TIMER::set_settings(int index)
 	{
 		timers[index].irp_on = timers[index].Timer_IRQ_Enable.on();
 		timers[index].countup = timers[index].Count_up.on();
+		if (index % 4 == 0) timers[index].countup = false;
 		switch (timers[index].Prescaler.read())
 		{
-		case 0: timers[index].prescale = 1; break;
-		case 1: timers[index].prescale = 64; break;
-		case 2: timers[index].prescale = 256; break;
-		case 3: timers[index].prescale = 1024; break;
+		case 0: timers[index].prescale = 2; break;
+		case 1: timers[index].prescale = 128; break;
+		case 2: timers[index].prescale = 512; break;
+		case 3: timers[index].prescale = 2048; break;
+		}
+
+		if (!timers[index].countup)
+		{
+			timers[index].next_event_ticks = gameboy.totalticks + (65536 - timers[index].reload) * timers[index].prescale;
 		}
 	}
 }
 
 void TIMER::work()
 {
-	// must save here, as dma may reset to zero
-	int cputicks = CPU9.newticks;
-
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		if (timers[i].startnow)
 		{
@@ -88,53 +90,66 @@ void TIMER::work()
 			timers[i].value = timers[i].reload;
 			timers[i].retval = (UInt16)timers[i].value;
 		}
-		else if (timers[i].on || timers[i].stopnow)
+		//else if (timers[i].on || timers[i].stopnow)
+		if (timers[i].on || timers[i].stopnow)
 		{
 			timers[i].stopnow = false;
 
-			if (!timers[i].countup || i == 0)
+			if (!timers[i].countup && gameboy.totalticks >= timers[i].next_event_ticks)
 			{
-				if (timers[i].prescale == 1)
-				{
-					timers[i].value += cputicks;
-				}
-				else
-				{
-					timers[i].prescalevalue += cputicks;
-					while (timers[i].prescalevalue >= timers[i].prescale)
-					{
-						timers[i].prescalevalue -= timers[i].prescale;
-						timers[i].value += 1;
-					}
-				}
-			}
-
-			while (timers[i].value >= 0x10000)
-			{
-				timers[i].value -= 0x10000;
-				timers[i].value += timers[i].reload;
-
-				if (i < 2)
-				{
-					SoundDMA.timer_overflow(i);
-				}
-
-				if (i < 3 && timers[i + 1].countup)
-				{
-					timers[i + 1].value++;
-					timers[i + 1].retval = (UInt16)timers[i].value;
-				}
-
-				if (timers[i].irp_on)
-				{
-					IRP.set_irp_bit(timers[i].irpmask);
-				}
-			}
-
-			if (!timers[i].countup)
-			{
-				timers[i].retval = (UInt16)timers[i].value;
+				timers[i].next_event_ticks = timers[i].next_event_ticks + (65536 - timers[i].reload) * timers[i].prescale;
+				Timer.overflow(i);
 			}
 		}
+	}
+}
+
+void TIMER::overflow(int index)
+{
+	timers[index].value = timers[index].reload;
+
+	if ((index % 4) < 3 && timers[index + 1].countup)
+	{
+		timers[index + 1].value++;
+		if (timers[index + 1].value >= 0x10000)
+		{
+			Timer.overflow(index + 1);
+		}
+	}
+
+	if (timers[index].irp_on)
+	{
+		IRP.set_irp_bit(timers[index].irpmask);
+	}
+}
+
+void TIMER::updatereg(int index)
+{
+	if (timers[index].on)
+	{
+		uint adr = Regs_Arm7.Sect_timer7.TM0CNT_L.address + (index % 4) * 4;
+
+		UInt16 value;
+
+		if (timers[index].countup)
+		{
+			Timer.timers[index].value;
+		}
+		else
+		{
+			int diff = Timer.timers[index].next_event_ticks - gameboy.totalticks;
+			diff = diff / timers[index].prescale;
+			if (diff == 65536)
+			{
+				value = 0;
+			}
+			else
+			{
+				value = 65535 - diff;
+			}
+		}
+
+		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
+		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
 }

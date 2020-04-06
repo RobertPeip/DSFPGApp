@@ -1189,58 +1189,18 @@ void write_dword_7(UInt32 address, UInt32 data)
 
 void MEMORY::prepare_read_DSReg9(UInt32 adr)
 {
-	if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address)
-	{
-		UInt16 value = Timer.timers[0].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
-	else if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address)
-	{
-		UInt16 value = Timer.timers[1].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF); 
-		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
-	else if (adr == Regs_Arm9.Sect_timer9.TM2CNT_L.address)
-	{
-		UInt16 value = Timer.timers[2].retval; 
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
-	else if (adr == Regs_Arm9.Sect_timer9.TM3CNT_L.address)
-	{
-		UInt16 value = Timer.timers[3].retval;
-		Regs_Arm9.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm9.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
+	if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address) { Timer.updatereg(0); return; }
+	if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address) { Timer.updatereg(1); return; }
+	if (adr == Regs_Arm9.Sect_timer9.TM2CNT_L.address) { Timer.updatereg(2); return; }
+	if (adr == Regs_Arm9.Sect_timer9.TM3CNT_L.address) { Timer.updatereg(3); return; }
 }
 
 void MEMORY::prepare_read_DSReg7(UInt32 adr)
 {
-	if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address)
-	{
-		UInt16 value = Timer.timers[0].retval;
-		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
-	else if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address)
-	{
-		UInt16 value = Timer.timers[1].retval;
-		Regs_Arm7.data[adr] = (byte)(value & 0xFF); 
-		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
-	else if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address)
-	{
-		UInt16 value = Timer.timers[2].retval; 
-		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
-	else if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address)
-	{
-		UInt16 value = Timer.timers[3].retval;
-		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
-	}
+	if (adr == Regs_Arm7.Sect_timer7.TM0CNT_L.address) { Timer.updatereg(4); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address) { Timer.updatereg(5); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address) { Timer.updatereg(6); return; }
+	if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address) { Timer.updatereg(7); return; }
 
 	else if (adr == Regs_Arm7.Sect_sound7.SOUNDCNT_X.address)
 	{

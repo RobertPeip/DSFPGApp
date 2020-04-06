@@ -16,7 +16,6 @@ public:
 	DSReg Timer_Start_Stop;
 
 	Int32 value;
-	Int32 prescalevalue;
 	Int32 reload;
 	bool on;
 	bool startnow;
@@ -24,6 +23,8 @@ public:
 	bool irp_on;
 	bool countup;
 	int prescale;
+
+	UInt64 next_event_ticks;
 
 	UInt16 retval;
 
@@ -40,5 +41,9 @@ public:
 	void set_reload(int index);
 	void set_settings(int index);
 	void work();
+	void updatereg(int index);
+
+private:
+	void overflow(int index);
 };
 extern TIMER Timer;
