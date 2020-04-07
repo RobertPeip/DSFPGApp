@@ -40,6 +40,7 @@ public:
 	uint irpTarget;
 
 	uint lastAddress;
+	uint lastfetchAddress;
 
 	CPUMODES cpu_mode;
 
@@ -130,7 +131,8 @@ private:
 	void CPUSwitchMode(CPUMODES mode, bool saveState);
 
 	//ArmV5
-	void branch_with_Link_and_Exchange(byte reg);
+	void branch_with_Link_and_Exchange_1(bool h_bit, uint immi);
+	void branch_with_Link_and_Exchange_2(byte reg);
 
 	void coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset);
 	void coprocessor_data_operation(byte opCode, byte opRegn, byte dstReg, byte coNumber, byte coInfo, byte opRegm);

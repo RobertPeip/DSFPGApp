@@ -278,19 +278,9 @@ byte read_byte_9(UInt32 address)
 
 	case 7: return Memory.OAMRAM[address & 0x3FF];
 
-	case 8:
-	case 9:
-	case 0xA:
-	case 0xB:
-	case 0xC:
-	case 0xD:
-	case 0xE:
-		return 0xFF;
+	case 0xF: return Memory.Bios9[address & 0xFFF];
 
-	case 0xF:
-		return Memory.Bios9[address & 0xFFF];
-
-	default: return Memory.read_unreadable_byte(address & 1);
+	default: return 0xFF;
 
 	}
 }
@@ -380,21 +370,9 @@ UInt32 read_word_9(UInt32 address)
 
 	case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
 
-	case 8:
-	case 9:
-	case 0xA:
-	case 0xB:
-	case 0xC:
-	case 0xD:
-	case 0xE:
-		value = 0xFFFF;
-		break;
+	case 0xFF: value = *(UInt16*)&Memory.Bios9[address & 0xFFF]; break;
 
-	case 0xF:
-		value = *(UInt16*)&Memory.Bios9[address & 0xFFF];
-		break;
-
-	default: value = Memory.read_unreadable_word(); break;
+	default: value = 0xFFFF; break;
 	}
 
 	Memory.lastreadvalue = value;
@@ -472,21 +450,9 @@ UInt32 read_dword_9(UInt32 address)
 
 	case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
 
-	case 8:
-	case 9:
-	case 0xA:
-	case 0xB:
-	case 0xC:
-	case 0xD:
-	case 0xE:
-		value = 0xFFFFFFFF;
-		break;
+	case 0xFF: value = *(UInt32*)&Memory.Bios9[address & 0xFFF]; break;
 
-	case 0xF:
-		value = *(UInt32*)&Memory.Bios9[address & 0xFFF];
-		break;
-
-	default: value = Memory.read_unreadable_dword(); break;
+	default: value = 0xFFFFFFFF; break;
 	}
 
 	Memory.lastreadvalue = value;

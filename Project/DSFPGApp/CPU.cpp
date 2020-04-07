@@ -78,7 +78,7 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(0x04000000); // display settings
-	this->memory02 = (*CPU.read_dword)(0x04000204);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = (*CPU.read_dword)(0xFFFF0008);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
 	this->memory03 = (*CPU.read_dword)(0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -391,6 +391,7 @@ void Cpu::reset(bool isArm9)
 	}
 
 	lastAddress = 0xFFFFFFFF;
+	lastfetchAddress = 0xFFFFFFFF;
 
 	halt = false;
 	stop = false;
@@ -493,11 +494,22 @@ void Cpu::nextInstr(UInt64 next_event_time)
 
 	if (isArm9)
 	{
-		if (!InstrCache.inCache(PC, true))
+		if (PC < 0x02000000)
 		{
-			if (newticks <= 0x34)
+			totalticks += newticks;
+		} 
+		else if((PC & 0x0F000000) == 0x02000000)
+		{
+			if (!InstrCache.inCache(PC, true))
 			{
-				totalticks += 0x34;
+				if (newticks <= 0x34)
+				{
+					totalticks += 0x34;
+				}
+				else
+				{
+					totalticks += newticks;
+				}
 			}
 			else
 			{
@@ -506,7 +518,33 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		}
 		else
 		{
-			totalticks += newticks;
+			uint fetchticks;
+			if (thumbmode)
+			{
+				//if (!(PC == PC_old + 2 && (PC & 2)))
+				//{
+					fetchticks = BusTiming.memoryWait32Arm9[(PC >> 24) & 15];
+					if (PC != lastfetchAddress + 4)
+					{
+						fetchticks += 6;
+					}
+					lastfetchAddress = PC & 0xFFFFFFFC;
+				//}
+				//else
+				//{
+				//	fetchticks = 0;
+				//}
+			}
+			else
+			{
+				fetchticks = BusTiming.memoryWait32Arm9[(PC >> 24) & 15];
+				if (PC != lastfetchAddress + 4)
+				{
+					fetchticks += 6;
+				}
+				lastfetchAddress = PC;
+			}
+			totalticks += max(fetchticks, newticks);
 		}
 	}
 	else
@@ -1186,13 +1224,20 @@ void Cpu::arm_command()
 				}
 				else
 				{
-					opcode_mid = (Byte)((asmcmd >> 21) & 0xF); // bit 24..21
-					use_imm = (((asmcmd >> 25) & 1) == 1);
-					updateflags = (((asmcmd >> 20) & 1) == 1);
-					Rn_op1 = (Byte)((asmcmd >> 16) & 0xF);   // bit 19..16
-					Rdest = (Byte)((asmcmd >> 12) & 0xF);   // bit 15..12
-					OP2 = (UInt16)(asmcmd & 0xFFF);   // bit 11..0
-					data_processing(use_imm, opcode_mid, updateflags, Rn_op1, Rdest, OP2, asmcmd);
+					if ((((asmcmd >> 20) & 0xFF) == 0x16) && (((asmcmd >> 4) & 0xF) == 0x1))
+					{
+						int clz = 1;
+					}
+					else
+					{
+						opcode_mid = (Byte)((asmcmd >> 21) & 0xF); // bit 24..21
+						use_imm = (((asmcmd >> 25) & 1) == 1);
+						updateflags = (((asmcmd >> 20) & 1) == 1);
+						Rn_op1 = (Byte)((asmcmd >> 16) & 0xF);   // bit 19..16
+						Rdest = (Byte)((asmcmd >> 12) & 0xF);   // bit 15..12
+						OP2 = (UInt16)(asmcmd & 0xFFF);   // bit 11..0
+						data_processing(use_imm, opcode_mid, updateflags, Rn_op1, Rdest, OP2, asmcmd);
+					}
 				}
 				break;
 
@@ -1239,7 +1284,7 @@ void Cpu::arm_command()
 			default:
 				if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && opcode_low == 0x3)
 				{
-					branch_with_Link_and_Exchange((Byte)(asmcmd & 0xF));
+					branch_with_Link_and_Exchange_2((Byte)(asmcmd & 0xF));
 				}
 				else
 				{
@@ -1317,6 +1362,14 @@ void Cpu::arm_command()
 				software_interrupt();
 			}
 			break;
+		}
+	}
+	else if (isArm9 && cond == 0xF)
+	{
+		Byte opcode_high3 = (Byte)((asmcmd >> 25) & 0x7); // bit 27..25
+		if (opcode_high3 == 5)
+		{
+			branch_with_Link_and_Exchange_1((asmcmd >> 24) & 1, asmcmd & 0xFFFFFF);
 		}
 	}
 
@@ -2606,8 +2659,33 @@ void Cpu::CPUSwitchMode(CPUMODES mode, bool saveState)
 }
 
 // ArmV5
+void Cpu::branch_with_Link_and_Exchange_1(bool h_bit, uint immi)
+{
+	regs[14] = regs[15] - 4;
 
-void Cpu::branch_with_Link_and_Exchange(byte reg)
+	Int32 offset_int;
+	if ((immi & 0x800000) == 0)
+	{
+		offset_int = (Int32)immi;
+	}
+	else
+	{
+		offset_int = (Int32)(immi | 0xFF000000);
+	}
+	PC = regs[15] + (offset_int << 2);
+
+	thumbmode = true;
+	PC &= 0xFFFFFFFC;
+	if (h_bit)
+	{
+		PC += 2;
+	}
+	PC -= 4; // because it will be added after arm instruction
+	newticks = 3;
+}
+
+
+void Cpu::branch_with_Link_and_Exchange_2(byte reg)
 {
 	regs[14] = regs[15] - 4;
 	PC = regs[reg];
@@ -2615,7 +2693,7 @@ void Cpu::branch_with_Link_and_Exchange(byte reg)
 	{
 		thumbmode = true;
 		PC &= 0xFFFFFFFE;
-		PC -= 2;
+		PC -= 4;
 	}
 	else
 	{
