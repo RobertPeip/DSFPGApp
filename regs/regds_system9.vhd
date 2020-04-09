@@ -181,7 +181,7 @@ package pReg_ds_system_9 is
    
    
    constant POSTFLG                                : regmap_type := (12#300#,   1,      0,        1,        0,   writeonly); -- Post Boot Flag (R/W)    
-   constant POSTFLG_Flag                           : regmap_type := (12#300#,   0,      0,        1,        0,   readonly ); -- Post Boot Flag (0=Boot in progress, 1=Boot completed)
+   constant POSTFLG_Flag                           : regmap_type := (12#300#,   0,      0,        1,        1,   readonly ); -- Post Boot Flag (0=Boot in progress, 1=Boot completed)
    constant POSTFLG_RW                             : regmap_type := (12#300#,   1,      1,        1,        0,   readwrite); -- Bit1 is read-writeable   
    
    

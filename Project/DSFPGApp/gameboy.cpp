@@ -74,15 +74,26 @@ void Gameboy::run()
 
 	while (on)
 	{
+		GPU_Timing.work();
+		DMA.work();
+		Timer.work();
+		//Sound.work();
+		//if (GPU.lockSpeed)
+		//{
+		//	Sound.soundGenerator.fill();
+		//}
+		//Serial.work();
+
 		UInt64 nexteventtotal = next_event_time();
+		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 252646)
+		if (tracer.traclist_ptr == 258021)
+		//if (tracer.commands == 22697)
 		{
 			int stop = 1;
 		}
 #endif
-
 		if (CPU9.totalticks <= totalticks)
 		{
 		   CPU9.nextInstr(nexteventtotal);
@@ -91,6 +102,7 @@ void Gameboy::run()
 		{
 			CPU7.nextInstr(nexteventtotal);
 		}
+
 		totalticks = min(CPU9.totalticks, CPU7.totalticks);
 
 		if (CPU9.halt) { CPU9.totalticks = totalticks; }
@@ -119,16 +131,6 @@ void Gameboy::run()
 		}
 		tracer.commands++;
 #endif
-
-		DMA.work();
-		GPU_Timing.work();
-		//Sound.work();
-		//if (GPU.lockSpeed)
-		//{
-		//	Sound.soundGenerator.fill();
-		//}
-		Timer.work();
-		//Serial.work();
 
 		checkcount++;
 		if (checkcount == 0)
@@ -160,6 +162,14 @@ void Gameboy::run()
 UInt64 Gameboy::next_event_time()
 {
 	UInt64 nexttime = GPU_Timing.next_event_time;
+
+	if (DMA.dma_active)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			nexttime = min(nexttime, DMA.DMAs[i].next_event_time);
+		}
+	}
 
 	return nexttime;
 }

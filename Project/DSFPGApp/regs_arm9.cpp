@@ -399,7 +399,7 @@ RegSect_system9::RegSect_system9()
     SQRT_PARAM_High = DSReg(0x2B8, 31, 0, 1, 0, "readwrite", Regs_Arm9.data);
     SQRT_PARAM_Low = DSReg(0x2BC, 31, 0, 1, 0, "readwrite", Regs_Arm9.data);
     POSTFLG = DSReg(0x300, 1, 0, 1, 0, "writeonly", Regs_Arm9.data);
-    POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 0, "readonly", Regs_Arm9.data);
+    POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 1, "readonly", Regs_Arm9.data);
     POSTFLG_RW = DSReg(0x300, 1, 1, 1, 0, "readwrite", Regs_Arm9.data);
     POWCNT1 = DSReg(0x304, 15, 0, 1, 0, "writeonly", Regs_Arm9.data);
     POWCNT1_Enable_Flag_for_both_LCDs = DSReg(0x304, 0, 0, 1, 0, "readwrite", Regs_Arm9.data);
@@ -430,6 +430,8 @@ void REGS_Arm9::reset()
       data[53] = (16777216 >> 8) & 0xFF;
       data[54] = (16777216 >> 16) & 0xFF;
       data[55] = (16777216 >> 24) & 0xFF;
+      // POSTFLG_Flag at 0x300 = 1;
+      data[768] = 1 & 0xFF;
 
     // DISPCNT at 0x000 = 0xFFFFFFFF;
     rwmask[0] = (byte)(0xFFFFFFFF & 0xFF);

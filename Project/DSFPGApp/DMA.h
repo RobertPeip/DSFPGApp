@@ -38,6 +38,7 @@ public:
 
 	bool running;
 	bool waiting;
+	bool finished;
 	bool first;
 	UInt32 addr_source;
 	UInt32 addr_target;
@@ -45,6 +46,7 @@ public:
 	UInt32 fullcount;
 	int waitTicks;
 	bool skipdebugout;
+	UInt64 next_event_time;
 
 	SingleDMA();
 	SingleDMA(Cpu* CPU, UInt16 irpmask,

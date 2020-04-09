@@ -39,6 +39,8 @@ SingleDMA::SingleDMA(Cpu* CPU, UInt16 irpmask,
 	this->dMA_Enable = false;
 	running = false;
 	waiting = false;
+	finished = false;
+	next_event_time = -1;
 }
 
 void Dma::reset()
@@ -107,6 +109,7 @@ void Dma::set_settings(int index)
 	{
 		DMAs[index].running = false;
 		DMAs[index].waiting = false;
+		DMAs[index].finished = false;
 	}
 
 	if (DMAs[index].dMA_Enable && !old_ena)
@@ -196,8 +199,21 @@ void Dma::work()
 	dma_active = false;
 	delayed = false;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
+		if (DMAs[i].finished)
+		{
+			if (gameboy.totalticks >= DMAs[i].next_event_time)
+			{
+				DMAs[i].finished = false;
+				DMAs[i].next_event_time = -1;
+			}
+			else
+			{
+				dma_active = true;
+			}
+		}
+
 		if (DMAs[i].dMA_Enable)
 		{
 			if (DMAs[i].waiting)
@@ -218,14 +234,16 @@ void Dma::work()
 				//}
 			}
 
-			if (DMAs[i].running)
+			//if (DMAs[i].running)
+			int ticks = 0;
+			while (DMAs[i].running)
 			{
 				// remember for timing
 				UInt32 sm = (DMAs[i].addr_source >> 24) & 0xF;
 				UInt32 dm = (DMAs[i].addr_target >> 24) & 0xF;
 
 				// calc timing
-				int ticks;
+				
 				//if (DMAs[i].first)
 				//{
 				//	if (DMAs[i].dMA_Transfer_Type)
@@ -243,27 +261,29 @@ void Dma::work()
 					if (DMAs[i].dMA_Transfer_Type)
 					{
 						uint lastaddress = DMAs[i].addr_source - 4; // simulate sequential
-						ticks = BusTiming.dataTicksAccess32(false, DMAs[i].addr_source, true, lastaddress);
+						ticks += BusTiming.dataTicksAccess32(i < 4, DMAs[i].addr_source, true, lastaddress);
 						lastaddress = DMAs[i].addr_target - 4;
-						ticks = BusTiming.dataTicksAccess32(false, DMAs[i].addr_target, true, lastaddress);
+						ticks += BusTiming.dataTicksAccess32(i < 4, DMAs[i].addr_target, false, lastaddress);
 					}
 					else
 					{
 						uint lastaddress = DMAs[i].addr_source - 2; // simulate sequential
-						ticks = BusTiming.dataTicksAccess32(false, DMAs[i].addr_source, true, lastaddress);
+						ticks += BusTiming.dataTicksAccess16(i < 4, DMAs[i].addr_source, true, lastaddress);
 						lastaddress = DMAs[i].addr_target - 2;
-						ticks = BusTiming.dataTicksAccess32(false, DMAs[i].addr_target, true, lastaddress);
+						ticks += BusTiming.dataTicksAccess16(i < 4, DMAs[i].addr_target, false, lastaddress);
 					}
 				}
-				DMAs[i].CPU->totalticks += ticks;
+
+				DMAs[i].next_event_time = gameboy.totalticks + ticks;
+				//DMAs[i].CPU->totalticks += ticks;
 
 				// transfer
 				dma_active = true;
 
 				if (DMAs[i].dMA_Transfer_Type)
 				{
-					UInt32 value = read_dword_9(DMAs[i].addr_source);
-					write_dword_9(DMAs[i].addr_target, value);
+					UInt32 value = read_dword_9(ACCESSTYPE::DMA, DMAs[i].addr_source);
+					write_dword_9(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
 
 					if (DMAs[i].source_Adr_Control == 0 || DMAs[i].source_Adr_Control == 3 || (DMAs[i].addr_source >= 0x08000000 && DMAs[i].addr_source < 0x0E000000)) { DMAs[i].addr_source += 4; }
 					else if (DMAs[i].source_Adr_Control == 1) { DMAs[i].addr_source -= 4; }
@@ -273,8 +293,8 @@ void Dma::work()
 				}
 				else
 				{
-					UInt16 value = (UInt16)last_dma_value;
-					write_word_9(DMAs[i].addr_target, value);
+					UInt16 value = read_word_9(ACCESSTYPE::DMA, DMAs[i].addr_source);
+					write_word_9(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
 
 					if (DMAs[i].source_Adr_Control == 0 || DMAs[i].source_Adr_Control == 3 || (DMAs[i].addr_source >= 0x08000000 && DMAs[i].addr_source < 0x0E000000)) { DMAs[i].addr_source += 2; }
 					else if (DMAs[i].source_Adr_Control == 1) { DMAs[i].addr_source -= 2; }
@@ -290,6 +310,7 @@ void Dma::work()
 				if (DMAs[i].count == 0)
 				{
 					DMAs[i].running = false;
+					DMAs[i].finished = true;
 
 					if (DMAs[i].iRQ_on)
 					{
@@ -342,7 +363,7 @@ void Dma::work()
 #endif
 				}
 
-				break;
+				//break;
 			}
 		}
 	}

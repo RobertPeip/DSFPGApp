@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "Memory.h"
 
 enum class CPUMODES
 {
@@ -31,6 +32,7 @@ public:
 	bool Flag_Carry;
 	bool Flag_Negative;
 	bool Flag_V_Overflow;
+	bool Flag_Q;
 
 	bool IRQ_disable;
 	bool FIQ_disable;
@@ -66,12 +68,12 @@ public:
 	void set_CPSR(UInt32 value);
 	UInt32 RotateRight(UInt32 x, int n);
 
-	byte(*read_byte)(UInt32 address);
-	UInt32(*read_word)(UInt32 address);
-	UInt32(*read_dword)(UInt32 address);
-	void (*write_byte)(UInt32 address, byte data);
-	void (*write_word)(UInt32 address, UInt16 data);
-	void (*write_dword)(UInt32 address, UInt32 data);
+	byte(*read_byte)(ACCESSTYPE accesstype, UInt32 address);
+	UInt32(*read_word)(ACCESSTYPE accesstype, UInt32 address);
+	UInt32(*read_dword)(ACCESSTYPE accesstype, UInt32 address);
+	void (*write_byte)(ACCESSTYPE accesstype, UInt32 address, byte data);
+	void (*write_word)(ACCESSTYPE accesstype, UInt32 address, UInt16 data);
+	void (*write_dword)(ACCESSTYPE accesstype, UInt32 address, UInt32 data);
 
 #ifdef DEBUG
 	uint lastinstruction;
@@ -133,6 +135,11 @@ private:
 	//ArmV5
 	void branch_with_Link_and_Exchange_1(bool h_bit, uint immi);
 	void branch_with_Link_and_Exchange_2(byte reg);
+	void count_leading_zeros(byte Rd, byte Rm);
+	void QADD(byte Rn, byte Rd, byte Rm);
+	void QSUB(byte Rn, byte Rd, byte Rm);
+	void QDADD(byte Rn, byte Rd, byte Rm);
+	void QDSUB(byte Rn, byte Rd, byte Rm);
 
 	void coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset);
 	void coprocessor_data_operation(byte opCode, byte opRegn, byte dstReg, byte coNumber, byte coInfo, byte opRegm);
@@ -196,6 +203,7 @@ public:
 	bool flag_Carry;
 	bool flag_Zero;
 	bool flag_V_Overflow;
+	bool flag_Q;
 	Int32 newticks;
 	uint busprefetch;
 	byte thumbmode;

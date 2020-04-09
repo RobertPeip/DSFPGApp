@@ -4,6 +4,13 @@ using namespace std;
 
 #include "types.h"
 
+enum class ACCESSTYPE
+{
+	CPUINSTRUCTION,
+	CPUDATA,
+	DMA
+};
+
 class MEMORY
 {
 public:
@@ -60,16 +67,16 @@ public:
 };
 extern MEMORY Memory;
 
-byte read_byte_9(UInt32 address);
-UInt32 read_word_9(UInt32 address);
-UInt32 read_dword_9(UInt32 address);
-void write_byte_9(UInt32 address, byte data);
-void write_word_9(UInt32 address, UInt16 data);
-void write_dword_9(UInt32 address, UInt32 data);
+byte read_byte_9(ACCESSTYPE accesstype, UInt32 address);
+UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address);
+UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address);
+void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data);
+void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data);
+void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data);
 
-byte read_byte_7(UInt32 address);
-UInt32 read_word_7(UInt32 address);
-UInt32 read_dword_7(UInt32 address);
-void write_byte_7(UInt32 address, byte data);
-void write_word_7(UInt32 address, UInt16 data);
-void write_dword_7(UInt32 address, UInt32 data);
+byte read_byte_7(ACCESSTYPE accesstype, UInt32 address);
+UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address);
+UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address);
+void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data);
+void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data);
+void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data);

@@ -161,7 +161,7 @@ package pReg_ds_system_7 is
    constant MemControl2_WRAM                       : regmap_type := (12#240#,   9,      8,        1,        0,   readonly ); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
    
    constant POSTFLG                                : regmap_type := (12#300#,  15,      0,        1,        0,   writeonly); -- Post Boot Flag (R/W)    
-   constant POSTFLG_Flag                           : regmap_type := (12#300#,   0,      0,        1,        0,   readonly ); -- Post Boot Flag (0=Boot in progress, 1=Boot completed)
+   constant POSTFLG_Flag                           : regmap_type := (12#300#,   0,      0,        1,        1,   readonly ); -- Post Boot Flag (0=Boot in progress, 1=Boot completed)
    constant POSTFLG_Power_Down_Mode                : regmap_type := (12#300#,  15,     14,        1,        0,   readwrite); -- Power Down Mode  (0=No function, 1=Enter GBA Mode, 2=Halt, 3=Sleep)
    
    constant POWCNT2                                : regmap_type := (12#304#,   1,      0,        1,        0,   writeonly); -- Sound/Wifi Power Control Register (R/W)   

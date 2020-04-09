@@ -35,12 +35,12 @@ void MEMORY::reset(string filename)
 	for (int i = 0; i < Header.ARM9_CODE_SIZE; i += 4)
 	{
 		uint data = *(UInt32*)&Memory.GameRom[Header.ARM9_CODE_SRC + i];
-		write_dword_9(Header.ARM9_CODE_DST + i, data);
+		write_dword_9(ACCESSTYPE::CPUDATA, Header.ARM9_CODE_DST + i, data);
 	}
 	for (int i = 0; i < Header.ARM7_CODE_SIZE; i += 4)
 	{
 		uint data = *(UInt32*)&Memory.GameRom[Header.ARM7_CODE_SRC + i];
-		write_dword_7(Header.ARM7_CODE_DST + i, data);
+		write_dword_7(ACCESSTYPE::CPUDATA, Header.ARM7_CODE_DST + i, data);
 	}
 
 	EEPROMEnabled = true;
@@ -211,7 +211,7 @@ UInt32 MEMORY::read_unreadable_dword()
 	//return value;
 }
 
-byte read_byte_9(UInt32 address)
+byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 {
 	Memory.unreadable = false;
 	uint adr;
@@ -219,9 +219,14 @@ byte read_byte_9(UInt32 address)
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
-	case 0: return 0;
+	case 0:
+	case 1:
+		if (accesstype == ACCESSTYPE::CPUINSTRUCTION || accesstype == ACCESSTYPE::CPUDATA)
+		{
+			return Memory.ITCM[address & 0x7FFF];
+		}
+		return 0;
 
-	case 1: return Memory.read_unreadable_byte(address & 1);
 	case 2:
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
 		{
@@ -231,8 +236,6 @@ byte read_byte_9(UInt32 address)
 		{
 			return Memory.WRAM_Large[address & 0x03FFFFF];
 		}
-		break;
-
 
 	case 3: 
 		if (address < 0x3800000)
@@ -285,7 +288,7 @@ byte read_byte_9(UInt32 address)
 	}
 }
 
-UInt32 read_word_9(UInt32 address)
+UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 {
 	Memory.unreadable = false;
 
@@ -298,10 +301,12 @@ UInt32 read_word_9(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		value = 0;
+	case 1:
+		if (accesstype == ACCESSTYPE::CPUINSTRUCTION || accesstype == ACCESSTYPE::CPUDATA)
+		{
+			value = *(UInt16*)&Memory.ITCM[address & 0x7FFF];
+		}
 		break;
-
-	case 1: value = Memory.read_unreadable_word(); break;
 
 	case 2:
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
@@ -389,7 +394,7 @@ UInt32 read_word_9(UInt32 address)
 	return value;
 }
 
-UInt32 read_dword_9(UInt32 address)
+UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 {
 	Memory.unreadable = false;
 
@@ -402,22 +407,25 @@ UInt32 read_dword_9(UInt32 address)
 	switch (select)
 	{
 	case 0:
-		value = 0;
+	case 1: 
+		if (accesstype == ACCESSTYPE::CPUINSTRUCTION || accesstype == ACCESSTYPE::CPUDATA)
+		{
+			value = *(UInt32*)&Memory.ITCM[address & 0x7FFF];
+		}
 		break;
 
-	case 1: value = Memory.read_unreadable_dword(); break;
-	case 2: 
+	case 2:
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
 		{
 			value = *(UInt32*)&Memory.DTCM[address & 0x3FFF];
 		}
 		else
-		{ 
+		{
 			value = *(UInt32*)&Memory.WRAM_Large[address & 0x03FFFFF];
 		}
 		break;
 
-	case 3: 
+	case 3:
 		if (address < 0x3800000)
 		{
 			adr = address & 0x7FFF;
@@ -432,7 +440,7 @@ UInt32 read_dword_9(UInt32 address)
 	case 4:
 		if (address < 0x04000400)
 		{
-			value = (UInt16)read_word_9(address) | (read_word_9(address + 2) << 16);
+			value = (UInt16)read_word_9(accesstype, address) | (read_word_9(accesstype, address + 2) << 16);
 		}
 		else
 		{
@@ -469,12 +477,21 @@ UInt32 read_dword_9(UInt32 address)
 	return value;
 }
 
-void write_byte_9(UInt32 address, byte data)
+void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 {
 	uint adr;
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
+	case 0:
+	case 1:
+		if (accesstype == ACCESSTYPE::CPUDATA)
+		{
+			adr = address & 0x7FFF;
+			Memory.ITCM[adr] = data;
+		}
+		return;
+
 	case 2:
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
 		{
@@ -531,7 +548,7 @@ void write_byte_9(UInt32 address, byte data)
 	}
 }
 
-void write_word_9(UInt32 address, UInt16 data)
+void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 {
 	byte offset = (byte)(address & 1);
 	address = address & 0xFFFFFFFE;
@@ -540,6 +557,16 @@ void write_word_9(UInt32 address, UInt16 data)
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
+	case 0:
+	case 1:
+		if (accesstype == ACCESSTYPE::CPUDATA)
+		{
+			adr = address & 0x7FFF;
+			Memory.ITCM[adr] = (byte)(data & 0xFF);
+			Memory.ITCM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		}
+		return;
+
 	case 2:
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
 		{
@@ -604,7 +631,7 @@ void write_word_9(UInt32 address, UInt16 data)
 	}
 }
 
-void write_dword_9(UInt32 address, UInt32 data)
+void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 {
 	byte offset = (byte)(address & 3);
 	address = address & 0xFFFFFFFC;
@@ -613,6 +640,18 @@ void write_dword_9(UInt32 address, UInt32 data)
 	byte select = (byte)(address >> 24);
 	switch (select)
 	{
+	case 0:
+	case 1:
+		if (accesstype == ACCESSTYPE::CPUDATA)
+		{
+			adr = address & 0x7FFF;
+			Memory.ITCM[adr] = (byte)(data & 0xFF);
+			Memory.ITCM[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.ITCM[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.ITCM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		}
+		return;
+
 	case 2:
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
 		{
@@ -696,7 +735,7 @@ void write_dword_9(UInt32 address, UInt32 data)
 	}
 }
 
-byte read_byte_7(UInt32 address)
+byte read_byte_7(ACCESSTYPE accesstype, UInt32 address)
 {
 	Memory.unreadable = false;
 	uint adr;
@@ -774,7 +813,7 @@ byte read_byte_7(UInt32 address)
 	}
 }
 
-UInt32 read_word_7(UInt32 address)
+UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 {
 	Memory.unreadable = false;
 
@@ -877,7 +916,7 @@ UInt32 read_word_7(UInt32 address)
 	return value;
 }
 
-UInt32 read_dword_7(UInt32 address)
+UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 {
 	Memory.unreadable = false;
 
@@ -910,7 +949,7 @@ UInt32 read_dword_7(UInt32 address)
 	case 4:
 		if (address < 0x04000400)
 		{
-			value = (UInt16)read_word_7(address) | (read_word_7(address + 2) << 16);
+			value = (UInt16)read_word_7(accesstype, address) | (read_word_7(accesstype, address + 2) << 16);
 		}
 		else
 		{
@@ -956,7 +995,7 @@ UInt32 read_dword_7(UInt32 address)
 	return value;
 }
 
-void write_byte_7(UInt32 address, byte data)
+void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data)
 {
 	uint adr;
 	byte select = (byte)(address >> 24);
@@ -1006,7 +1045,7 @@ void write_byte_7(UInt32 address, byte data)
 	}
 }
 
-void write_word_7(UInt32 address, UInt16 data)
+void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 {
 	byte offset = (byte)(address & 1);
 	address = address & 0xFFFFFFFE;
@@ -1070,7 +1109,7 @@ void write_word_7(UInt32 address, UInt16 data)
 	}
 }
 
-void write_dword_7(UInt32 address, UInt32 data)
+void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 {
 	byte offset = (byte)(address & 3);
 	address = address & 0xFFFFFFFC;

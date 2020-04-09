@@ -460,7 +460,7 @@ RegSect_system7::RegSect_system7()
     RAMSTAT_VRAMSTAT_D = DSReg(0x240, 1, 1, 1, 0, "readonly", Regs_Arm7.data);
     MemControl2_WRAM = DSReg(0x240, 9, 8, 1, 0, "readonly", Regs_Arm7.data);
     POSTFLG = DSReg(0x300, 15, 0, 1, 0, "writeonly", Regs_Arm7.data);
-    POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 0, "readonly", Regs_Arm7.data);
+    POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 1, "readonly", Regs_Arm7.data);
     POSTFLG_Power_Down_Mode = DSReg(0x300, 15, 14, 1, 0, "readwrite", Regs_Arm7.data);
     POWCNT2 = DSReg(0x304, 1, 0, 1, 0, "writeonly", Regs_Arm7.data);
     POWCNT2_Sound = DSReg(0x304, 0, 0, 1, 1, "readwrite", Regs_Arm7.data);
@@ -491,6 +491,8 @@ void REGS_Arm7::reset()
       // SOUNDBIAS at 0x088 = 0x0200;
       data[136] = 512 & 0xFF;
       data[137] = (512 >> 8) & 0xFF;
+      // POSTFLG_Flag at 0x300 = 1;
+      data[768] = 1 & 0xFF;
       // POWCNT2_Sound at 0x304 = 1;
       data[772] = 1 & 0xFF;
       // BIOSPROT at 0x308 = 0x1205;
