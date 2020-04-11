@@ -62,6 +62,7 @@ public:
 
 	void reset(bool isArm9);
 	void nextInstr(UInt64 next_event_time);
+	void interrupt();
 
 	CPUMODES get_mode_from_value(uint value);
 	UInt32 get_CPSR();
@@ -81,7 +82,6 @@ public:
 
 
 private:
-	void interrupt();
 	void thumb_command();
 	void long_branch_with_link(bool high, UInt16 SOffset11);
 	void unconditional_branch(UInt16 SOffset11);
@@ -209,7 +209,7 @@ public:
 	byte thumbmode;
 	byte armmode;
 	byte irpdisable;
-	UInt16 IF_intern;
+	UInt32 IF_intern;
 	int irp_wait;
 
 	UInt32 timer0;

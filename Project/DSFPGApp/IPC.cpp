@@ -14,6 +14,9 @@ void IPC::reset(bool isArm9)
 
 	if (isArm9)
 	{
+		IRP = &IRP9;
+		IRP_Extern = &IRP7;
+
 		IPCSYNC_Data_from_IPCSYNC    = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
 		IPCSYNC_Data_to_IPCSYNC      = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
 		IPCSYNC_EXTERN_to            = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
@@ -32,6 +35,9 @@ void IPC::reset(bool isArm9)
 	}
 	else
 	{
+		IRP = &IRP7;
+		IRP_Extern = &IRP9;
+
 		IPCSYNC_Data_from_IPCSYNC	 = Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
 		IPCSYNC_Data_to_IPCSYNC		 = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
 		IPCSYNC_EXTERN_to		     = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
@@ -78,21 +84,51 @@ void IPC::write_control()
 
 	update_status();
 
-	if (Send_Fifo_Empty_IRQ.on() && Send_Fifo_Empty_Status.on()) IRP.set_irp_bit(IRP.IRPMASK_IPC_Send_FIFO_Empty);
+	if (Send_Fifo_Empty_IRQ.on() && Send_Fifo_Empty_Status.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty);
 
-	if (Receive_Fifo_Not_Empty_IRQ.on() && !Receive_Fifo_Empty.on()) IRP.set_irp_bit(IRP.IRPMASK_IPC_Send_FIFO_Empty);
+	if (Receive_Fifo_Not_Empty_IRQ.on() && !Receive_Fifo_Empty.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty);
 }
 
 void IPC::update_status()
 {
-	std::queue<uint> recfifo = IPC9to7.fifo;
-	if (isArm9) recfifo = IPC7to9.fifo;
+	std::queue<uint>* recfifo = &IPC9to7.fifo;
+	if (isArm9) recfifo = &IPC7to9.fifo;
 
 	if (fifo.empty())      Send_Fifo_Empty_Status.write(1); else Send_Fifo_Empty_Status.write(0);
 	if (fifo.size() == 16) Send_Fifo_Full_Status.write(1);  else Send_Fifo_Full_Status.write(0);
 
-	if (recfifo.empty())      Receive_Fifo_Empty.write(1);  else Receive_Fifo_Empty.write(0);
-	if (recfifo.size() == 16) Receive_Fifo_Full.write(1);   else Receive_Fifo_Full.write(0);
+	if (recfifo->empty())      Receive_Fifo_Empty.write(1);  else Receive_Fifo_Empty.write(0);
+	if (recfifo->size() == 16) Receive_Fifo_Full.write(1);   else Receive_Fifo_Full.write(0);
 		
 	Error_Read_Empty_Send_Full.write(readWriteError);
+}
+
+void IPC::writefifo(uint value)
+{
+	bool recempty = fifo.empty();
+
+	fifo.push(value);
+	IPC9to7.update_status();
+	IPC7to9.update_status();
+
+	if (recempty)
+	{
+		IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Recv_FIFO_Not_Empty);
+	}
+}
+
+uint IPC::readfifo()
+{
+	if (fifo.empty())
+	{
+		return 0;
+	}
+	else
+	{
+		uint value = fifo.front();
+		fifo.pop();
+		IPC9to7.update_status();
+		IPC7to9.update_status();
+		return value;
+	}
 }

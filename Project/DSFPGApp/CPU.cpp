@@ -65,7 +65,7 @@ void cpustate::update(bool isArm9)
 	this->irpdisable = 0;
 	if (CPU.IRQ_disable) this->irpdisable += 1;
 
-	this->IF_intern = IRP.IRP_Flags;
+	this->IF_intern = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000214);
 	irp_wait = 0; //irpwait;
 
 	this->timer0 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000100); // timer 0
@@ -80,7 +80,7 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0xFFFF0008);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040001C0);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -423,29 +423,24 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		return;
 	}
 
-	if (!IRQ_disable && IRP.Master_enable && IRP.get_IF_with_mask() > 0 && !irpnext && !irpdelay_next && irpdelay <= 0)
-	{
-		irpnext = true;
-	}
-#if DEBUG
+	//if (!IRQ_disable && IRP.Master_enable && IRP.get_IF_with_mask() > 0 && !irpnext && !irpdelay_next && irpdelay <= 0)
+	//{
+	//	irpnext = true;
+	//}
 
-	//if (commands == 3000000) { Joypad.KeyStart = true; Joypad.set_reg(); }
-	//if (commands == 3100000) { Joypad.KeyStart = false; Joypad.set_reg(); }
-	//if (commands == 4000000) { Joypad.KeyStart = true; Joypad.set_reg(); }
-	//if (commands % 1000 == 0) { Joypad.KeyStart = !Joypad.KeyStart; Joypad.set_reg(); }
-#endif
 	newticks = 0;
 
 	PC_old = PC;
 
-	if (irpnext && !IRQ_disable)
-	{
-		interrupt();
-		halt = false;
-		irpnext = false;
-		irpdelay_next = false;
-	}
-	else if (!halt)
+	//if (irpnext && !IRQ_disable)
+	//{
+	//	interrupt();
+	//	halt = false;
+	//	irpnext = false;
+	//	irpdelay_next = false;
+	//}
+	//else if (!halt)
+	if (!halt)
 	{
 		op_since_dma++;
 
@@ -507,6 +502,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 	{
 		if (PC < 0x02000000)
 		{
+			lastfetchAddress = PC;
 			totalticks += newticks;
 		} 
 		else if((PC & 0x0F000000) == 0x02000000)
@@ -578,7 +574,7 @@ void Cpu::interrupt()
 {
 	CPUSwitchMode(CPUMODES::IRQ, true);
 	regs[14] = PC + 4;
-	PC = 0x18;
+	PC = irpTarget + 0x18;
 	IRQ_disable = true;
 	thumbmode = false;
 }
@@ -1732,7 +1728,9 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		if (Rdest == 15)
 		{
 			PC = regs[Rdest] & 0xFFFFFFFC;
-			newticks = 3; // +BusTiming.codeTicksAccess32(isArm9, PC) + BusTiming.codeTicksAccessSeq32(isArm9, PC);
+			//newticks = 3; // +BusTiming.codeTicksAccess32(isArm9, PC) + BusTiming.codeTicksAccessSeq32(isArm9, PC);
+			if (!isArm9) newticks += 5;
+			if (newticks < 5) newticks = 5;
 			PC -= 4;
 		}
 		else
@@ -2993,7 +2991,7 @@ void Cpu::coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte
 				switch (coInfo)
 				{
 				case 0:
-					//*R = DTCMRegion;
+					regs[armSrcDstReg] = Co15.DTCMRegion;
 					return;
 				case 1:
 					//*R = ITCMRegion;

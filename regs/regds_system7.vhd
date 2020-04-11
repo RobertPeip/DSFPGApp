@@ -130,7 +130,7 @@ package pReg_ds_system_7 is
    constant IE_Wifi                                : regmap_type := (12#210#,  24,     24,        1,        0,   readwrite); -- 24    NDS7 only: Wifi    / DSi9: XpertTeak DSP
    constant IE_unused                              : regmap_type := (12#210#,  31,     25,        1,        0,   readwrite); -- 25-31 unused
                                        
-   constant IF                                     : regmap_type := (12#214#,  31,     16,        1,        0,   writeonly); -- Interrupt Request Flags / IRQ Acknowledge
+   constant IF                                     : regmap_type := (12#214#,  24,      0,        1,        0,   writeonly); -- Interrupt Request Flags / IRQ Acknowledge
    constant IF_LCD_V_Blank                         : regmap_type := (12#214#,   0,      0,        1,        0,   readwrite); -- 0     LCD V-Blank
    constant IF_LCD_H_Blank                         : regmap_type := (12#214#,   1,      1,        1,        0,   readwrite); -- 1     LCD H-Blank
    constant IF_LCD_V_Counter_Match                 : regmap_type := (12#214#,   2,      2,        1,        0,   readwrite); -- 2     LCD V-Counter Match

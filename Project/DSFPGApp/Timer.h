@@ -3,10 +3,13 @@
 #include "types.h"
 #include "regs_arm9.h"
 #include "regs_arm7.h"
+#include "IRP.h"
 
 class SingleTimer
 {
 public:
+	Irp* IRP;
+
 	UInt16 irpmask;
 
 	DSReg CNT_L;
@@ -29,7 +32,7 @@ public:
 	UInt16 retval;
 
 	SingleTimer();
-	SingleTimer(UInt16 irpmask, DSReg CNT_L, DSReg Prescaler, DSReg Count_up, DSReg Timer_IRQ_Enable, DSReg Timer_Start_Stop);
+	SingleTimer(Irp* IRP, UInt16 irpmask, DSReg CNT_L, DSReg Prescaler, DSReg Count_up, DSReg Timer_IRQ_Enable, DSReg Timer_Start_Stop);
 };
 
 class TIMER

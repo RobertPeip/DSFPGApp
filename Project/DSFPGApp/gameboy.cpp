@@ -39,6 +39,8 @@ void Gameboy::reset()
 
 	CPU9.reset(true);
 	CPU7.reset(false);
+	IRP9.reset(true);
+	IRP7.reset(false);
 	InstrCache.reset();
 	DataCache.reset();
 	GPU_Timing.reset();
@@ -84,16 +86,20 @@ void Gameboy::run()
 		//}
 		//Serial.work();
 
+		if (IRP9.checknext) IRP9.check_and_excute_irp();
+		if (IRP7.checknext) IRP7.check_and_excute_irp();
+
 		UInt64 nexteventtotal = next_event_time();
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 258021)
-		//if (tracer.commands == 22697)
+		if (tracer.traclist_ptr == 259630)
+		//if (tracer.commands == 1)
 		{
 			int stop = 1;
 		}
 #endif
+
 		if (CPU9.totalticks <= totalticks)
 		{
 		   CPU9.nextInstr(nexteventtotal);

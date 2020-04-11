@@ -41,6 +41,14 @@ void SPI_INTERN::write_data(byte value)
 		break;
 
 	case 1:
+		if (Regs_Arm7.Sect_system7.SPICNT_Baudrate.read() != 0)
+		{
+			value = 0;
+		}
+		else
+		{
+			value = 0; // fw_transfer(&MMU.fw, (u8)val);
+		}
 		break;
 
 	case 2:

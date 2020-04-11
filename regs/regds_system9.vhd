@@ -102,7 +102,7 @@ package pReg_ds_system_9 is
    constant IE_Geometry_Command_FIFO               : regmap_type := (12#210#,  21,     21,        1,        0,   readwrite); -- 21    NDS9 only: Geometry Command FIFO
    constant IE_unused                              : regmap_type := (12#210#,  31,     22,        1,        0,   readwrite); -- 22-31 unused
                                        
-   constant IF                                     : regmap_type := (12#214#,  31,     16,        1,        0,   writeonly); -- Interrupt Request Flags / IRQ Acknowledge
+   constant IF                                     : regmap_type := (12#214#,  21,      0,        1,        0,   writeonly); -- Interrupt Request Flags / IRQ Acknowledge
    constant IF_LCD_V_Blank                         : regmap_type := (12#214#,   0,      0,        1,        0,   readwrite); -- 0     LCD V-Blank
    constant IF_LCD_H_Blank                         : regmap_type := (12#214#,   1,      1,        1,        0,   readwrite); -- 1     LCD H-Blank
    constant IF_LCD_V_Counter_Match                 : regmap_type := (12#214#,   2,      2,        1,        0,   readwrite); -- 2     LCD V-Counter Match

@@ -442,6 +442,10 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 		{
 			value = (UInt16)read_word_9(accesstype, address) | (read_word_9(accesstype, address + 2) << 16);
 		}
+		else if (address == 0x04100000)
+		{
+			value = IPC7to9.readfifo();
+		}
 		else
 		{
 			value = Memory.read_unreadable_dword();
@@ -951,6 +955,10 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 		{
 			value = (UInt16)read_word_7(accesstype, address) | (read_word_7(accesstype, address + 2) << 16);
 		}
+		else if (address == 0x04100000)
+		{
+			value = IPC9to7.readfifo();
+		}
 		else
 		{
 			value = Memory.read_unreadable_dword();
@@ -1254,12 +1262,13 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 
 	else if (adr == Regs_Arm9.Sect_keypad9.KEYINPUT.address) { Joypad.set_reg(); }
 
-	else if (adr == Regs_Arm9.Sect_system9.IME.address) { IRP.update_IME(*(UInt16*)&Regs_Arm9.data[Regs_Arm9.Sect_system9.IME.address]); }
-	else if (adr == Regs_Arm9.Sect_system9.IE.address) { IRP.update_IE(); }
-	else if (adr == Regs_Arm9.Sect_system9.IF.address + 2) { IRP.clear_irp_bits(); }
+	else if (adr == Regs_Arm9.Sect_system9.IME.address) { IRP9.update_IME(value); Regs_Arm9.Sect_system9.IME.write(value & 1); }
+	else if (adr == Regs_Arm9.Sect_system9.IE.address) { IRP9.update_IE(); }
+	else if (adr == Regs_Arm9.Sect_system9.IF.address + 2) { IRP9.clear_irp_bits(); }
 
 	if (adr == Regs_Arm9.Sect_system9.IPCSYNC.address) { IPC9to7.write_sync(); return; }
 	if (adr == Regs_Arm9.Sect_system9.IPCFIFOCNT.address) { IPC9to7.write_control(); return; }
+	if (adr == Regs_Arm9.Sect_system9.IPCFIFOSEND.address) { IPC9to7.writefifo(value); return; }
 
 	if (adr == Regs_Arm9.Sect_system9.EXMEMCNT.address) // first two bytes readable from arm7 side
 	{ 
@@ -1285,8 +1294,13 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address) { Timer.set_reload(7); return; }
 	if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address + 2) { Timer.set_settings(7); return; }
 
+	if (adr == Regs_Arm7.Sect_system7.IME.address) { IRP7.update_IME(value); Regs_Arm7.Sect_system7.IME.write(value & 1); return; }
+	if (adr == Regs_Arm7.Sect_system7.IE.address) { IRP7.update_IE(); return; }
+	if (adr == Regs_Arm7.Sect_system7.IF.address + 2) { IRP7.clear_irp_bits(); return; }
+
 	if (adr == Regs_Arm7.Sect_system7.IPCSYNC.address) { IPC7to9.write_sync(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }
+	if (adr == Regs_Arm7.Sect_system7.IPCFIFOSEND.address) { IPC7to9.writefifo(value); return; }
 
 	if (adr == Regs_Arm7.Sect_system7.SPICNT.address + 2) { SPI_Intern.write_data((byte)value); return; }
 

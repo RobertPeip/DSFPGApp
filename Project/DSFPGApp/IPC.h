@@ -4,6 +4,7 @@ using namespace std;
 
 #include "types.h"
 #include "DSReg.h"
+#include "IRP.h"
 
 class IPC
 {
@@ -11,6 +12,8 @@ public:
 	void reset(bool isArm9);
 	void write_sync();
 	void write_control();
+	void writefifo(uint value);
+	uint readfifo();
 
 private:
 	DSReg IPCSYNC_Data_from_IPCSYNC;
@@ -30,11 +33,12 @@ private:
 	DSReg Enable_Send_Receive_Fifo;
 
 	bool isArm9;
+	Irp* IRP;
+	Irp* IRP_Extern;
 	std::queue<uint> fifo;
 	byte readWriteError;
 
 	void update_status();
-
 };
 extern IPC IPC9to7;
 extern IPC IPC7to9;

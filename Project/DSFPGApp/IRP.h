@@ -1,6 +1,8 @@
 #pragma once
 
 #include "types.h"
+#include "CPU.h"
+#include "DSReg.h"
 
 class Irp
 {
@@ -29,15 +31,26 @@ public:
 	const int IRPMASK_SPI_bus = 0x800000;
 	const int IRPMASK_Wifi = 0x1000000;
 
+	DSReg REG_IE;
+	DSReg REG_IF;
+
+	Cpu* CPU;
+
 	bool Master_enable;
 
-	UInt16 IRP_Flags;
-	UInt16 IE;
+	UInt32 IRP_Flags;
+	UInt32 IE;
 
-	void set_irp_bit(UInt16 mask);
+	bool checknext;
+
+	Irp();
+	void reset(bool isArm9);
+	void set_irp_bit(UInt32 mask);
 	void update_IE();
 	void clear_irp_bits();
-	void update_IME(UInt16 value);
-	UInt16 get_IF_with_mask();
+	void update_IME(UInt32 value);
+	UInt32 get_IF_with_mask();
+	void check_and_excute_irp();
 };
-extern Irp IRP;
+extern Irp IRP9;
+extern Irp IRP7;

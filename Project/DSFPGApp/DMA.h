@@ -4,11 +4,13 @@
 #include "regs_arm9.h"
 #include "regs_arm7.h"
 #include "CPU.h"
+#include "IRP.h"
 
 class SingleDMA
 {
 public:
     Cpu* CPU;
+    Irp* IRP;
 
 	UInt16 irpmask;
 
@@ -49,7 +51,7 @@ public:
 	UInt64 next_event_time;
 
 	SingleDMA();
-	SingleDMA(Cpu* CPU, UInt16 irpmask,
+	SingleDMA(Cpu* CPU, Irp* IRP, UInt16 irpmask,
 		DSReg SAD, DSReg DAD, DSReg CNT_L,
 		DSReg Dest_Addr_Control, DSReg Source_Adr_Control, DSReg DMA_Repeat, DSReg DMA_Transfer_Type,
 		DSReg Game_Pak_DRQ, DSReg DMA_Start_Timing, DSReg IRQ_on, DSReg DMA_Enable, bool hasDRQ);

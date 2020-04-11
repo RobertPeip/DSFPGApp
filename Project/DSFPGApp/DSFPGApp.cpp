@@ -120,7 +120,7 @@ void set_displaysize(int mult, bool fullscreen)
 
 void drawer()
 {
-	window = SDL_CreateWindow ("FPGBApp", 200, 200,WIDTH * 4, HEIGHT * 4, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow ("DSFPGApp", 200, 200,WIDTH * 4, HEIGHT * 4, SDL_WINDOW_OPENGL);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 	SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
@@ -447,7 +447,8 @@ int main(int argc, char* argv[])
 	GPU.drawlock = SDL_CreateMutex();
 
 	// debug
-	gameboy.filename = "C:\\Users\\FPGADev\\Desktop\\Emu-Docs-master\\Nintendo DS\\testroms\\Eigenmath1.0.nds";
+	//gameboy.filename = "C:\\Users\\FPGADev\\Desktop\\Emu-Docs-master\\Nintendo DS\\testroms\\Eigenmath1.0.nds";
+	gameboy.filename = "C:\\Users\\FPGADev\\Desktop\\Emu-Docs-master\\Nintendo DS\\testroms\\gxDemos\\2D_BmpBg_MainRam.nds";
 
 	openrom();
 

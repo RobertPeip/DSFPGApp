@@ -432,7 +432,7 @@ RegSect_system7::RegSect_system7()
     IE_SPI_bus = DSReg(0x210, 23, 23, 1, 0, "readwrite", Regs_Arm7.data);
     IE_Wifi = DSReg(0x210, 24, 24, 1, 0, "readwrite", Regs_Arm7.data);
     IE_unused = DSReg(0x210, 31, 25, 1, 0, "readwrite", Regs_Arm7.data);
-    IF = DSReg(0x214, 31, 16, 1, 0, "writeonly", Regs_Arm7.data);
+    IF = DSReg(0x214, 24, 0, 1, 0, "writeonly", Regs_Arm7.data);
     IF_LCD_V_Blank = DSReg(0x214, 0, 0, 1, 0, "readwrite", Regs_Arm7.data);
     IF_LCD_H_Blank = DSReg(0x214, 1, 1, 1, 0, "readwrite", Regs_Arm7.data);
     IF_LCD_V_Counter_Match = DSReg(0x214, 2, 2, 1, 0, "readwrite", Regs_Arm7.data);

@@ -329,7 +329,7 @@ RegSect_system9::RegSect_system9()
     IE_NDS_Slot_IREQ_MC = DSReg(0x210, 20, 20, 1, 0, "readwrite", Regs_Arm9.data);
     IE_Geometry_Command_FIFO = DSReg(0x210, 21, 21, 1, 0, "readwrite", Regs_Arm9.data);
     IE_unused = DSReg(0x210, 31, 22, 1, 0, "readwrite", Regs_Arm9.data);
-    IF = DSReg(0x214, 31, 16, 1, 0, "writeonly", Regs_Arm9.data);
+    IF = DSReg(0x214, 21, 0, 1, 0, "writeonly", Regs_Arm9.data);
     IF_LCD_V_Blank = DSReg(0x214, 0, 0, 1, 0, "readwrite", Regs_Arm9.data);
     IF_LCD_H_Blank = DSReg(0x214, 1, 1, 1, 0, "readwrite", Regs_Arm9.data);
     IF_LCD_V_Counter_Match = DSReg(0x214, 2, 2, 1, 0, "readwrite", Regs_Arm9.data);
