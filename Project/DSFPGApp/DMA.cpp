@@ -269,9 +269,9 @@ void Dma::work()
 					else
 					{
 						uint lastaddress = DMAs[i].addr_source - 2; // simulate sequential
-						ticks += BusTiming.dataTicksAccess16(i < 4, DMAs[i].addr_source, true, lastaddress);
+						ticks += BusTiming.dataTicksAccess816(i < 4, false, DMAs[i].addr_source, true, lastaddress);
 						lastaddress = DMAs[i].addr_target - 2;
-						ticks += BusTiming.dataTicksAccess16(i < 4, DMAs[i].addr_target, false, lastaddress);
+						ticks += BusTiming.dataTicksAccess816(i < 4, false, DMAs[i].addr_target, false, lastaddress);
 					}
 				}
 

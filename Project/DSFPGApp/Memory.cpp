@@ -20,6 +20,7 @@
 #include "Header.h"
 #include "spi_intern.h"
 #include "IPC.h"
+#include "MathDIV.h"
 
 MEMORY Memory;
 
@@ -42,6 +43,22 @@ void MEMORY::reset(string filename)
 		uint data = *(UInt32*)&Memory.GameRom[Header.ARM7_CODE_SRC + i];
 		write_dword_7(ACCESSTYPE::CPUDATA, Header.ARM7_CODE_DST + i, data);
 	}
+
+	// copy header
+	for (int i = 0; i < 0x170; i += 4)
+	{
+		uint data = *(UInt32*)&Memory.GameRom[i];
+		write_dword_7(ACCESSTYPE::CPUDATA, 0x027FFE00 + i, data);
+	}
+
+	// init further memory
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x02FFFC40, 0x1);
+
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF800, 0x0000ffc2); // gameInfo.chipID
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF804, 0x0000ffc2); // gameInfo.chipID
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FFC00, 0x0000ffc2); // gameInfo.chipID
+
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF808, 0x6ee6); //  header checksum crc16
 
 	EEPROMEnabled = true;
 	FlashEnabled = true;
@@ -765,9 +782,9 @@ byte read_byte_7(ACCESSTYPE accesstype, UInt32 address)
 		}
 
 	case 4:
-		if (address < 0x04000400)
+		if (address < 0x04001000)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0xFFF;
 
 			if (adr == Regs_Arm7.Sect_system7.RTC_reg.address)
 			{
@@ -848,9 +865,9 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 		}
 
 	case 4:
-		if (address < 0x04000400)
+		if (address < 0x04001000)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0xFFF;
 
 			if (adr == Regs_Arm7.Sect_dma7.DMA0CNT_L.address ||
 				adr == Regs_Arm7.Sect_dma7.DMA1CNT_L.address ||
@@ -951,7 +968,7 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 		}
 
 	case 4:
-		if (address < 0x04000400)
+		if (address < 0x04001000)
 		{
 			value = (UInt16)read_word_7(accesstype, address) | (read_word_7(accesstype, address + 2) << 16);
 		}
@@ -1024,9 +1041,9 @@ void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data)
 		}
 
 	case 4:
-		if (address < 0x04000400)
+		if (address < 0x04001000)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0xFFF;
 			Regs_Arm7.data[adr] = data;
 			Memory.write_DSReg7(adr & 0xFFFFFFFE, data, false);
 		}
@@ -1084,9 +1101,9 @@ void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 4:
-		if (address < 0x04000400)
+		if (address < 0x04001000)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0xFFF;
 			Regs_Arm7.data[adr] = (byte)(data & 0xFF);
 			Regs_Arm7.data[adr + 1] = (byte)((data >> 8) & 0xFF);
 			Memory.write_DSReg7(adr, data, false);
@@ -1154,9 +1171,9 @@ void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 4:
-		if (address < 0x04000400)
+		if (address < 0x04001000)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0xFFF;
 
 			Regs_Arm7.data[adr] = (byte)(data & 0xFF);
 			Regs_Arm7.data[adr + 1] = (byte)((data >> 8) & 0xFF);
@@ -1214,15 +1231,6 @@ void MEMORY::prepare_read_DSReg7(UInt32 adr)
 	if (adr == Regs_Arm7.Sect_timer7.TM1CNT_L.address) { Timer.updatereg(5); return; }
 	if (adr == Regs_Arm7.Sect_timer7.TM2CNT_L.address) { Timer.updatereg(6); return; }
 	if (adr == Regs_Arm7.Sect_timer7.TM3CNT_L.address) { Timer.updatereg(7); return; }
-
-	else if (adr == Regs_Arm7.Sect_sound7.SOUNDCNT_X.address)
-	{
-		Regs_Arm7.data[adr] = (byte)(Regs_Arm7.data[adr] & 0x80);
-		if (Sound.soundGenerator.soundchannels[0].on && Sound.soundGenerator.enable_channels_left[0] || Sound.soundGenerator.enable_channels_right[0]) { Regs_Arm7.data[adr] |= 0x01; }
-		if (Sound.soundGenerator.soundchannels[1].on && Sound.soundGenerator.enable_channels_left[1] || Sound.soundGenerator.enable_channels_right[1]) { Regs_Arm7.data[adr] |= 0x02; }
-		if (Sound.soundGenerator.soundchannels[2].on && Sound.soundGenerator.enable_channels_left[2] || Sound.soundGenerator.enable_channels_right[2]) { Regs_Arm7.data[adr] |= 0x04; }
-		if (Sound.soundGenerator.soundchannels[3].on && Sound.soundGenerator.enable_channels_left[3] || Sound.soundGenerator.enable_channels_right[3]) { Regs_Arm7.data[adr] |= 0x08; }
-	}
 }
 
 void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
@@ -1237,14 +1245,6 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	else if (adr == Regs_Arm9.Sect_display9.BG3RefX.address + 2) { GPU.refpoint_update_3x_new(); }
 	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address) { GPU.refpoint_update_3y_new(); }
 	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address + 2) { GPU.refpoint_update_3y_new(); }
-
-	else if (adr >= Regs_Arm7.Sect_sound7.SOUND1CNT_L.address && adr < Regs_Arm7.Sect_sound7.FIFO_A.address)
-	{
-		Sound.set_soundreg(adr);
-	}
-
-	else if (adr == Regs_Arm7.Sect_sound7.FIFO_A.address) { SoundDMA.fill_fifo(0, value, dwaccess); }
-	else if (adr == Regs_Arm7.Sect_sound7.FIFO_B.address) { SoundDMA.fill_fifo(1, value, dwaccess); }
 
 	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address) { Timer.set_reload(0); }
 	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address + 2) { Timer.set_settings(0); }
@@ -1276,6 +1276,8 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 		Regs_Arm7.data[0x205] = Regs_Arm9.data[0x205]; 
 		return; 
 	} 
+
+	if (adr >= Regs_Arm9.Sect_system9.DIVCNT.address && adr < Regs_Arm9.Sect_system9.DIV_DENOM_Low.address + 4) { MathDIV.write(); return; }
 }
 
 void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)

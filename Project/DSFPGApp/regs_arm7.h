@@ -572,373 +572,98 @@ class RegSect_sound7
 {
 public:
     /// <summary>
-    /// Channel 1 Sweep register (NR10)
+    /// 16 * CNT + SAD + TMR + PNT + LEN
     /// </summary>
-    DSReg SOUND1CNT_L;
+    DSReg SOUNDREGS;
     /// <summary>
-    /// 0-2 R/W (n=0-7)
+    /// 
     /// </summary>
-    DSReg SOUND1CNT_L_Number_of_sweep_shift;
+    DSReg SOUNDCNT;
     /// <summary>
-    /// 3 R/W (0=Increase, 1=Decrease)
+    /// Bit0-6 Master Volume (0..127=silent..loud)
     /// </summary>
-    DSReg SOUND1CNT_L_Sweep_Frequency_Direction;
+    DSReg SOUNDCNT_Master_Volume;
     /// <summary>
-    /// 4-6 R/W units of 7.8ms (0-7, min=7.8ms, max=54.7ms)
+    /// Bit8-9 Left Output from (0=Left Mixer, 1=Ch1, 2=Ch3, 3=Ch1+Ch3)
     /// </summary>
-    DSReg SOUND1CNT_L_Sweep_Time;
+    DSReg SOUNDCNT_Left_Output_from;
     /// <summary>
-    /// Channel 1 Duty/Length/Envelope (NR11, NR12)
+    /// Bit10-11 Right Output from (0=Right Mixer, 1=Ch1, 2=Ch3, 3=Ch1+Ch3)
     /// </summary>
-    DSReg SOUND1CNT_H;
+    DSReg SOUNDCNT_Right_Output_from;
     /// <summary>
-    /// 0-5 W units of (64-n)/256s (0-63)
+    /// Bit12 Output Ch1 to Mixer (0=Yes, 1=No) (both Left/Right)
     /// </summary>
-    DSReg SOUND1CNT_H_Sound_length;
+    DSReg SOUNDCNT_Output_Ch1_to_Mixer;
     /// <summary>
-    /// 6-7 R/W (0-3, see below)
+    /// Bit13 Output Ch3 to Mixer (0=Yes, 1=No) (both Left/Right)
     /// </summary>
-    DSReg SOUND1CNT_H_Wave_Pattern_Duty;
+    DSReg SOUNDCNT_Output_Ch3_to_Mixer;
     /// <summary>
-    /// 8-10 R/W units of n/64s (1-7, 0=No Envelope)
+    /// Bit15 Master Enable (0=Disable, 1=Enable)
     /// </summary>
-    DSReg SOUND1CNT_H_Envelope_Step_Time;
+    DSReg SOUNDCNT_Master_Enable;
     /// <summary>
-    /// 11 R/W (0=Decrease, 1=Increase)
-    /// </summary>
-    DSReg SOUND1CNT_H_Envelope_Direction;
-    /// <summary>
-    /// 12-15 R/W (1-15, 0=No Sound)
-    /// </summary>
-    DSReg SOUND1CNT_H_Initial_Volume_of_envelope;
-    /// <summary>
-    /// Channel 1 Frequency/Control (NR13, NR14)
-    /// </summary>
-    DSReg SOUND1CNT_X;
-    /// <summary>
-    /// 0-10 W 131072/(2048-n)Hz (0-2047)
-    /// </summary>
-    DSReg SOUND1CNT_X_Frequency;
-    /// <summary>
-    /// 14 R/W (1=Stop output when length in NR11 expires)
-    /// </summary>
-    DSReg SOUND1CNT_X_Length_Flag;
-    /// <summary>
-    /// 15 W (1=Restart Sound)
-    /// </summary>
-    DSReg SOUND1CNT_X_Initial;
-    /// <summary>
-    /// must return zero
-    /// </summary>
-    DSReg SOUND1CNT_XHighZero;
-    /// <summary>
-    /// Channel 2 Duty/Length/Envelope (NR21, NR22)
-    /// </summary>
-    DSReg SOUND2CNT_L;
-    /// <summary>
-    /// 0-5 W units of (64-n)/256s (0-63)
-    /// </summary>
-    DSReg SOUND2CNT_L_Sound_length;
-    /// <summary>
-    /// 6-7 R/W (0-3, see below)
-    /// </summary>
-    DSReg SOUND2CNT_L_Wave_Pattern_Duty;
-    /// <summary>
-    /// 8-10 R/W units of n/64s (1-7, 0=No Envelope)
-    /// </summary>
-    DSReg SOUND2CNT_L_Envelope_Step_Time;
-    /// <summary>
-    /// 11 R/W (0=Decrease, 1=Increase)
-    /// </summary>
-    DSReg SOUND2CNT_L_Envelope_Direction;
-    /// <summary>
-    /// 12-15 R/W (1-15, 0=No Sound)
-    /// </summary>
-    DSReg SOUND2CNT_L_Initial_Volume_of_envelope;
-    /// <summary>
-    /// Channel 2 Frequency/Control (NR23, NR24)
-    /// </summary>
-    DSReg SOUND2CNT_H;
-    /// <summary>
-    /// 0-10 W 131072/(2048-n)Hz (0-2047)
-    /// </summary>
-    DSReg SOUND2CNT_H_Frequency;
-    /// <summary>
-    /// 14 R/W (1=Stop output when length in NR11 expires)
-    /// </summary>
-    DSReg SOUND2CNT_H_Length_Flag;
-    /// <summary>
-    /// 15 W (1=Restart Sound)
-    /// </summary>
-    DSReg SOUND2CNT_H_Initial;
-    /// <summary>
-    /// must return zero
-    /// </summary>
-    DSReg SOUND2CNT_HHighZero;
-    /// <summary>
-    /// Channel 3 Stop/Wave RAM select (NR30)
-    /// </summary>
-    DSReg SOUND3CNT_L;
-    /// <summary>
-    /// 5 R/W (0=One bank/32 digits, 1=Two banks/64 digits)
-    /// </summary>
-    DSReg SOUND3CNT_L_Wave_RAM_Dimension;
-    /// <summary>
-    /// 6 R/W (0-1, see below)
-    /// </summary>
-    DSReg SOUND3CNT_L_Wave_RAM_Bank_Number;
-    /// <summary>
-    /// 7 R/W (0=Stop, 1=Playback)
-    /// </summary>
-    DSReg SOUND3CNT_L_Sound_Channel_3_Off;
-    /// <summary>
-    /// Channel 3 Length/Volume (NR31, NR32)
-    /// </summary>
-    DSReg SOUND3CNT_H;
-    /// <summary>
-    /// 0-7 W units of (256-n)/256s (0-255)
-    /// </summary>
-    DSReg SOUND3CNT_H_Sound_length;
-    /// <summary>
-    /// 13-14 R/W (0=Mute/Zero, 1=100%, 2=50%, 3=25%)
-    /// </summary>
-    DSReg SOUND3CNT_H_Sound_Volume;
-    /// <summary>
-    /// 15 R/W (0=Use above, 1=Force 75% regardless of above)
-    /// </summary>
-    DSReg SOUND3CNT_H_Force_Volume;
-    /// <summary>
-    /// Channel 3 Frequency/Control (NR33, NR34)
-    /// </summary>
-    DSReg SOUND3CNT_X;
-    /// <summary>
-    /// 0-10 W 2097152/(2048-n) Hz (0-2047)
-    /// </summary>
-    DSReg SOUND3CNT_X_Sample_Rate;
-    /// <summary>
-    /// 14 R/W (1=Stop output when length in NR31 expires)
-    /// </summary>
-    DSReg SOUND3CNT_X_Length_Flag;
-    /// <summary>
-    /// 15 W (1=Restart Sound)
-    /// </summary>
-    DSReg SOUND3CNT_X_Initial;
-    /// <summary>
-    /// must return zero
-    /// </summary>
-    DSReg SOUND3CNT_XHighZero;
-    /// <summary>
-    /// Channel 4 Length/Envelope (NR41, NR42)
-    /// </summary>
-    DSReg SOUND4CNT_L;
-    /// <summary>
-    /// 0-5 W units of (64-n)/256s (0-63)
-    /// </summary>
-    DSReg SOUND4CNT_L_Sound_length;
-    /// <summary>
-    /// 8-10 R/W units of n/64s (1-7, 0=No Envelope)
-    /// </summary>
-    DSReg SOUND4CNT_L_Envelope_Step_Time;
-    /// <summary>
-    /// 11 R/W (0=Decrease, 1=Increase)
-    /// </summary>
-    DSReg SOUND4CNT_L_Envelope_Direction;
-    /// <summary>
-    /// 12-15 R/W (1-15, 0=No Sound)
-    /// </summary>
-    DSReg SOUND4CNT_L_Initial_Volume_of_envelope;
-    /// <summary>
-    /// must return zero
-    /// </summary>
-    DSReg SOUND4CNT_LHighZero;
-    /// <summary>
-    /// Channel 4 Frequency/Control (NR43, NR44)
-    /// </summary>
-    DSReg SOUND4CNT_H;
-    /// <summary>
-    /// 0-2 R/W (r) 524288 Hz / r / 2^(s+1) ;For r=0 assume r=0.5 instead
-    /// </summary>
-    DSReg SOUND4CNT_H_Dividing_Ratio_of_Freq;
-    /// <summary>
-    /// 3 R/W (0=15 bits, 1=7 bits)
-    /// </summary>
-    DSReg SOUND4CNT_H_Counter_Step_Width;
-    /// <summary>
-    /// 4-7 R/W (s) 524288 Hz / r / 2^(s+1) ;For r=0 assume r=0.5 instead
-    /// </summary>
-    DSReg SOUND4CNT_H_Shift_Clock_Frequency;
-    /// <summary>
-    /// 14 R/W (1=Stop output when length in NR41 expires)
-    /// </summary>
-    DSReg SOUND4CNT_H_Length_Flag;
-    /// <summary>
-    /// 15 W (1=Restart Sound)
-    /// </summary>
-    DSReg SOUND4CNT_H_Initial;
-    /// <summary>
-    /// must return zero
-    /// </summary>
-    DSReg SOUND4CNT_HHighZero;
-    /// <summary>
-    /// Control Stereo/Volume/Enable (NR50, NR51)
-    /// </summary>
-    DSReg SOUNDCNT_L;
-    /// <summary>
-    /// 0-2 (0-7)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_1_4_Master_Volume_RIGHT;
-    /// <summary>
-    /// 4-6 (0-7)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_1_4_Master_Volume_LEFT;
-    /// <summary>
-    /// 8-11 (each Bit 8-11, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_1_Enable_Flags_RIGHT;
-    /// <summary>
-    /// 8-11 (each Bit 8-11, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_2_Enable_Flags_RIGHT;
-    /// <summary>
-    /// 8-11 (each Bit 8-11, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_3_Enable_Flags_RIGHT;
-    /// <summary>
-    /// 8-11 (each Bit 8-11, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_4_Enable_Flags_RIGHT;
-    /// <summary>
-    /// 12-15 (each Bit 12-15, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_1_Enable_Flags_LEFT;
-    /// <summary>
-    /// 12-15 (each Bit 12-15, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_2_Enable_Flags_LEFT;
-    /// <summary>
-    /// 12-15 (each Bit 12-15, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_3_Enable_Flags_LEFT;
-    /// <summary>
-    /// 12-15 (each Bit 12-15, 0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_L_Sound_4_Enable_Flags_LEFT;
-    /// <summary>
-    /// Control Mixing/DMA Control
-    /// </summary>
-    DSReg SOUNDCNT_H;
-    /// <summary>
-    /// 0-1 Sound # 1-4 Volume (0=25%, 1=50%, 2=100%, 3=Prohibited)
-    /// </summary>
-    DSReg SOUNDCNT_H_Sound_1_4_Volume;
-    /// <summary>
-    /// 2 DMA Sound A Volume (0=50%, 1=100%)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_A_Volume;
-    /// <summary>
-    /// 3 DMA Sound B Volume (0=50%, 1=100%)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_B_Volume;
-    /// <summary>
-    /// 8 DMA Sound A Enable RIGHT (0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_A_Enable_RIGHT;
-    /// <summary>
-    /// 9 DMA Sound A Enable LEFT (0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_A_Enable_LEFT;
-    /// <summary>
-    /// 10 DMA Sound A Timer Select (0=Timer 0, 1=Timer 1)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_A_Timer_Select;
-    /// <summary>
-    /// 11 DMA Sound A Reset FIFO (1=Reset)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_A_Reset_FIFO;
-    /// <summary>
-    /// 12 DMA Sound B Enable RIGHT (0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_B_Enable_RIGHT;
-    /// <summary>
-    /// 13 DMA Sound B Enable LEFT (0=Disable, 1=Enable)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_B_Enable_LEFT;
-    /// <summary>
-    /// 14 DMA Sound B Timer Select (0=Timer 0, 1=Timer 1)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_B_Timer_Select;
-    /// <summary>
-    /// 15 DMA Sound B Reset FIFO (1=Reset)
-    /// </summary>
-    DSReg SOUNDCNT_H_DMA_Sound_B_Reset_FIFO;
-    /// <summary>
-    /// Control Sound on/off (NR52)
-    /// </summary>
-    DSReg SOUNDCNT_X;
-    /// <summary>
-    /// 0 (Read Only)
-    /// </summary>
-    DSReg SOUNDCNT_X_Sound_1_ON_flag;
-    /// <summary>
-    /// 1 (Read Only)
-    /// </summary>
-    DSReg SOUNDCNT_X_Sound_2_ON_flag;
-    /// <summary>
-    /// 2 (Read Only)
-    /// </summary>
-    DSReg SOUNDCNT_X_Sound_3_ON_flag;
-    /// <summary>
-    /// 3 (Read Only)
-    /// </summary>
-    DSReg SOUNDCNT_X_Sound_4_ON_flag;
-    /// <summary>
-    /// 7 (0=Disable, 1=Enable) (Read/Write)
-    /// </summary>
-    DSReg SOUNDCNT_X_PSG_FIFO_Master_Enable;
-    /// <summary>
-    /// must return zero
-    /// </summary>
-    DSReg SOUNDCNT_XHighZero;
-    /// <summary>
-    /// Sound PWM Control (R/W)
+    /// (0..3FFh, usually 200h)
     /// </summary>
     DSReg SOUNDBIAS;
+    DSReg SOUNDCAP;
     /// <summary>
-    /// 0-9 (Default=200h, converting signed samples into unsigned)
+    /// Bit0 Control of Associated Sound Channels (ANDed with Bit7) SNDCAP0CNT: Output Sound Channel 1 (0=As such, 1=Add to Channel 0) Caution: Addition mode works only if BOTH Bit0 and Bit7 are set.
     /// </summary>
-    DSReg SOUNDBIAS_Bias_Level;
+    DSReg SOUNDCAP0_Control;
     /// <summary>
-    /// 14-15 (Default=0, see below)
+    /// Bit1 Capture Source Selection SNDCAP0CNT: Capture 0 Source (0=Left Mixer, 1=Channel 0/Bugged)
     /// </summary>
-    DSReg SOUNDBIAS_Amp_Res_Sampling_Cycle;
+    DSReg SOUNDCAP0_Capture_Source;
     /// <summary>
-    /// must return zero
+    /// Bit2 Capture Repeat (0=Loop, 1=One-shot)
     /// </summary>
-    DSReg SOUNDBIAS_HighZero;
+    DSReg SOUNDCAP0_Capture_Repeat;
     /// <summary>
-    /// Channel 3 Wave Pattern RAM (2 banks!!)
+    /// Bit3 Capture Format (0=PCM16, 1=PCM8)
     /// </summary>
-    DSReg WAVE_RAM;
+    DSReg SOUNDCAP0_Capture_Format;
     /// <summary>
-    /// Channel 3 Wave Pattern RAM (2 banks!!)
+    /// Bit7 Capture Start/Status (0=Stop, 1=Start/Busy)
     /// </summary>
-    DSReg WAVE_RAM2;
+    DSReg SOUNDCAP0_Capture_Start_Status;
     /// <summary>
-    /// Channel 3 Wave Pattern RAM (2 banks!!)
+    /// Bit8 Control of Associated Sound Channels (ANDed with Bit7) SNDCAP1CNT: Output Sound Channel 3 (0=As such, 1=Add to Channel 2) Caution: Addition mode works only if BOTH Bit0 and Bit7 are set.
     /// </summary>
-    DSReg WAVE_RAM3;
+    DSReg SOUNDCAP1_Control;
     /// <summary>
-    /// Channel 3 Wave Pattern RAM (2 banks!!)
+    /// Bit9 Capture Source Selection SNDCAP1CNT: Capture 1 Source (0=Right Mixer, 1=Channel 2/Bugged)
     /// </summary>
-    DSReg WAVE_RAM4;
+    DSReg SOUNDCAP1_Capture_Source;
     /// <summary>
-    /// Channel A FIFO, Data 0-3
+    /// Bit10 Capture Repeat (0=Loop, 1=One-shot)
     /// </summary>
-    DSReg FIFO_A;
+    DSReg SOUNDCAP1_Capture_Repeat;
     /// <summary>
-    /// Channel B FIFO, Data 0-3
+    /// Bit11 Capture Format (0=PCM16, 1=PCM8)
     /// </summary>
-    DSReg FIFO_B;
+    DSReg SOUNDCAP1_Capture_Format;
+    /// <summary>
+    /// Bit15 Capture Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUNDCAP1_Capture_Start_Status;
+    /// <summary>
+    /// Destination address (word aligned, bit0-1 are always zero)
+    /// </summary>
+    DSReg SNDCAP0DAD;
+    /// <summary>
+    /// Buffer length (1..FFFFh words) (ie. N*4 bytes)
+    /// </summary>
+    DSReg SNDCAP0LEN;
+    /// <summary>
+    /// Destination address (word aligned, bit0-1 are always zero)
+    /// </summary>
+    DSReg SNDCAP1DAD;
+    /// <summary>
+    /// Buffer length (1..FFFFh words) (ie. N*4 bytes)
+    /// </summary>
+    DSReg SNDCAP1LEN;
 
     RegSect_sound7();
 };

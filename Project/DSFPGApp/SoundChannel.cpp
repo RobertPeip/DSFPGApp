@@ -83,20 +83,6 @@ void SoundChannel::setNewFreq()
 
 void SoundChannel::setWaveTable()
 {
-	for (int i = 0; i < Regs_Arm7.Sect_sound7.WAVE_RAM.count * 4; i++)
-	{
-		byte data = Regs_Arm7.data[Regs_Arm7.Sect_sound7.WAVE_RAM.address + i];
-		if (banknumber)
-		{
-			this->wavetable[i * 2 + 0] = (byte)(data >> 4);
-			this->wavetable[i * 2 + 1] = (byte)(data & 0xF);
-		}
-		else
-		{
-			this->wavetable2[i * 2 + 0] = (byte)(data >> 4);
-			this->wavetable2[i * 2 + 1] = (byte)(data & 0xF);
-		}
-	}
 }
 
 void SoundChannel::setNewPoly(byte divider_raw, byte shift_raw)

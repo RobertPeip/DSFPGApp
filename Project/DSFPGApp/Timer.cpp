@@ -126,12 +126,10 @@ void TIMER::overflow(int index)
 
 void TIMER::updatereg(int index)
 {
+	uint adr = Regs_Arm7.Sect_timer7.TM0CNT_L.address + (index % 4) * 4;
+
 	if (timers[index].on)
 	{
-		uint adr = Regs_Arm7.Sect_timer7.TM0CNT_L.address + (index % 4) * 4;
-
-		UInt16 value;
-
 		if (timers[index].countup)
 		{
 			Timer.timers[index].value;
@@ -142,15 +140,15 @@ void TIMER::updatereg(int index)
 			diff = diff / timers[index].prescale;
 			if (diff == 65536)
 			{
-				value = 0;
+				Timer.timers[index].retval = 0;
 			}
 			else
 			{
-				value = 65535 - diff;
+				Timer.timers[index].retval = 65535 - diff;
 			}
 		}
-
-		Regs_Arm7.data[adr] = (byte)(value & 0xFF);
-		Regs_Arm7.data[adr + 1] = (byte)((value >> 8) & 0xFF);
 	}
+
+	Regs_Arm7.data[adr] = (byte)(Timer.timers[index].retval & 0xFF);
+	Regs_Arm7.data[adr + 1] = (byte)((Timer.timers[index].retval >> 8) & 0xFF);
 }

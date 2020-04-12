@@ -20,6 +20,7 @@
 #include "CPUCache.h"
 #include "spi_intern.h"
 #include "IPC.h"
+#include "MathDIV.h"
 
 Gameboy gameboy;
 
@@ -41,6 +42,7 @@ void Gameboy::reset()
 	CPU7.reset(false);
 	IRP9.reset(true);
 	IRP7.reset(false);
+	MathDIV.reset();
 	InstrCache.reset();
 	DataCache.reset();
 	GPU_Timing.reset();
@@ -79,6 +81,8 @@ void Gameboy::run()
 		GPU_Timing.work();
 		DMA.work();
 		Timer.work();
+		
+		if (MathDIV.calculating) { MathDIV.finish(); }
 		//Sound.work();
 		//if (GPU.lockSpeed)
 		//{
@@ -93,7 +97,7 @@ void Gameboy::run()
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 259630)
+		if (tracer.traclist_ptr == 29724)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -115,10 +119,10 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 1000000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 1300000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 260000;
+			tracer.runmoretrace = 200000;
 		}
 
 		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
@@ -168,6 +172,8 @@ void Gameboy::run()
 UInt64 Gameboy::next_event_time()
 {
 	UInt64 nexttime = GPU_Timing.next_event_time;
+
+	if (MathDIV.calculating) nexttime = min(nexttime, MathDIV.next_event_ticks);
 
 	if (DMA.dma_active)
 	{

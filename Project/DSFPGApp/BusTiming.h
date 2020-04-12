@@ -12,7 +12,7 @@ public:
 
 	void reset();
 	void update(UInt16 value);
-	int dataTicksAccess16(bool isArm9, UInt32 address, bool isRead, uint& lastAddress); // DATA 8/16bits NON SEQ
+	int dataTicksAccess816(bool isArm9, bool is8Bit, UInt32 address, bool isRead, uint& lastAddress); // DATA 8/16bits NON SEQ
 	int dataTicksAccess32(bool isArm9, UInt32 address, bool isRead, uint& lastAddress); // DATA 32bits NON SE
 	int codeTicksAccess16(bool isArm9, UInt32 address); // THUMB NON SEQ
 	int codeTicksAccess32(bool isArm9, UInt32 address); // ARM NON SEQ

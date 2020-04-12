@@ -33,7 +33,6 @@ public:
 
 	void reset();
 	void timer_overflow(uint timerindex);
-	void write_SOUNDCNT_H();
 	void fill_fifo(int index, UInt32 value, bool dwaccess);
 };
 extern SOUNDDMA SoundDMA;

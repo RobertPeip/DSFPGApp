@@ -36,6 +36,7 @@
     <ClCompile Include="IPC.cpp" />
     <ClCompile Include="IRP.cpp" />
     <ClCompile Include="Joypad.cpp" />
+    <ClCompile Include="MathDIV.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="OSD.cpp" />
     <ClCompile Include="regs_arm7.cpp" />
@@ -65,6 +66,7 @@
     <ClInclude Include="IPC.h" />
     <ClInclude Include="IRP.h" />
     <ClInclude Include="Joypad.h" />
+    <ClInclude Include="MathDIV.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="OSD.h" />
     <ClInclude Include="regs_arm7.h" />

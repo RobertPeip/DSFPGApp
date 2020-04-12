@@ -80,21 +80,21 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040001C0);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x038094e4);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
 
 	R16 = CPU.get_CPSR();
 	R17 = CPU.regs[17];
-	R13_USR = CPU.regbanks[0][13];
-	R14_USR = CPU.regbanks[0][14];
-	R13_IRQ = CPU.regbanks[2][13];
-	R14_IRQ = CPU.regbanks[2][14];
-	R13_SVC = CPU.regbanks[3][13];
-	R14_SVC = CPU.regbanks[3][14];
-	SPSR_IRQ = CPU.regbanks[2][17];
-	SPSR_SVC = CPU.regbanks[3][17];
+	//R13_USR = CPU.regbanks[0][13];
+	//R14_USR = CPU.regbanks[0][14];
+	//R13_IRQ = CPU.regbanks[2][13];
+	//R14_IRQ = CPU.regbanks[2][14];
+	//R13_SVC = CPU.regbanks[3][13];
+	//R14_SVC = CPU.regbanks[3][14];
+	//SPSR_IRQ = CPU.regbanks[2][17];
+	//SPSR_SVC = CPU.regbanks[3][17];
 
 	newticks = CPU.totalticks;
 }
@@ -860,12 +860,12 @@ void Cpu::load_store_halfword(bool load, byte Offset5, byte Rb, byte Rd)
 	if (load)
 	{
 		regs[Rd] = (*read_word)(ACCESSTYPE::CPUDATA, address);
-		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 	}
 	else
 	{
-		newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress); // done before write, so there is time for bustiming change to happen
+		newticks = 2 + BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress); // done before write, so there is time for bustiming change to happen
 		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		(*write_word)(ACCESSTYPE::CPUDATA, address, (UInt16)regs[Rd]);
 	}
@@ -879,7 +879,7 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		{
 			UInt32 address = regs[Rb] + Offset5;
 			regs[Rd] = (*read_byte)(ACCESSTYPE::CPUDATA, address);
-			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+			newticks = 3 + BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		}
 		else
@@ -895,7 +895,7 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		if (byteflag)
 		{
 			UInt32 address = regs[Rb] + Offset5;
-			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
+			newticks = 2 + BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
 			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 			(*write_byte)(ACCESSTYPE::CPUDATA, address, (byte)regs[Rd]);
 		}
@@ -915,20 +915,20 @@ void Cpu::load_store_sign_extended_byte_halfword(byte opcode_hs, byte Ro, byte R
 	switch (opcode_hs)
 	{
 	case 0: // Store halfword
-		newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
+		newticks = 2 + BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress);
 		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		(*write_word)(ACCESSTYPE::CPUDATA, address, (UInt16)regs[Rd]);
 		break;
 
 	case 1: // Load sign-extended byte
 		regs[Rd] = (UInt32)((Int32)(SByte)(*read_byte)(ACCESSTYPE::CPUDATA, address));
-		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		break;
 
 	case 2: // Load halfword
 		regs[Rd] = (*read_word)(ACCESSTYPE::CPUDATA, address);
-		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		break;
 
@@ -942,7 +942,7 @@ void Cpu::load_store_sign_extended_byte_halfword(byte opcode_hs, byte Ro, byte R
 			regs[Rd] = (UInt32)((Int32)(SByte)(*read_word)(ACCESSTYPE::CPUDATA, address));
 		}
 
-		newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		break;
 	}
@@ -957,7 +957,7 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		if (byteflag)
 		{
 			regs[Rd] = (*read_byte)(ACCESSTYPE::CPUDATA, address);
-			newticks = 3 + BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+			newticks = 3 + BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		}
 		else
@@ -972,7 +972,7 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		if (byteflag)
 		{
 			(*write_byte)(ACCESSTYPE::CPUDATA, address, (byte)regs[Rd]);
-			newticks = 2 + BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
+			newticks = 2 + BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
 			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
 		}
 		else
@@ -1547,6 +1547,12 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{
 					regbanks[0][i] = (*read_dword)(ACCESSTYPE::CPUDATA, address & 0xFFFFFFFC);
+
+					// all below only for desmume, probably wrong!
+					if (i < 13)
+					{
+						regs[i] = regbanks[0][i]; 
+					}
 				}
 				else
 				{
@@ -1718,7 +1724,7 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		if ((opcode & 2) == 2) // byte transfer
 		{
 			regs[Rdest] = (UInt32)(*read_byte)(ACCESSTYPE::CPUDATA, address);
-			newticks = BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
+			newticks = BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 		}
 		else // word transfer
 		{
@@ -1748,7 +1754,7 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 		}
 		if ((opcode & 2) == 2) // byte transfer
 		{
-			newticks = BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
+			newticks = BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
 			(*write_byte)(ACCESSTYPE::CPUDATA, address, (byte)value);
 		}
 		else // word transfer
@@ -1801,14 +1807,17 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 		switch (opcode_low)
 		{
 		case 0xB: // unsigned halfword
+			newticks += BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 			regs[Rdest] = (UInt32)(*read_word)(ACCESSTYPE::CPUDATA, address);
 			break;
 
 		case 0xD: // signed byte
+			newticks += BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 			regs[Rdest] = (UInt32)((Int32)(SByte)(*read_byte)(ACCESSTYPE::CPUDATA, address));
 			break;
 
 		case 0xF: // signed halfword
+			newticks += BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 			if ((address & 1) == 0)
 			{
 				regs[Rdest] = (UInt32)((Int32)(Int16)(*read_word)(ACCESSTYPE::CPUDATA, address));
@@ -1819,7 +1828,6 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 			}
 			break;
 		}
-		newticks += BusTiming.dataTicksAccess16(isArm9, address, true, lastAddress);
 		if (!isArm9) newticks += 3;
 		if (newticks < 3) newticks = 3;
 		//newticks += BusTiming.codeTicksAccess32(isArm9, PC + 4);
@@ -1835,14 +1843,15 @@ void Cpu::halfword_data_transfer(byte opcode, byte opcode_low, bool load_store, 
 		{
 		case 0xB: // unsigned halfword
 		case 0xD: // signed halfword
+			newticks += BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress);
 			(*write_word)(ACCESSTYPE::CPUDATA, address, (UInt16)writevalue);
 			break;
 
 		case 0xF: // signed byte
+			newticks += BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
 			(*write_byte)(ACCESSTYPE::CPUDATA, address, (byte)writevalue);
 			break;
 		}
-		newticks += BusTiming.dataTicksAccess16(isArm9, address, false, lastAddress);
 		if (!isArm9) newticks += 2;
 		if (newticks < 2) newticks = 2;
 	}
