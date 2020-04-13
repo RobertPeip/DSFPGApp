@@ -295,7 +295,7 @@ void Gpu::draw_line(byte y_in)
 		//if (SDL_LockMutex(drawlock) == 0)
 		{
 			{
-				for (Byte x = 0; x < 240; x++)
+				for (int x = 0; x < 256; x++)
 				{
 					pixels[x][y].update(255, 255, 255);
 				}
@@ -324,579 +324,596 @@ void Gpu::draw_line(byte y_in)
 			pixelcount = 512;
 		}
 
-		if (on_delay_bg0[2])
+		if (displaymode == 1)
 		{
-			bool mosaic_on = Regs_Arm9.Sect_display9.BG0CNT_Mosaic.on();
-			if (!mosaic_on || mosaik_bg0_vcnt == 0)
+			if (on_delay_bg0[2])
 			{
-				for (int x = 0; x < 240; x++)
+				bool mosaic_on = Regs_Arm9.Sect_display9.BG0CNT_Mosaic.on();
+				if (!mosaic_on || mosaik_bg0_vcnt == 0)
 				{
-					pixels_bg0[x].prio = prio_bg0;
+					for (int x = 0; x < 256; x++)
+					{
+						pixels_bg0[x].prio = prio_bg0;
+						pixels_bg0[x].transparent = true;
+					}
+					switch (videomode)
+					{
+					case 0:
+					case 1:
+						draw_bg_mode0(pixels_bg0,
+							y,
+							Regs_Arm9.Sect_display9.BG0CNT_Screen_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG0CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG0CNT_Colors_Palettes.on(),
+							(byte)Regs_Arm9.Sect_display9.BG0CNT_Screen_Size.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG0HOFS.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG0VOFS.read());
+						break;
+					}
+					if (mosaic_on)
+					{
+						byte mosaic_h = 0;
+						for (int x = 0; x < 256; x++)
+						{
+							if (mosaic_h != 0)
+							{
+								pixels_bg0[x].copy(pixels_bg0[x - mosaic_h]);
+							}
+							if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
+							else mosaic_h++;
+						}
+					}
+				}
+				if (mosaik_bg0_vcnt >= mosaic_bg_v) { mosaik_bg0_vcnt = 0; }
+				else mosaik_bg0_vcnt++;
+			}
+			else
+			{
+				for (int x = 0; x < 256; x++)
+				{
 					pixels_bg0[x].transparent = true;
 				}
-				switch (videomode)
+			}
+
+			if (on_delay_bg1[2])
+			{
+				bool mosaic_on = Regs_Arm9.Sect_display9.BG1CNT_Mosaic.on();
+				if (!mosaic_on || mosaik_bg1_vcnt == 0)
 				{
-				case 0:
-				case 1:
-					draw_bg_mode0(pixels_bg0,
-						y,
-						Regs_Arm9.Sect_display9.BG0CNT_Screen_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG0CNT_Character_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG0CNT_Colors_Palettes.on(),
-						(byte)Regs_Arm9.Sect_display9.BG0CNT_Screen_Size.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG0HOFS.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG0VOFS.read());
-					break;
-				}
-				if (mosaic_on)
-				{
-					byte mosaic_h = 0;
-					for (int x = 0; x < 240; x++)
+					for (int x = 0; x < 256; x++)
 					{
-						if (mosaic_h != 0)
+						pixels_bg1[x].prio = prio_bg1;
+						pixels_bg1[x].transparent = true;
+					}
+					switch (videomode)
+					{
+					case 0:
+					case 1:
+						draw_bg_mode0(pixels_bg1,
+							y,
+							Regs_Arm9.Sect_display9.BG1CNT_Screen_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG1CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG1CNT_Colors_Palettes.on(),
+							(byte)Regs_Arm9.Sect_display9.BG1CNT_Screen_Size.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG1HOFS.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG1VOFS.read());
+						break;
+					}
+					if (mosaic_on)
+					{
+						byte mosaic_h = 0;
+						for (int x = 0; x < 256; x++)
 						{
-							pixels_bg0[x].copy(pixels_bg0[x - mosaic_h]);
+							if (mosaic_h != 0)
+							{
+								pixels_bg1[x].copy(pixels_bg1[x - mosaic_h]);
+							}
+							if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
+							else mosaic_h++;
 						}
-						if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
-						else mosaic_h++;
 					}
 				}
+				if (mosaik_bg1_vcnt >= mosaic_bg_v) { mosaik_bg1_vcnt = 0; }
+				else mosaik_bg1_vcnt++;
 			}
-			if (mosaik_bg0_vcnt >= mosaic_bg_v) { mosaik_bg0_vcnt = 0; }
-			else mosaik_bg0_vcnt++;
-		}
-		else
-		{
-			for (int x = 0; x < 240; x++)
+			else
 			{
-				pixels_bg0[x].transparent = true;
-			}
-		}
-
-		if (on_delay_bg1[2])
-		{
-			bool mosaic_on = Regs_Arm9.Sect_display9.BG1CNT_Mosaic.on();
-			if (!mosaic_on || mosaik_bg1_vcnt == 0)
-			{
-				for (int x = 0; x < 240; x++)
+				for (int x = 0; x < 256; x++)
 				{
-					pixels_bg1[x].prio = prio_bg1;
 					pixels_bg1[x].transparent = true;
 				}
-				switch (videomode)
-				{
-				case 0:
-				case 1:
-					draw_bg_mode0(pixels_bg1,
-						y,
-						Regs_Arm9.Sect_display9.BG1CNT_Screen_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG1CNT_Character_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG1CNT_Colors_Palettes.on(),
-						(byte)Regs_Arm9.Sect_display9.BG1CNT_Screen_Size.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG1HOFS.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG1VOFS.read());
-					break;
-				}
-				if (mosaic_on)
-				{
-					byte mosaic_h = 0;
-					for (int x = 0; x < 240; x++)
-					{
-						if (mosaic_h != 0)
-						{
-							pixels_bg1[x].copy(pixels_bg1[x - mosaic_h]);
-						}
-						if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
-						else mosaic_h++;
-					}
-				}
 			}
-			if (mosaik_bg1_vcnt >= mosaic_bg_v) { mosaik_bg1_vcnt = 0; }
-			else mosaik_bg1_vcnt++;
-		}
-		else
-		{
-			for (int x = 0; x < 240; x++)
-			{
-				pixels_bg1[x].transparent = true;
-			}
-		}
 
-		if (on_delay_bg2[2])
-		{
-			bool mosaic_on = Regs_Arm9.Sect_display9.BG2CNT_Mosaic.on();
-			if (!mosaic_on || mosaik_bg2_vcnt == 0)
+			if (on_delay_bg2[2])
 			{
-				for (int x = 0; x < pixelcount; x++)
+				bool mosaic_on = Regs_Arm9.Sect_display9.BG2CNT_Mosaic.on();
+				if (!mosaic_on || mosaik_bg2_vcnt == 0)
 				{
-					pixels_bg2_1[x].prio = prio_bg2;
-					pixels_bg2_1[x].transparent = true;
-					if (doubleres)
+					for (int x = 0; x < pixelcount; x++)
 					{
-						pixels_bg2_2[x].prio = prio_bg2;
-						pixels_bg2_2[x].transparent = true;
+						pixels_bg2_1[x].prio = prio_bg2;
+						pixels_bg2_1[x].transparent = true;
+						if (doubleres)
+						{
+							pixels_bg2_2[x].prio = prio_bg2;
+							pixels_bg2_2[x].transparent = true;
+						}
 					}
-				}
-				switch (videomode)
-				{
-				case 0:
-					draw_bg_mode0(pixels_bg2_1,
-						y,
-						Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.on(),
-						(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG2HOFS.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG2VOFS.read());
-					break;
-				case 1:
-				case 2:
-					draw_bg_mode2(pixels_bg2_1,
-						Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
-						(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
-						ref2_x,
-						ref2_y,
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
-						doubleres,
-						true);
-					if (doubleres)
+					switch (videomode)
 					{
-						Int16 BG2_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
-						Int16 BG2_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
-						draw_bg_mode2(pixels_bg2_2,
+					case 0:
+						draw_bg_mode0(pixels_bg2_1,
+							y,
+							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.on(),
+							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG2HOFS.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG2VOFS.read());
+						break;
+					case 1:
+					case 2:
+						draw_bg_mode2(pixels_bg2_1,
 							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
 							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
 							Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
 							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
-							ref2_x + BG2_DMX / 2,
-							ref2_y + BG2_DMY / 2,
+							ref2_x,
+							ref2_y,
 							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
 							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
 							doubleres,
 							true);
-					}
-					break;
-				case 3:
-					draw_bg_mode3(
-						ref2_x,
-						ref2_y,
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
-					break;
-				case 4:
-					draw_bg_mode4(
-						ref2_x,
-						ref2_y,
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
-					break;
-				case 5:
-					draw_bg_mode5(
-						ref2_x,
-						ref2_y,
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-						(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
-					break;
-				}
-				if (mosaic_on)
-				{
-					byte mosaic_h = 0;
-					for (int x = 0; x < 240; x++)
-					{
-						if (mosaic_h != 0)
+						if (doubleres)
 						{
-							pixels_bg2[x].copy(pixels_bg2[x - mosaic_h]);
+							Int16 BG2_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
+							Int16 BG2_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
+							draw_bg_mode2(pixels_bg2_2,
+								Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
+								Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+								(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+								ref2_x + BG2_DMX / 2,
+								ref2_y + BG2_DMY / 2,
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
+								doubleres,
+								true);
 						}
-						if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
-						else mosaic_h++;
+						break;
+					case 3:
+						draw_bg_mode3(
+							ref2_x,
+							ref2_y,
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+						break;
+					case 4:
+						draw_bg_mode4(
+							ref2_x,
+							ref2_y,
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+						break;
+					case 5:
+						draw_bg_mode5(
+							ref2_x,
+							ref2_y,
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+						break;
+					}
+					if (mosaic_on)
+					{
+						byte mosaic_h = 0;
+						for (int x = 0; x < 256; x++)
+						{
+							if (mosaic_h != 0)
+							{
+								pixels_bg2[x].copy(pixels_bg2[x - mosaic_h]);
+							}
+							if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
+							else mosaic_h++;
+						}
 					}
 				}
-			}
-			if (mosaik_bg2_vcnt >= mosaic_bg_v) { mosaik_bg2_vcnt = 0; }
-			else mosaik_bg2_vcnt++;
-		}
-		else
-		{
-			if (doubleres)
-			{
-				for (int x = 0; x < pixelcount; x++) { pixels_bg2_1[x].transparent = true; pixels_bg2_2[x].transparent = true; }
+				if (mosaik_bg2_vcnt >= mosaic_bg_v) { mosaik_bg2_vcnt = 0; }
+				else mosaik_bg2_vcnt++;
 			}
 			else
 			{
-				for (int x = 0; x < pixelcount; x++) pixels_bg2_1[x].transparent = true;
-			}
-		}
-
-		if (on_delay_bg3[2])
-		{
-			bool mosaic_on = Regs_Arm9.Sect_display9.BG3CNT_Mosaic.on();
-			if (!mosaic_on || mosaik_bg3_vcnt == 0)
-			{
-				for (int x = 0; x < 240; x++)
-				{
-					pixels_bg3[x].transparent = true;
-					pixels_bg3[x].prio = prio_bg3;
-				}
-				switch (videomode)
-				{
-				case 0:
-					draw_bg_mode0(pixels_bg3,
-						y,
-						Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.on(),
-						(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG3HOFS.read(),
-						(UInt16)Regs_Arm9.Sect_display9.BG3VOFS.read());
-					break;
-				case 2:
-					draw_bg_mode2(pixels_bg3,
-						Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
-						Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
-						(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
-						ref3_x,
-						ref3_y,
-						(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
-						(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read(),
-						false,
-						false);
-					break;
-				}
-				if (mosaic_on)
-				{
-					byte mosaic_h = 0;
-					for (int x = 0; x < 240; x++)
-					{
-						if (mosaic_h != 0)
-						{
-							pixels_bg3[x].copy(pixels_bg3[x - mosaic_h]);
-						}
-						if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
-						else mosaic_h++;
-					}
-				}
-			}
-			if (mosaik_bg3_vcnt >= mosaic_bg_v) { mosaik_bg3_vcnt = 0; }
-			else mosaik_bg3_vcnt++;
-		}
-		else
-		{
-			for (int x = 0; x < 240; x++)
-			{
-				pixels_bg3[x].transparent = true;
-			}
-		}
-
-		if (ref2_x_new == true) { ref2_x = ref2_x_next; ref2_x_new = false; }
-		if (ref2_y_new == true) { ref2_y = ref2_y_next; ref2_y_new = false; }
-		if (ref3_x_new == true) { ref3_x = ref3_x_next; ref3_x_new = false; }
-		if (ref3_y_new == true) { ref3_y = ref3_y_next; ref3_y_new = false; }
-
-		bool spriteon = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_OBJ.on();
-		for (int x = 0; x < 240; x++)
-		{
-			pixels_obj[x].transparent = true;
-		}
-		if (spriteon)
-		{
-			draw_obj(y, 0x10000);
-		}
-
-		////////////////////////
-		// merge
-		////////////////////////
-		///
-
-		// check windows on
-		bool anywindow = false;
-
-		bool inwin_0y = false;
-		UInt32 win0_X1 = 0;
-		UInt32 win0_X2 = 0;
-		if (Regs_Arm9.Sect_display9.DISPCNT_Window_0_Display_Flag.on())
-		{
-			anywindow = true;
-			UInt32 Y1 = Regs_Arm9.Sect_display9.WIN0V_Y1.read();
-			UInt32 Y2 = Regs_Arm9.Sect_display9.WIN0V_Y2.read();
-			if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
-			{
-				inwin_0y = true;
-				win0_X1 = Regs_Arm9.Sect_display9.WIN0H_X1.read();
-				win0_X2 = Regs_Arm9.Sect_display9.WIN0H_X2.read();
-			}
-		}
-
-		bool inwin_1y = false;
-		UInt32 win1_X1 = 0;
-		UInt32 win1_X2 = 0;
-		if (Regs_Arm9.Sect_display9.DISPCNT_Window_1_Display_Flag.on())
-		{
-			anywindow = true;
-			UInt32 Y1 = Regs_Arm9.Sect_display9.WIN1V_Y1.read();
-			UInt32 Y2 = Regs_Arm9.Sect_display9.WIN1V_Y2.read();
-			if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
-			{
-				inwin_1y = true;
-
-				win1_X1 = Regs_Arm9.Sect_display9.WIN1H_X1.read();
-				win1_X2 = Regs_Arm9.Sect_display9.WIN1H_X2.read();
-			}
-		}
-
-		bool objwindow_on = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Wnd_Display_Flag.on() && spriteon;
-		anywindow |= objwindow_on;
-
-		byte enables_wnd0 = (byte)(Regs_Arm9.Sect_display9.WININ.read() & 0x1F);
-		byte enables_wnd1 = (byte)((Regs_Arm9.Sect_display9.WININ.read() >> 8) & 0x1F);
-		byte enables_out = (byte)(Regs_Arm9.Sect_display9.WINOUT.read() & 0x1F);
-		byte enables_obj = (byte)((Regs_Arm9.Sect_display9.WINOUT.read() >> 8) & 0x1F);
-
-		bool inwin_0_special = Regs_Arm9.Sect_display9.WININ_Window_0_Special_Effect.on();
-		bool inwin_1_special = Regs_Arm9.Sect_display9.WININ_Window_1_Special_Effect.on();
-		bool obj_special = Regs_Arm9.Sect_display9.WINOUT_Objwnd_Special_Effect.on();
-		bool outside_special = Regs_Arm9.Sect_display9.WINOUT_Outside_Special_Effect.on();
-
-		byte special_effect_base = (byte)Regs_Arm9.Sect_display9.BLDCNT_Color_Special_Effect.read();
-		byte first_target = (byte)(Regs_Arm9.Sect_display9.BLDCNT.read() & 0x3F);
-		byte second_target = (byte)((Regs_Arm9.Sect_display9.BLDCNT.read() >> 8) & 0x3F);
-		byte bldy = (byte)Regs_Arm9.Sect_display9.BLDY.read();
-		byte eva = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVA_Coefficient.read();
-		byte evb = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVB_Coefficient.read();
-
-		if (bldy > 16) { bldy = 16; }
-		if (eva > 16) { eva = 16; }
-		if (evb > 16) { evb = 16; }
-
-		int step = 2;
-		if (doubleres)
-		{
-			step = 1;
-		}
-
-		pixels_bg2 = pixels_bg2_1;
-		for (byte yi = 0; yi <= 2 - step; yi++)
-		{
-			int yd = y;
-			if (doubleres)
-			{
-				yd = y * 2 + yi;
-				if (yi == 1 && (videomode == 1 || videomode == 2))
-				{
-					pixels_bg2 = pixels_bg2_2;
-				}
-			}
-			for (int xi = 0; xi < 512; xi += step)
-			{
-				int x = xi / 2;
-				int xd = xi / 2;
-				int x2 = xi / 2;
 				if (doubleres)
 				{
-					xd = xi;
-					if (videomode == 1 || videomode == 2)
-					{
-						x2 = x2 = xi;
-					}
+					for (int x = 0; x < pixelcount; x++) { pixels_bg2_1[x].transparent = true; pixels_bg2_2[x].transparent = true; }
 				}
-
-				// base
-				byte enables = 0;
-				if (!pixels_bg0[x].transparent) { enables |= 1; };
-				if (!pixels_bg1[x].transparent) { enables |= 2; };
-				if (!pixels_bg2[x2].transparent) { enables |= 4; };
-				if (!pixels_bg3[x].transparent) { enables |= 8; };
-				if (!pixels_obj[x].transparent) { enables |= 16; };
-
-				// window select
-				bool special_enable = true;
-				if (anywindow)
+				else
 				{
-					if (inwin_0y && ((win0_X1 <= win0_X2 && x >= win0_X1 && x < win0_X2) || ((win0_X1 > win0_X2 && (x >= win0_X1 || x < win0_X2)))))
-					{
-						enables &= enables_wnd0;
-						special_enable = inwin_0_special;
-					}
-					else if (inwin_1y && ((win1_X1 <= win1_X2 && x >= win1_X1 && x < win1_X2) || ((win1_X1 > win1_X2 && (x >= win1_X1 || x < win1_X2)))))
-					{
-						enables &= enables_wnd1;
-						special_enable = inwin_1_special;
-					}
-					else if (pixels_obj[x].objwnd)
-					{
-						enables &= enables_obj;
-						special_enable = obj_special;
-					}
-					else
-					{
-						enables &= enables_out;
-						special_enable = outside_special;
-					}
+					for (int x = 0; x < pixelcount; x++) pixels_bg2_1[x].transparent = true;
 				}
-				enables |= 0x20; //backdrop is always on
+			}
 
-				// priority
-				byte topprio = enables;
-				if ((topprio & 0x11) == 0x11 && pixels_obj[x].prio > pixels_bg0[x].prio) topprio &= 0xF;
-				if ((topprio & 0x12) == 0x12 && pixels_obj[x].prio > pixels_bg1[x].prio) topprio &= 0xF;
-				if ((topprio & 0x14) == 0x14 && pixels_obj[x].prio > pixels_bg2[x2].prio) topprio &= 0xF;
-				if ((topprio & 0x18) == 0x18 && pixels_obj[x].prio > pixels_bg3[x].prio) topprio &= 0xF;
-
-				if ((topprio & 0x01) == 0x1 && (topprio & 0x02) == 0x2 && pixels_bg0[x].prio > pixels_bg1[x].prio) topprio &= 0x1E;
-				if ((topprio & 0x01) == 0x1 && (topprio & 0x04) == 0x4 && pixels_bg0[x].prio > pixels_bg2[x2].prio) topprio &= 0x1E;
-				if ((topprio & 0x01) == 0x1 && (topprio & 0x08) == 0x8 && pixels_bg0[x].prio > pixels_bg3[x].prio) topprio &= 0x1E;
-				if ((topprio & 0x02) == 0x2 && (topprio & 0x04) == 0x4 && pixels_bg1[x].prio > pixels_bg2[x2].prio) topprio &= 0x1D;
-				if ((topprio & 0x02) == 0x2 && (topprio & 0x08) == 0x8 && pixels_bg1[x].prio > pixels_bg3[x].prio) topprio &= 0x1D;
-				if ((topprio & 0x04) == 0x4 && (topprio & 0x08) == 0x8 && pixels_bg2[x2].prio > pixels_bg3[x].prio) topprio &= 0x1B;
-
-				if ((topprio & 0x10) == 0x10) { topprio = 0x10; }
-				else if ((topprio & 0x01) == 0x01) { topprio = 0x01; }
-				else if ((topprio & 0x02) == 0x02) { topprio = 0x02; }
-				else if ((topprio & 0x04) == 0x04) { topprio = 0x04; }
-				else if ((topprio & 0x08) == 0x08) { topprio = 0x08; }
-				else { topprio = 0x20; }
-
-				bool special_out = false;
-				byte special_effect = special_effect_base;
-				if ((special_enable && special_effect > 0) || pixels_obj[x].alpha)
+			if (on_delay_bg3[2])
+			{
+				bool mosaic_on = Regs_Arm9.Sect_display9.BG3CNT_Mosaic.on();
+				if (!mosaic_on || mosaik_bg3_vcnt == 0)
 				{
-					// special select
-					byte first = (byte)(enables & first_target);
-
-					if (pixels_obj[x].alpha)
+					for (int x = 0; x < 256; x++)
 					{
-						first = (byte)(first | 0x10);
+						pixels_bg3[x].transparent = true;
+						pixels_bg3[x].prio = prio_bg3;
 					}
-
-					first = (byte)(first & topprio);
-
-					if (first != 0)
+					switch (videomode)
 					{
-						if (pixels_obj[x].alpha && first == 0x10)
+					case 0:
+						draw_bg_mode0(pixels_bg3,
+							y,
+							Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.on(),
+							(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG3HOFS.read(),
+							(UInt16)Regs_Arm9.Sect_display9.BG3VOFS.read());
+						break;
+					case 2:
+						draw_bg_mode2(pixels_bg3,
+							Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
+							(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
+							ref3_x,
+							ref3_y,
+							(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
+							(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read(),
+							false,
+							false);
+						break;
+					}
+					if (mosaic_on)
+					{
+						byte mosaic_h = 0;
+						for (int x = 0; x < 256; x++)
 						{
-							special_effect = 1;
-						}
-
-						byte second;
-						if (special_effect == 1)
-						{
-							second = (byte)(enables & (~first));
-
-							if ((second & 0x11) == 0x11) { if (pixels_obj[x].prio > pixels_bg0[x].prio) second &= 0x2F; else second &= 0x3E; }
-							if ((second & 0x12) == 0x12) { if (pixels_obj[x].prio > pixels_bg1[x].prio) second &= 0x2F; else second &= 0x3D; }
-							if ((second & 0x14) == 0x14) { if (pixels_obj[x].prio > pixels_bg2[x2].prio) second &= 0x2F; else second &= 0x3B; }
-							if ((second & 0x18) == 0x18) { if (pixels_obj[x].prio > pixels_bg3[x].prio) second &= 0x2F; else second &= 0x37; }
-
-							if ((second & 0x01) == 0x1 && (second & 0x02) == 0x2) { if (pixels_bg0[x].prio > pixels_bg1[x].prio) second &= 0x3E; else second &= 0x3D; }
-							if ((second & 0x01) == 0x1 && (second & 0x04) == 0x4) { if (pixels_bg0[x].prio > pixels_bg2[x2].prio) second &= 0x3E; else second &= 0x3B; }
-							if ((second & 0x01) == 0x1 && (second & 0x08) == 0x8) { if (pixels_bg0[x].prio > pixels_bg3[x].prio) second &= 0x3E; else second &= 0x37; }
-							if ((second & 0x02) == 0x2 && (second & 0x04) == 0x4) { if (pixels_bg1[x].prio > pixels_bg2[x2].prio) second &= 0x3D; else second &= 0x3B; }
-							if ((second & 0x02) == 0x2 && (second & 0x08) == 0x8) { if (pixels_bg1[x].prio > pixels_bg3[x].prio) second &= 0x3D; else second &= 0x37; }
-							if ((second & 0x04) == 0x4 && (second & 0x08) == 0x8) { if (pixels_bg2[x2].prio > pixels_bg3[x].prio) second &= 0x3B; else second &= 0x37; }
-
-							second = (byte)(second & second_target);
-
-							if ((first & 0x10) == 0x10) { pixelspecial.copy(pixels_obj[x]); }
-							else if ((first & 0x01) == 0x01) { pixelspecial.copy(pixels_bg0[x]); }
-							else if ((first & 0x02) == 0x02) { pixelspecial.copy(pixels_bg1[x]); }
-							else if ((first & 0x04) == 0x04) { pixelspecial.copy(pixels_bg2[x2]); }
-							else if ((first & 0x08) == 0x08) { pixelspecial.copy(pixels_bg3[x]); }
-							else { pixelspecial.transparent = true; }
-
-							if ((second & 0x10) == 0x10) { pixelalpha2.copy(pixels_obj[x]); }
-							else if ((second & 0x01) == 0x01) { pixelalpha2.copy(pixels_bg0[x]); }
-							else if ((second & 0x02) == 0x02) { pixelalpha2.copy(pixels_bg1[x]); }
-							else if ((second & 0x04) == 0x04) { pixelalpha2.copy(pixels_bg2[x2]); }
-							else if ((second & 0x08) == 0x08) { pixelalpha2.copy(pixels_bg3[x]); }
-							else if ((second & 0x20) == 0x20) { pixelalpha2.copy(pixelbackdrop); }
-							else { pixelalpha2.transparent = true; }
-
-							if (!pixelspecial.transparent && !pixelalpha2.transparent)
+							if (mosaic_h != 0)
 							{
-								if (pixelalpha2.prio >= pixelspecial.prio)
-								{
-									pixelspecial.calcalpha(pixelalpha2, eva, evb);
-									special_out = true;
-								}
+								pixels_bg3[x].copy(pixels_bg3[x - mosaic_h]);
 							}
+							if (mosaic_h >= mosaic_bg_h) { mosaic_h = 0; }
+							else mosaic_h++;
+						}
+					}
+				}
+				if (mosaik_bg3_vcnt >= mosaic_bg_v) { mosaik_bg3_vcnt = 0; }
+				else mosaik_bg3_vcnt++;
+			}
+			else
+			{
+				for (int x = 0; x < 256; x++)
+				{
+					pixels_bg3[x].transparent = true;
+				}
+			}
+
+			if (ref2_x_new == true) { ref2_x = ref2_x_next; ref2_x_new = false; }
+			if (ref2_y_new == true) { ref2_y = ref2_y_next; ref2_y_new = false; }
+			if (ref3_x_new == true) { ref3_x = ref3_x_next; ref3_x_new = false; }
+			if (ref3_y_new == true) { ref3_y = ref3_y_next; ref3_y_new = false; }
+
+			bool spriteon = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_OBJ.on();
+			for (int x = 0; x < 256; x++)
+			{
+				pixels_obj[x].transparent = true;
+			}
+			if (spriteon)
+			{
+				draw_obj(y, 0x10000);
+			}
+
+			////////////////////////
+			// merge
+			////////////////////////
+			///
+
+			// check windows on
+			bool anywindow = false;
+
+			bool inwin_0y = false;
+			UInt32 win0_X1 = 0;
+			UInt32 win0_X2 = 0;
+			if (Regs_Arm9.Sect_display9.DISPCNT_Window_0_Display_Flag.on())
+			{
+				anywindow = true;
+				UInt32 Y1 = Regs_Arm9.Sect_display9.WIN0V_Y1.read();
+				UInt32 Y2 = Regs_Arm9.Sect_display9.WIN0V_Y2.read();
+				if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
+				{
+					inwin_0y = true;
+					win0_X1 = Regs_Arm9.Sect_display9.WIN0H_X1.read();
+					win0_X2 = Regs_Arm9.Sect_display9.WIN0H_X2.read();
+				}
+			}
+
+			bool inwin_1y = false;
+			UInt32 win1_X1 = 0;
+			UInt32 win1_X2 = 0;
+			if (Regs_Arm9.Sect_display9.DISPCNT_Window_1_Display_Flag.on())
+			{
+				anywindow = true;
+				UInt32 Y1 = Regs_Arm9.Sect_display9.WIN1V_Y1.read();
+				UInt32 Y2 = Regs_Arm9.Sect_display9.WIN1V_Y2.read();
+				if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
+				{
+					inwin_1y = true;
+
+					win1_X1 = Regs_Arm9.Sect_display9.WIN1H_X1.read();
+					win1_X2 = Regs_Arm9.Sect_display9.WIN1H_X2.read();
+				}
+			}
+
+			bool objwindow_on = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Wnd_Display_Flag.on() && spriteon;
+			anywindow |= objwindow_on;
+
+			byte enables_wnd0 = (byte)(Regs_Arm9.Sect_display9.WININ.read() & 0x1F);
+			byte enables_wnd1 = (byte)((Regs_Arm9.Sect_display9.WININ.read() >> 8) & 0x1F);
+			byte enables_out = (byte)(Regs_Arm9.Sect_display9.WINOUT.read() & 0x1F);
+			byte enables_obj = (byte)((Regs_Arm9.Sect_display9.WINOUT.read() >> 8) & 0x1F);
+
+			bool inwin_0_special = Regs_Arm9.Sect_display9.WININ_Window_0_Special_Effect.on();
+			bool inwin_1_special = Regs_Arm9.Sect_display9.WININ_Window_1_Special_Effect.on();
+			bool obj_special = Regs_Arm9.Sect_display9.WINOUT_Objwnd_Special_Effect.on();
+			bool outside_special = Regs_Arm9.Sect_display9.WINOUT_Outside_Special_Effect.on();
+
+			byte special_effect_base = (byte)Regs_Arm9.Sect_display9.BLDCNT_Color_Special_Effect.read();
+			byte first_target = (byte)(Regs_Arm9.Sect_display9.BLDCNT.read() & 0x3F);
+			byte second_target = (byte)((Regs_Arm9.Sect_display9.BLDCNT.read() >> 8) & 0x3F);
+			byte bldy = (byte)Regs_Arm9.Sect_display9.BLDY.read();
+			byte eva = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVA_Coefficient.read();
+			byte evb = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVB_Coefficient.read();
+
+			if (bldy > 16) { bldy = 16; }
+			if (eva > 16) { eva = 16; }
+			if (evb > 16) { evb = 16; }
+
+			int step = 2;
+			if (doubleres)
+			{
+				step = 1;
+			}
+
+			pixels_bg2 = pixels_bg2_1;
+			for (byte yi = 0; yi <= 2 - step; yi++)
+			{
+				int yd = y;
+				if (doubleres)
+				{
+					yd = y * 2 + yi;
+					if (yi == 1 && (videomode == 1 || videomode == 2))
+					{
+						pixels_bg2 = pixels_bg2_2;
+					}
+				}
+				for (int xi = 0; xi < 512; xi += step)
+				{
+					int x = xi / 2;
+					int xd = xi / 2;
+					int x2 = xi / 2;
+					if (doubleres)
+					{
+						xd = xi;
+						if (videomode == 1 || videomode == 2)
+						{
+							x2 = x2 = xi;
+						}
+					}
+
+					// base
+					byte enables = 0;
+					if (!pixels_bg0[x].transparent) { enables |= 1; };
+					if (!pixels_bg1[x].transparent) { enables |= 2; };
+					if (!pixels_bg2[x2].transparent) { enables |= 4; };
+					if (!pixels_bg3[x].transparent) { enables |= 8; };
+					if (!pixels_obj[x].transparent) { enables |= 16; };
+
+					// window select
+					bool special_enable = true;
+					if (anywindow)
+					{
+						if (inwin_0y && ((win0_X1 <= win0_X2 && x >= win0_X1 && x < win0_X2) || ((win0_X1 > win0_X2 && (x >= win0_X1 || x < win0_X2)))))
+						{
+							enables &= enables_wnd0;
+							special_enable = inwin_0_special;
+						}
+						else if (inwin_1y && ((win1_X1 <= win1_X2 && x >= win1_X1 && x < win1_X2) || ((win1_X1 > win1_X2 && (x >= win1_X1 || x < win1_X2)))))
+						{
+							enables &= enables_wnd1;
+							special_enable = inwin_1_special;
+						}
+						else if (pixels_obj[x].objwnd)
+						{
+							enables &= enables_obj;
+							special_enable = obj_special;
 						}
 						else
 						{
-							if ((first & 0x10) == 0x10) { pixelspecial.copycolor(pixels_obj[x]); }
-							else if ((first & 0x01) == 0x01) { pixelspecial.copycolor(pixels_bg0[x]); }
-							else if ((first & 0x02) == 0x02) { pixelspecial.copycolor(pixels_bg1[x]); }
-							else if ((first & 0x04) == 0x04) { pixelspecial.copycolor(pixels_bg2[x2]); }
-							else if ((first & 0x08) == 0x08) { pixelspecial.copycolor(pixels_bg3[x]); }
-							else { pixelspecial.copycolor(pixelbackdrop); }
+							enables &= enables_out;
+							special_enable = outside_special;
+						}
+					}
+					enables |= 0x20; //backdrop is always on
 
-							if (special_effect == 2)
+					// priority
+					byte topprio = enables;
+					if ((topprio & 0x11) == 0x11 && pixels_obj[x].prio > pixels_bg0[x].prio) topprio &= 0xF;
+					if ((topprio & 0x12) == 0x12 && pixels_obj[x].prio > pixels_bg1[x].prio) topprio &= 0xF;
+					if ((topprio & 0x14) == 0x14 && pixels_obj[x].prio > pixels_bg2[x2].prio) topprio &= 0xF;
+					if ((topprio & 0x18) == 0x18 && pixels_obj[x].prio > pixels_bg3[x].prio) topprio &= 0xF;
+
+					if ((topprio & 0x01) == 0x1 && (topprio & 0x02) == 0x2 && pixels_bg0[x].prio > pixels_bg1[x].prio) topprio &= 0x1E;
+					if ((topprio & 0x01) == 0x1 && (topprio & 0x04) == 0x4 && pixels_bg0[x].prio > pixels_bg2[x2].prio) topprio &= 0x1E;
+					if ((topprio & 0x01) == 0x1 && (topprio & 0x08) == 0x8 && pixels_bg0[x].prio > pixels_bg3[x].prio) topprio &= 0x1E;
+					if ((topprio & 0x02) == 0x2 && (topprio & 0x04) == 0x4 && pixels_bg1[x].prio > pixels_bg2[x2].prio) topprio &= 0x1D;
+					if ((topprio & 0x02) == 0x2 && (topprio & 0x08) == 0x8 && pixels_bg1[x].prio > pixels_bg3[x].prio) topprio &= 0x1D;
+					if ((topprio & 0x04) == 0x4 && (topprio & 0x08) == 0x8 && pixels_bg2[x2].prio > pixels_bg3[x].prio) topprio &= 0x1B;
+
+					if ((topprio & 0x10) == 0x10) { topprio = 0x10; }
+					else if ((topprio & 0x01) == 0x01) { topprio = 0x01; }
+					else if ((topprio & 0x02) == 0x02) { topprio = 0x02; }
+					else if ((topprio & 0x04) == 0x04) { topprio = 0x04; }
+					else if ((topprio & 0x08) == 0x08) { topprio = 0x08; }
+					else { topprio = 0x20; }
+
+					bool special_out = false;
+					byte special_effect = special_effect_base;
+					if ((special_enable && special_effect > 0) || pixels_obj[x].alpha)
+					{
+						// special select
+						byte first = (byte)(enables & first_target);
+
+						if (pixels_obj[x].alpha)
+						{
+							first = (byte)(first | 0x10);
+						}
+
+						first = (byte)(first & topprio);
+
+						if (first != 0)
+						{
+							if (pixels_obj[x].alpha && first == 0x10)
 							{
-								pixelspecial.whiter(bldy);
+								special_effect = 1;
+							}
+
+							byte second;
+							if (special_effect == 1)
+							{
+								second = (byte)(enables & (~first));
+
+								if ((second & 0x11) == 0x11) { if (pixels_obj[x].prio > pixels_bg0[x].prio) second &= 0x2F; else second &= 0x3E; }
+								if ((second & 0x12) == 0x12) { if (pixels_obj[x].prio > pixels_bg1[x].prio) second &= 0x2F; else second &= 0x3D; }
+								if ((second & 0x14) == 0x14) { if (pixels_obj[x].prio > pixels_bg2[x2].prio) second &= 0x2F; else second &= 0x3B; }
+								if ((second & 0x18) == 0x18) { if (pixels_obj[x].prio > pixels_bg3[x].prio) second &= 0x2F; else second &= 0x37; }
+
+								if ((second & 0x01) == 0x1 && (second & 0x02) == 0x2) { if (pixels_bg0[x].prio > pixels_bg1[x].prio) second &= 0x3E; else second &= 0x3D; }
+								if ((second & 0x01) == 0x1 && (second & 0x04) == 0x4) { if (pixels_bg0[x].prio > pixels_bg2[x2].prio) second &= 0x3E; else second &= 0x3B; }
+								if ((second & 0x01) == 0x1 && (second & 0x08) == 0x8) { if (pixels_bg0[x].prio > pixels_bg3[x].prio) second &= 0x3E; else second &= 0x37; }
+								if ((second & 0x02) == 0x2 && (second & 0x04) == 0x4) { if (pixels_bg1[x].prio > pixels_bg2[x2].prio) second &= 0x3D; else second &= 0x3B; }
+								if ((second & 0x02) == 0x2 && (second & 0x08) == 0x8) { if (pixels_bg1[x].prio > pixels_bg3[x].prio) second &= 0x3D; else second &= 0x37; }
+								if ((second & 0x04) == 0x4 && (second & 0x08) == 0x8) { if (pixels_bg2[x2].prio > pixels_bg3[x].prio) second &= 0x3B; else second &= 0x37; }
+
+								second = (byte)(second & second_target);
+
+								if ((first & 0x10) == 0x10) { pixelspecial.copy(pixels_obj[x]); }
+								else if ((first & 0x01) == 0x01) { pixelspecial.copy(pixels_bg0[x]); }
+								else if ((first & 0x02) == 0x02) { pixelspecial.copy(pixels_bg1[x]); }
+								else if ((first & 0x04) == 0x04) { pixelspecial.copy(pixels_bg2[x2]); }
+								else if ((first & 0x08) == 0x08) { pixelspecial.copy(pixels_bg3[x]); }
+								else { pixelspecial.transparent = true; }
+
+								if ((second & 0x10) == 0x10) { pixelalpha2.copy(pixels_obj[x]); }
+								else if ((second & 0x01) == 0x01) { pixelalpha2.copy(pixels_bg0[x]); }
+								else if ((second & 0x02) == 0x02) { pixelalpha2.copy(pixels_bg1[x]); }
+								else if ((second & 0x04) == 0x04) { pixelalpha2.copy(pixels_bg2[x2]); }
+								else if ((second & 0x08) == 0x08) { pixelalpha2.copy(pixels_bg3[x]); }
+								else if ((second & 0x20) == 0x20) { pixelalpha2.copy(pixelbackdrop); }
+								else { pixelalpha2.transparent = true; }
+
+								if (!pixelspecial.transparent && !pixelalpha2.transparent)
+								{
+									if (pixelalpha2.prio >= pixelspecial.prio)
+									{
+										pixelspecial.calcalpha(pixelalpha2, eva, evb);
+										special_out = true;
+									}
+								}
 							}
 							else
 							{
-								pixelspecial.blacker(bldy);
-							}
+								if ((first & 0x10) == 0x10) { pixelspecial.copycolor(pixels_obj[x]); }
+								else if ((first & 0x01) == 0x01) { pixelspecial.copycolor(pixels_bg0[x]); }
+								else if ((first & 0x02) == 0x02) { pixelspecial.copycolor(pixels_bg1[x]); }
+								else if ((first & 0x04) == 0x04) { pixelspecial.copycolor(pixels_bg2[x2]); }
+								else if ((first & 0x08) == 0x08) { pixelspecial.copycolor(pixels_bg3[x]); }
+								else { pixelspecial.copycolor(pixelbackdrop); }
 
-							special_out = true;
+								if (special_effect == 2)
+								{
+									pixelspecial.whiter(bldy);
+								}
+								else
+								{
+									pixelspecial.blacker(bldy);
+								}
+
+								special_out = true;
+							}
 						}
 					}
-				}
 
-				if (displaymode == 3 && !mainmemfifo.empty())
-				{
-					uint color = mainmemfifo.front();
-					if ((x & 1) == 1)
+					if (special_out)
 					{
-						mainmemfifo.pop();
-						color = color >> 16;
+						pixelfinal.copycolor(pixelspecial);
 					}
-					pixelfinal.color_blue = ((color >> 10) & 0x1F) << 3;
-					pixelfinal.color_green = ((color >> 5) & 0x1F) << 3;
-					pixelfinal.color_red = (color & 0x1F) << 3;
-				}
-				else if (special_out)
-				{
-					pixelfinal.copycolor(pixelspecial);
-				}
-				else if ((topprio & 0x10) == 0x10)
-				{
-					pixelfinal.copycolor(pixels_obj[x]);
-				}
-				else if ((topprio & 0x01) == 0x01)
-				{
-					pixelfinal.copycolor(pixels_bg0[x]);
-				}
-				else if ((topprio & 0x02) == 0x02)
-				{
-					pixelfinal.copycolor(pixels_bg1[x]);
-				}
-				else if ((topprio & 0x04) == 0x04)
-				{
-					pixelfinal.copycolor(pixels_bg2[x2]);
-				}
-				else if ((topprio & 0x08) == 0x08)
-				{
-					pixelfinal.copycolor(pixels_bg3[x]);
-				}
-				else
-				{
-					pixelfinal.copycolor(pixelbackdrop);
-				}
+					else if ((topprio & 0x10) == 0x10)
+					{
+						pixelfinal.copycolor(pixels_obj[x]);
+					}
+					else if ((topprio & 0x01) == 0x01)
+					{
+						pixelfinal.copycolor(pixels_bg0[x]);
+					}
+					else if ((topprio & 0x02) == 0x02)
+					{
+						pixelfinal.copycolor(pixels_bg1[x]);
+					}
+					else if ((topprio & 0x04) == 0x04)
+					{
+						pixelfinal.copycolor(pixels_bg2[x2]);
+					}
+					else if ((topprio & 0x08) == 0x08)
+					{
+						pixelfinal.copycolor(pixels_bg3[x]);
+					}
+					else
+					{
+						pixelfinal.copycolor(pixelbackdrop);
+					}
 
-				// choose
-				if (interlace_blending)
-				{
-					pixels[xd][yd].mixcolor(pixelfinal, pixels_interlace[xd][yd]);
-					pixels_interlace[xd][yd].copycolor(pixelfinal);
+					// choose
+					if (interlace_blending)
+					{
+						pixels[xd][yd].mixcolor(pixelfinal, pixels_interlace[xd][yd]);
+						pixels_interlace[xd][yd].copycolor(pixelfinal);
+					}
+					else
+					{
+						pixels[xd][yd].copycolor(pixelfinal);
+					}
 				}
-				else
+			}
+		}
+		else if (displaymode == 2)
+		{
+			uint block = Regs_Arm9.Sect_display9.DISPCNT_VRAM_block.read();
+			for (int x = 0; x < 256; x++)
+			{
+				UInt16 color = *(UInt16*)&Memory.VRAM[block * 131072 + y * 512 + x * 2];
+				pixels[x][y].color_blue = ((color >> 10) & 0x1F) << 3;
+				pixels[x][y].color_green = ((color >> 5) & 0x1F) << 3;
+				pixels[x][y].color_red = (color & 0x1F) << 3;
+			}
+		}
+		else if (displaymode == 3 && !mainmemfifo.empty())
+		{
+			for (int x = 0; x < 256; x++)
+			{
+				uint color = mainmemfifo.front();
+				if ((x & 1) == 1)
 				{
-					pixels[xd][yd].copycolor(pixelfinal);
+					mainmemfifo.pop();
+					color = color >> 16;
 				}
+				pixels[x][y].color_blue = ((color >> 10) & 0x1F) << 3;
+				pixels[x][y].color_green = ((color >> 5) & 0x1F) << 3;
+				pixels[x][y].color_red = (color & 0x1F) << 3;
 			}
 		}
 
@@ -945,7 +962,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tile
 		x_size = 8;
 	}
 
-	for (Byte x = 0; x < 240; x++)
+	for (int x = 0; x < 256; x++)
 	{
 		UInt16 x_scrolled = (UInt16)(x + scrollX);
 		x_scrolled = (UInt16)(x_scrolled % scroll_x_mod);
@@ -1042,10 +1059,10 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], UInt32 mapbase, UInt32 tilebase, bo
 
 	int yshift = screensize + 4;
 
-	int pixelcount = 240;
+	int pixelcount = 256;
 	if (doubleres)
 	{
-		pixelcount = 480;
+		pixelcount = 512;
 	}
 
 	for (int x = 0; x < pixelcount; x++)
@@ -1132,7 +1149,7 @@ void Gpu::draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tileb
 
 	Pixel pixels[16];
 
-	for (int x = 0; x < 240; x++)
+	for (int x = 0; x < 256; x++)
 	{
 		bool draw = true;
 		int xxx;
@@ -1224,11 +1241,11 @@ void Gpu::draw_bg_mode3(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 	int xxx = (realX >> 8);
 	int yyy = (realY >> 8);
 
-	for (Byte x = 0; x < 240; x++)
+	for (int x = 0; x < 256; x++)
 	{
-		if (xxx >= 0 && yyy >= 0 && xxx < 240 && yyy < 160)
+		if (xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 160)
 		{
-			int address = yyy * 480 + (xxx * 2);
+			int address = yyy * 512 + (xxx * 2);
 			UInt16 colorall = *(UInt16*)&Memory.VRAM[address];
 			pixels_bg2_1[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixels_bg2_1[x].transparent = false;
@@ -1247,11 +1264,11 @@ void Gpu::draw_bg_mode4(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 	int xxx = (realX >> 8);
 	int yyy = (realY >> 8);
 
-	for (Byte x = 0; x < 240; x++)
+	for (int x = 0; x < 256; x++)
 	{
-		if (xxx >= 0 && yyy >= 0 && xxx < 240 && yyy < 160)
+		if (xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 160)
 		{
-			int address = yyy * 240 + xxx;
+			int address = yyy * 256 + xxx;
 			//if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
 			//{
 			//	address += 0xA000;
@@ -1275,7 +1292,7 @@ void Gpu::draw_bg_mode5(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 	int xxx = (realX >> 8);
 	int yyy = (realY >> 8);
 
-	for (Byte x = 0; x < 240; x++)
+	for (int x = 0; x < 256; x++)
 	{
 		if (xxx >= 0 && yyy >= 0 && xxx < 160 && yyy < 128)
 		{
@@ -1297,7 +1314,7 @@ void Gpu::draw_bg_mode5(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 
 void Gpu::draw_obj(int y, int baseaddr)
 {
-	for (unsigned char x = 0; x < 240; x++)
+	for (int x = 0; x < 256; x++)
 	{
 		pixels_obj[x].undrawn = true;
 		pixels_obj[x].objwnd = false;

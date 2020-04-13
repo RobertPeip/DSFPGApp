@@ -11,6 +11,12 @@ enum class ACCESSTYPE
 	DMA
 };
 
+enum class VRAMMODE
+{
+	LCDC,
+	UNDEFINED
+};
+
 class MEMORY
 {
 public:
@@ -20,7 +26,7 @@ public:
 	Byte WRAM_Large[4194304];
 	Byte WRAM_Small_64[65536];
 	Byte WRAM_Small_32[32768];
-	Byte VRAM[655360];
+	Byte VRAM[671744];
 	Byte OAMRAM[2048];
 	Byte PaletteRAM[2048];
 	Byte GameRom[33554432]; // 32mbyte max for now
@@ -44,6 +50,8 @@ public:
 
 	bool gpio_used;
 
+	VRAMMODE vrammode;
+
 	void reset(string filename);
 	void GameRAMSnapshot();
 	void load_gameram(string gamename);
@@ -56,6 +64,7 @@ public:
 	void prepare_read_DSReg7(UInt32 adr);
 	void write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess);
 	void write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess);
+	void set_vrammode();
 };
 extern MEMORY Memory;
 

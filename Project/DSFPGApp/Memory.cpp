@@ -62,6 +62,7 @@ void MEMORY::reset(string filename)
 	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF808, 0x6ee6); //  header checksum crc16
 
 	wrammux = 3;
+	vrammode = VRAMMODE::LCDC;
 
 	load_gameram(filename);
 }
@@ -529,21 +530,9 @@ void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 		}
 		return;
 
-		// Writing 8bit Data to Video Memory
-		// Video Memory(BG, OBJ, OAM, Palette) can be written to in 16bit and 32bit units only.Attempts to write 8bit data(by STRB opcode) won't work:
-		// Writes to OBJ(6010000h - 6017FFFh)(or 6014000h - 6017FFFh in Bitmap mode) and to OAM(7000000h - 70003FFh) are ignored, the memory content remains unchanged.
-		// Writes to BG(6000000h - 600FFFFh)(or 6000000h - 6013FFFh in Bitmap mode) and to Palette(5000000h - 50003FFh) are writing the new 8bit value to BOTH upper and lower 8bits of the addressed halfword, ie. "[addr AND NOT 1]=data*101h".
-
 	case 5: Memory.PaletteRAM[address & 0x3FE] = data; Memory.PaletteRAM[(address & 0x3FE) + 1] = data; return;
 
-	case 6:
-		adr = address & 0x1FFFE;
-		if ((GPU.videomode <= 2 && adr <= 0xFFFF) || GPU.videomode >= 3 && adr <= 0x013FFF)
-		{
-			if (adr > 0x17FFF) { adr -= 0x8000; }
-			Memory.VRAM[adr] = data;
-			Memory.VRAM[adr + 1] = data;
-		}
+	case 6: // byte write not supported
 		return;
 
 	case 7: return; // no saving here!
@@ -623,12 +612,16 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
+		switch (Memory.vrammode)
 		{
-			if (adr > 0x17FFF) { adr -= 0x8000; }
-			Memory.VRAM[adr] = (byte)(data & 0xFF);
-			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+		case VRAMMODE::LCDC:
+			if (address >= 0x6800000 && address <= 0x68A3FFF)
+			{
+				adr = address - 0x6800000;
+				Memory.VRAM[adr] = (byte)(data & 0xFF);
+				Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+			}
+			return;
 		}
 		return;
 
@@ -731,14 +724,18 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
+		switch (Memory.vrammode)
 		{
-			if (adr > 0x17FFF) { adr -= 0x8000; }
-			Memory.VRAM[adr] = (byte)(data & 0xFF);
-			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-			Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+		case VRAMMODE::LCDC:
+			if (address >= 0x6800000 && address <= 0x68A3FFF)
+			{
+				adr = address - 0x6800000;
+				Memory.VRAM[adr] = (byte)(data & 0xFF);
+				Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+				Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+				Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
+			}
+			return;
 		}
 		return;
 
@@ -1364,7 +1361,13 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 		return; 
 	} 
 
-	if (adr == Regs_Arm9.Sect_system9.MemControl2_WRAM.address + 2) { Regs_Arm7.Sect_system7.MemControl2_WRAM.write(Regs_Arm9.Sect_system9.MemControl2_WRAM.read()); return; }
+	if (adr == Regs_Arm9.Sect_system9.MemControl2_WRAM.address + 2) { Regs_Arm7.Sect_system7.MemControl2_WRAM.write(Regs_Arm9.Sect_system9.MemControl2_WRAM.read()); } // no return as check below
+	if (adr == Regs_Arm9.Sect_system9.MemControl1.address && adr < Regs_Arm9.Sect_system9.MemControl3.address + 4)
+	{	
+		set_vrammode();
+		return;
+	}
+
 
 	if (adr >= Regs_Arm9.Sect_system9.DIVCNT.address && adr < Regs_Arm9.Sect_system9.DIV_DENOM_Low.address + 4) { MathDIV.write(); return; }
 	if (adr >= Regs_Arm9.Sect_system9.SQRTCN.address && adr < Regs_Arm9.Sect_system9.SQRTCN.address + 4) { MathSQRT.write(); return; }
@@ -1400,4 +1403,26 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_system7.POSTFLG_Flag.address) { CPU7.halt = true; return; }
 
 	if (adr == Regs_Arm7.Sect_system7.POWCNT2.address) { Regs_Arm7.Sect_system7.POWCNT2.write(1); return; } // desmume uses written values, but does not set memory...
+}
+
+void MEMORY::set_vrammode()
+{
+	uint mst_a = Regs_Arm9.Sect_system9.MemControl1_VRAM_A_MST.read();
+	uint mst_b = Regs_Arm9.Sect_system9.MemControl1_VRAM_B_MST.read();
+	uint mst_c = Regs_Arm9.Sect_system9.MemControl1_VRAM_C_MST.read();
+	uint mst_d = Regs_Arm9.Sect_system9.MemControl1_VRAM_D_MST.read();
+	uint mst_e = Regs_Arm9.Sect_system9.MemControl1_VRAM_E_MST.read();
+	uint mst_f = Regs_Arm9.Sect_system9.MemControl1_VRAM_F_MST.read();
+	uint mst_g = Regs_Arm9.Sect_system9.MemControl1_VRAM_G_MST.read();
+	uint mst_h = Regs_Arm9.Sect_system9.MemControl1_VRAM_H_MST.read();
+	uint mst_i = Regs_Arm9.Sect_system9.MemControl1_VRAM_I_MST.read();
+
+	if (mst_a == 0 && mst_b == 0 && mst_c == 0 && mst_d == 0 && mst_e == 0 && mst_f == 0 && mst_g == 0 && mst_h == 0 && mst_i == 0)
+	{
+		vrammode = VRAMMODE::LCDC;
+	}
+	else
+	{
+		vrammode = VRAMMODE::UNDEFINED;
+	}
 }
