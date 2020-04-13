@@ -15,18 +15,19 @@ void MATHDIV::write()
 	Regs_Arm9.Sect_system9.DIVCNT_Busy.write(1);
 	if (Regs_Arm9.Sect_system9.DIVCNT_Division_Mode.read() == 0)
 	{
-		next_event_ticks = gameboy.totalticks + 18 * 2;
+		next_event_time = gameboy.totalticks + 18 * 2;
 	}
 	else
 	{
-		next_event_ticks = gameboy.totalticks + 34 * 2;
+		next_event_time = gameboy.totalticks + 34 * 2;
 	}
 }
 
 void MATHDIV::finish()
 {
-	if (gameboy.totalticks >= next_event_ticks)
+	if (gameboy.totalticks >= next_event_time)
 	{
+		calculating = false;
 		Regs_Arm9.Sect_system9.DIVCNT_Busy.write(0);
 		uint numer_low = Regs_Arm9.Sect_system9.DIV_NUMER_Low.read();
 		uint numer_high = Regs_Arm9.Sect_system9.DIV_NUMER_High.read();

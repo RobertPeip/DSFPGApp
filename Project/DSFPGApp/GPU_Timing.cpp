@@ -20,8 +20,8 @@ void GPUTiming::reset()
 void GPUTiming::dispstat_write()
 {
 	UInt16 new_val = (UInt16)Regs_Arm9.Sect_display9.DISPSTAT.read();
-	new_val &= 0xFF38;
-	old_dispstat &= 0x00C7;
+	new_val &= 0xFFB8;
+	old_dispstat &= 0x0047;
 	new_val |= old_dispstat;
 	Regs_Arm9.Sect_display9.DISPSTAT.write(new_val);
 }
@@ -89,6 +89,7 @@ void GPUTiming::work()
 				if (line < 192)
 				{
 					gpustate = GPUState::HSTART;
+					DMA.new_MemDisplay = true;
 				}
 				else
 				{
@@ -97,9 +98,6 @@ void GPUTiming::work()
 					//Cheats.apply_cheats();
 					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(1);
 					Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_flag.write(1);
-					DMA.new_vblank = true;
-					if (Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Blank);
-					if (Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Blank);
 				}
 				old_dispstat = Regs_Arm9.data[4];
 			}
@@ -112,6 +110,12 @@ void GPUTiming::work()
 				localticks += 12;
 				next_event_time = localticks + 84;
 				gpustate = GPUState::VBLANK_HIRQ;
+				if (line == 192)
+				{
+					DMA.new_vblank = true;
+					if (Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Blank);
+					if (Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Blank);
+				}
 			}
 			break;
 
@@ -159,6 +163,7 @@ void GPUTiming::work()
 					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(0);
 					Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_flag.write(0);
 					DMA.new_vblank = false;
+					DMA.new_MemDisplay = true;
 				}
 				else
 				{

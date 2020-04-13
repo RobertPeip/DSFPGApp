@@ -21,6 +21,7 @@
 #include "spi_intern.h"
 #include "IPC.h"
 #include "MathDIV.h"
+#include "MathSQRT.h"
 
 MEMORY Memory;
 
@@ -60,16 +61,7 @@ void MEMORY::reset(string filename)
 
 	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF808, 0x6ee6); //  header checksum crc16
 
-	EEPROMEnabled = true;
-	FlashEnabled = true;
-	SramEnabled = true;
-	EEPROMSensorEnabled = false;
-
-	tiltx = 0x3A0;
-	tilty = 0x3A0;
-
-	gpio_used = false;
-	//gpio.rtcEnable(true);
+	wrammux = 3;
 
 	load_gameram(filename);
 }
@@ -255,15 +247,12 @@ byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 		}
 
 	case 3: 
-		if (address < 0x3800000)
+		switch (Memory.wrammux)
 		{
-			adr = address & 0x7FFF;
-			return Memory.WRAM_Small[adr]; break;
-		}
-		else
-		{
-			adr = address & 0xFFFF;
-			return Memory.WRAM_Small[0x8000 + adr]; break;
+		case 0:  adr = address & 0x7FFF; return Memory.WRAM_Small_32[adr]; break;
+		case 1:  adr = address & 0x3FFF; return Memory.WRAM_Small_32[adr + 16384]; break;
+		case 2:  adr = address & 0x3FFF; return Memory.WRAM_Small_32[adr]; break;
+		case 3:  return 0; break;
 		}
 		
 	case 4:
@@ -337,16 +326,14 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 		break;
 
 	case 3: 
-		if (address < 0x3800000)
+		switch (Memory.wrammux)
 		{
-			adr = address & 0x7FFF;
-			value = *(UInt16*)&Memory.WRAM_Small[adr]; break;
+		case 0:  adr = address & 0x7FFF; value = *(UInt16*)&Memory.WRAM_Small_32[adr]; break;
+		case 1:  adr = address & 0x3FFF; value = *(UInt16*)&Memory.WRAM_Small_32[adr + 16384]; break;
+		case 2:  adr = address & 0x3FFF; value = *(UInt16*)&Memory.WRAM_Small_32[adr]; break;
+		case 3:  value = 0; break;
 		}
-		else
-		{
-			adr = address & 0xFFFF;
-			value = *(UInt16*)&Memory.WRAM_Small[0x8000 + adr]; break;
-		}
+		break;
 		
 	case 4:
 		if (address < 0x04000400)
@@ -443,16 +430,14 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 		break;
 
 	case 3:
-		if (address < 0x3800000)
+		switch (Memory.wrammux)
 		{
-			adr = address & 0x7FFF;
-			value = *(UInt32*)&Memory.WRAM_Small[adr]; break;
+		case 0:  adr = address & 0x7FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr]; break;
+		case 1:  adr = address & 0x3FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr + 16384]; break;
+		case 2:  adr = address & 0x3FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr]; break;
+		case 3:  value = 0; break;
 		}
-		else
-		{
-			adr = address & 0xFFFF;
-			value = *(UInt32*)&Memory.WRAM_Small[0x8000 + adr]; break;
-		}
+		break;
 
 	case 4:
 		if (address < 0x04000400)
@@ -527,16 +512,12 @@ void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 		return;
 
 	case 3: 
-		if (address < 0x3800000)
+		switch (Memory.wrammux)
 		{
-			adr = address & 0x7FFF;
-			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
-		}
-		else
-		{
-			adr = address & 0xFFFF;
-			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			return;
+		case 0:  adr = address & 0x7FFF; Memory.WRAM_Small_32[adr] = data; return;
+		case 1:  adr = address & 0x3FFF; Memory.WRAM_Small_32[adr + 16384] = data; return;
+		case 2:  adr = address & 0x3FFF; Memory.WRAM_Small_32[adr] = data; return;
+		case 3:  return;
 		}
 
 	case 4:
@@ -604,17 +585,24 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 3:
-		if (address < 0x3800000)
+		switch (Memory.wrammux)
 		{
-			adr = address & 0x7FFF;
-			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
-		}
-		else
-		{
-			adr = address & 0xFFFF;
-			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+		case 0:  
+			adr = address & 0x7FFF; 
+			Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+			return;
+		case 1:  
+			adr = address & 0x3FFF; 
+			Memory.WRAM_Small_32[adr + 16384] = data; 
+			Memory.WRAM_Small_32[adr + 16385] = (byte)((data >> 8) & 0xFF);
+			return;
+		case 2:  
+			adr = address & 0x3FFF; 
+			Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+			return;
+		case 3:  return;
 		}
 		return;
 
@@ -693,23 +681,31 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 3:
-		if (address < 0x3800000)
+		switch (Memory.wrammux)
 		{
+		case 0:
 			adr = address & 0x7FFF;
-			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
-			Memory.WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
+			Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small_32[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small_32[adr + 3] = (byte)((data >> 24) & 0xFF);
+			return;
+		case 1:
+			adr = address & 0x3FFF;
+			Memory.WRAM_Small_32[adr + 16384] = data;
+			Memory.WRAM_Small_32[adr + 16385] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small_32[adr + 16386] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small_32[adr + 16387] = (byte)((data >> 24) & 0xFF);
+			return;
+		case 2:
+			adr = address & 0x3FFF;
+			Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small_32[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small_32[adr + 3] = (byte)((data >> 24) & 0xFF);
+			return;
+		case 3:  return;
 		}
-		else
-		{
-			adr = address & 0xFFFF;
-			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 2] = (byte)((data >> 16) & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 3] = (byte)((data >> 24) & 0xFF);
-		}
-		return;
 
 	case 4:
 		if (address < 0x04000400)
@@ -765,20 +761,32 @@ byte read_byte_7(ACCESSTYPE accesstype, UInt32 address)
 	switch (select)
 	{
 	case 0:
-		return Memory.Bios7[address & 0x3FFF];
+		if (CPU7.PC < 0x4000)
+		{
+			return Memory.Bios7[address & 0x3FFF];
+		}
+		else
+		{
+			return 0xFF;
+		}
 
 	case 1: return Memory.read_unreadable_byte(address & 1);
 	case 2: return Memory.WRAM_Large[address & 0x03FFFFF];
 	case 3:
 		if (address < 0x3800000)
 		{
-			adr = address & 0x7FFF;
-			return Memory.WRAM_Small[adr]; break;
+			switch (Memory.wrammux)
+			{
+			case 0:  adr = address & 0xFFFF; return Memory.WRAM_Small_64[adr]; break;
+			case 1:  adr = address & 0x3FFF; return Memory.WRAM_Small_32[adr]; break;
+			case 2:  adr = address & 0x3FFF; return Memory.WRAM_Small_32[adr + 16384]; break;
+			case 3:  adr = address & 0x7FFF; return Memory.WRAM_Small_32[adr]; break;
+			}
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			return Memory.WRAM_Small[0x8000 + adr]; break;
+			return Memory.WRAM_Small_64[adr]; break;
 		}
 
 	case 4:
@@ -847,7 +855,14 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 	switch (select)
 	{
 	case 0:
-		value = *(UInt16*)&Memory.Bios7[address & 0x3FFE];
+		if (CPU7.PC < 0x4000)
+		{
+			value = *(UInt16*)&Memory.Bios7[address & 0x3FFE];
+		}
+		else
+		{
+			value = 0xFFFF;
+		}
 		break;
 
 	case 1: value = Memory.read_unreadable_word(); break;
@@ -855,14 +870,20 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 	case 3:
 		if (address < 0x3800000)
 		{
-			adr = address & 0x7FFF;
-			value = *(UInt16*)&Memory.WRAM_Small[adr]; break;
+			switch (Memory.wrammux)
+			{
+			case 0:  adr = address & 0xFFFF; value = *(UInt16*)&Memory.WRAM_Small_64[adr];; break;
+			case 1:  adr = address & 0x3FFF; value = *(UInt16*)&Memory.WRAM_Small_32[adr]; break;
+			case 2:  adr = address & 0x3FFF; value = *(UInt16*)&Memory.WRAM_Small_32[adr + 16384]; break;
+			case 3:  adr = address & 0x7FFF; value = *(UInt16*)&Memory.WRAM_Small_32[adr]; break;
+			}
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			value = *(UInt16*)&Memory.WRAM_Small[0x8000 + adr]; break;
+			value = *(UInt16*)&Memory.WRAM_Small_64[adr]; break;
 		}
+		break;
 
 	case 4:
 		if (address < 0x04001000)
@@ -950,7 +971,14 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 	switch (select)
 	{
 	case 0:
-		value = *(UInt32*)&Memory.Bios7[address & 0x3FFC];
+		if (CPU7.PC < 0x4000)
+		{
+			value = *(UInt32*)&Memory.Bios7[address & 0x3FFE];
+		}
+		else
+		{
+			value = 0xFFFFFFFF;
+		}
 		break;
 
 	case 1: value = Memory.read_unreadable_dword(); break;
@@ -958,14 +986,20 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 	case 3:
 		if (address < 0x3800000)
 		{
-			adr = address & 0x7FFF;
-			value = *(UInt32*)&Memory.WRAM_Small[adr]; break;
+			switch (Memory.wrammux)
+			{
+			case 0:  adr = address & 0xFFFF; value = *(UInt32*)&Memory.WRAM_Small_64[adr];; break;
+			case 1:  adr = address & 0x3FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr]; break;
+			case 2:  adr = address & 0x3FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr + 16384]; break;
+			case 3:  adr = address & 0x7FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr]; break;
+			}
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			value = *(UInt32*)&Memory.WRAM_Small[0x8000 + adr]; break;
+			value = *(UInt32*)&Memory.WRAM_Small_64[adr]; break;
 		}
+		break;
 
 	case 4:
 		if (address < 0x04001000)
@@ -1030,13 +1064,18 @@ void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data)
 	case 3:
 		if (address < 0x3800000)
 		{
-			adr = address & 0x7FFF;
-			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
+			switch (Memory.wrammux)
+			{
+			case 0: adr = address & 0xFFFF; Memory.WRAM_Small_64[adr] = data; return;
+			case 1: adr = address & 0x3FFF; Memory.WRAM_Small_32[adr] = data; return;
+			case 2: adr = address & 0x3FFF; Memory.WRAM_Small_32[adr + 16384] = data; return;
+			case 3: adr = address & 0x7FFF; Memory.WRAM_Small_32[adr] = data; return;
+			}
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_64[adr] = (byte)(data & 0xFF);
 			return;
 		}
 
@@ -1088,15 +1127,35 @@ void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 	case 3:
 		if (address < 0x3800000)
 		{
-			adr = address & 0x7FFF;
-			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
+			switch (Memory.wrammux)
+			{
+			case 0: 
+				adr = address & 0xFFFF; 
+				Memory.WRAM_Small_64[adr] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_64[adr + 1] = (byte)((data >> 8) & 0xFF);
+				return;
+			case 1: 
+				adr = address & 0x3FFF; 
+				Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+				return;
+			case 2: 
+				adr = address & 0x3FFF; 
+				Memory.WRAM_Small_32[adr + 16384] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_32[adr + 16385] = (byte)((data >> 8) & 0xFF);
+				return;
+			case 3: 
+				adr = address & 0x7FFF; 
+				Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+				return;
+			}
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small_64[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_64[adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
 		return;
 
@@ -1154,19 +1213,45 @@ void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 	case 3:
 		if (address < 0x3800000)
 		{
-			adr = address & 0x7FFF;
-			Memory.WRAM_Small[adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.WRAM_Small[adr + 2] = (byte)((data >> 16) & 0xFF);
-			Memory.WRAM_Small[adr + 3] = (byte)((data >> 24) & 0xFF);
+			switch (Memory.wrammux)
+			{
+			case 0:
+				adr = address & 0xFFFF;
+				Memory.WRAM_Small_64[adr] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_64[adr + 1] = (byte)((data >> 8) & 0xFF);
+				Memory.WRAM_Small_64[adr + 2] = (byte)((data >> 16) & 0xFF);
+				Memory.WRAM_Small_64[adr + 3] = (byte)((data >> 24) & 0xFF);
+				return;
+			case 1:
+				adr = address & 0x3FFF;
+				Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+				Memory.WRAM_Small_32[adr + 2] = (byte)((data >> 16) & 0xFF);
+				Memory.WRAM_Small_32[adr + 3] = (byte)((data >> 24) & 0xFF);
+				return;
+			case 2:
+				adr = address & 0x3FFF;
+				Memory.WRAM_Small_32[adr + 16384] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_32[adr + 16385] = (byte)((data >> 8) & 0xFF);
+				Memory.WRAM_Small_32[adr + 16386] = (byte)((data >> 16) & 0xFF);
+				Memory.WRAM_Small_32[adr + 16387] = (byte)((data >> 24) & 0xFF);
+				return;
+			case 3:
+				adr = address & 0x7FFF;
+				Memory.WRAM_Small_32[adr] = (byte)(data & 0xFF);
+				Memory.WRAM_Small_32[adr + 1] = (byte)((data >> 8) & 0xFF);
+				Memory.WRAM_Small_32[adr + 2] = (byte)((data >> 16) & 0xFF);
+				Memory.WRAM_Small_32[adr + 3] = (byte)((data >> 24) & 0xFF);
+				return;
+			}
 		}
 		else
 		{
 			adr = address & 0xFFFF;
-			Memory.WRAM_Small[0x8000 + adr] = (byte)(data & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 1] = (byte)((data >> 8) & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 2] = (byte)((data >> 16) & 0xFF);
-			Memory.WRAM_Small[0x8000 + adr + 3] = (byte)((data >> 24) & 0xFF);
+			Memory.WRAM_Small_64[adr] = (byte)(data & 0xFF);
+			Memory.WRAM_Small_64[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.WRAM_Small_64[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.WRAM_Small_64[adr + 3] = (byte)((data >> 24) & 0xFF);
 		}
 		return;
 
@@ -1246,6 +1331,8 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address) { GPU.refpoint_update_3y_new(); }
 	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address + 2) { GPU.refpoint_update_3y_new(); }
 
+	if (adr == Regs_Arm9.Sect_display9.DISP_MMEM_FIFO.address) { GPU.mainmemfifo.push(value); }
+
 	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address) { Timer.set_reload(0); }
 	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address + 2) { Timer.set_settings(0); }
 	else if (adr == Regs_Arm9.Sect_timer9.TM1CNT_L.address) { Timer.set_reload(1); }
@@ -1277,7 +1364,11 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 		return; 
 	} 
 
+	if (adr == Regs_Arm9.Sect_system9.MemControl2_WRAM.address + 2) { Regs_Arm7.Sect_system7.MemControl2_WRAM.write(Regs_Arm9.Sect_system9.MemControl2_WRAM.read()); return; }
+
 	if (adr >= Regs_Arm9.Sect_system9.DIVCNT.address && adr < Regs_Arm9.Sect_system9.DIV_DENOM_Low.address + 4) { MathDIV.write(); return; }
+	if (adr >= Regs_Arm9.Sect_system9.SQRTCN.address && adr < Regs_Arm9.Sect_system9.SQRTCN.address + 4) { MathSQRT.write(); return; }
+	if (adr >= Regs_Arm9.Sect_system9.SQRT_PARAM_High.address && adr < Regs_Arm9.Sect_system9.SQRT_PARAM_Low.address + 4) { MathSQRT.write(); return; }
 }
 
 void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
@@ -1307,4 +1398,6 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_system7.SPICNT.address + 2) { SPI_Intern.write_data((byte)value); return; }
 
 	if (adr == Regs_Arm7.Sect_system7.POSTFLG_Flag.address) { CPU7.halt = true; return; }
+
+	if (adr == Regs_Arm7.Sect_system7.POWCNT2.address) { Regs_Arm7.Sect_system7.POWCNT2.write(1); return; } // desmume uses written values, but does not set memory...
 }

@@ -98,6 +98,9 @@
     <ClCompile Include="MathDIV.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="MathSQRT.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameboy.h">
@@ -185,6 +188,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="MathDIV.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="MathSQRT.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

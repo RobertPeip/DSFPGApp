@@ -70,6 +70,7 @@ public:
 
 	bool new_hblank = false;
 	bool new_vblank = false;
+	bool new_MemDisplay = false;
 
 	UInt32 last_dma_value = 0;
 	int last_dma_index= 0;

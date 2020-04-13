@@ -6,6 +6,7 @@ using namespace std;
 #include "IRP.h"
 #include "Memory.h"
 #include "BusTiming.h"
+#include "GPU_Timing.h"
 
 Dma DMA;
 
@@ -48,6 +49,7 @@ void Dma::reset()
 {
 	new_hblank = false;
 	new_vblank = false;
+	new_MemDisplay = false;
 
 	dma_active = false;
 
@@ -164,34 +166,47 @@ void Dma::set_settings(int index)
 		DMAs[index].waiting = true;
 		check_run(index);
 
-		if (DMAs[index].dMA_Start_Timing == 3)
+		if (index < 4 && DMAs[index].dMA_Start_Timing == 4)
 		{
-			if (index == 1 || index == 2)
-			{
-				DMAs[index].count = 4;
-				DMAs[index].dest_Addr_Control = 3;
-			}
+			DMAs[index].count = 128;
 		}
 	}
 }
 
 void Dma::check_run(int index)
 {
-	if (DMAs[index].dMA_Start_Timing == 0 ||
-		DMAs[index].dMA_Start_Timing == 1 && new_vblank ||
-		DMAs[index].dMA_Start_Timing == 2 && new_hblank)
+	bool start = false;
+	if (index < 4)
+	{
+		switch (DMAs[index].dMA_Start_Timing)
+		{
+		case 0: start = true; break; // 0  Start Immediately
+		case 1: start = new_vblank; break; // 1  Start at V - Blank
+		case 2: start = new_hblank; break; // 2  Start at H - Blank(paused during V - Blank)
+		// 3  Synchronize to start of display
+		case 4: start = new_MemDisplay; break;// 4  Main memory display
+		// 5  DS Cartridge Slot
+		// 6  GBA Cartridge Slot
+		// 7  Geometry Command FIFO
+		}
+	}
+	else
+	{
+		switch (DMAs[index].dMA_Start_Timing)
+		{
+		case 0: start = true; break; // Start Immediately
+		case 1: start = new_vblank; break; // Start at V - Blank
+		// 2  DS Cartridge Slot
+		// 3  DMA0 / DMA2: Wireless interrupt, DMA1 / DMA3 : GBA Cartridge Slot
+		}
+	}
+
+	if (start)
 	{
 		DMAs[index].waitTicks = 3;
 		DMAs[index].waiting = false;
 		DMAs[index].first = true;
 		DMAs[index].fullcount = DMAs[index].count;
-	}
-	else if (DMAs[index].dMA_Start_Timing == 3)
-	{
-		if (index == 3)
-		{
-			//throw new Exception("video dma not implemented");
-		}
 	}
 }
 
@@ -261,17 +276,13 @@ void Dma::work()
 				{
 					if (DMAs[i].dMA_Transfer_Type)
 					{
-						uint lastaddress = DMAs[i].addr_source - 4; // simulate sequential
-						ticks += BusTiming.dataTicksAccess32(i < 4, DMAs[i].addr_source, true, lastaddress);
-						lastaddress = DMAs[i].addr_target - 4;
-						ticks += BusTiming.dataTicksAccess32(i < 4, DMAs[i].addr_target, false, lastaddress);
+						ticks += BusTiming.dmaTicksAccess32(i < 4, DMAs[i].addr_source);
+						ticks += BusTiming.dmaTicksAccess32(i < 4, DMAs[i].addr_target);
 					}
 					else
 					{
-						uint lastaddress = DMAs[i].addr_source - 2; // simulate sequential
-						ticks += BusTiming.dataTicksAccess816(i < 4, false, DMAs[i].addr_source, true, lastaddress);
-						lastaddress = DMAs[i].addr_target - 2;
-						ticks += BusTiming.dataTicksAccess816(i < 4, false, DMAs[i].addr_target, false, lastaddress);
+						ticks += BusTiming.dmaTicksAccess16(i < 4, DMAs[i].addr_source);
+						ticks += BusTiming.dmaTicksAccess16(i < 4, DMAs[i].addr_target);
 					}
 				}
 
@@ -327,9 +338,14 @@ void Dma::work()
 					if (DMAs[i].dMA_Repeat && DMAs[i].dMA_Start_Timing != 0)
 					{
 						DMAs[i].waiting = true;
-						if (DMAs[i].dMA_Start_Timing == 3 && (i == 1 || i == 2))
+						if (DMAs[i].dMA_Start_Timing == 4 && i < 4)
 						{
-							DMAs[i].count = 4;
+							DMAs[i].count = 128;
+							if (GPU_Timing.line == 191)
+							{
+								DMAs[i].waiting = false;
+								DMAs[i].dMA_Enable = false;
+							}
 						}
 						else
 						{
@@ -371,6 +387,7 @@ void Dma::work()
 
 	new_hblank = false;
 	new_vblank = false;
+	new_MemDisplay = false;
 }
 
 void Dma::request_audio(uint audioindex)

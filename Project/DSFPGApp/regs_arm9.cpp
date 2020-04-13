@@ -7,10 +7,10 @@ RegSect_display9::RegSect_display9()
 {
     DISPCNT = DSReg(0x000, 15, 0, 1, 0, "readwrite", Regs_Arm9.data);
     DISPCNT_BG_Mode = DSReg(0x000, 2, 0, 1, 0, "readwrite", Regs_Arm9.data);
-    DISPCNT_Reserved_CGB_Mode = DSReg(0x000, 3, 3, 1, 0, "readwrite", Regs_Arm9.data);
-    DISPCNT_Display_Frame_Select = DSReg(0x000, 4, 4, 1, 0, "readwrite", Regs_Arm9.data);
-    DISPCNT_H_Blank_IntervalFree = DSReg(0x000, 5, 5, 1, 0, "readwrite", Regs_Arm9.data);
-    DISPCNT_OBJ_Char_VRAM_Map = DSReg(0x000, 6, 6, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_BG0_2D_3D = DSReg(0x000, 3, 3, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Tile_OBJ_Mapping = DSReg(0x000, 4, 4, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Bitmap_OBJ_2D_Dim = DSReg(0x000, 5, 5, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Bitmap_OBJ_Mapping = DSReg(0x000, 6, 6, 1, 0, "readwrite", Regs_Arm9.data);
     DISPCNT_Forced_Blank = DSReg(0x000, 7, 7, 1, 0, "readwrite", Regs_Arm9.data);
     DISPCNT_Screen_Display_BG0 = DSReg(0x000, 8, 8, 1, 0, "readwrite", Regs_Arm9.data);
     DISPCNT_Screen_Display_BG1 = DSReg(0x000, 9, 9, 1, 0, "readwrite", Regs_Arm9.data);
@@ -20,7 +20,15 @@ RegSect_display9::RegSect_display9()
     DISPCNT_Window_0_Display_Flag = DSReg(0x000, 13, 13, 1, 0, "readwrite", Regs_Arm9.data);
     DISPCNT_Window_1_Display_Flag = DSReg(0x000, 14, 14, 1, 0, "readwrite", Regs_Arm9.data);
     DISPCNT_OBJ_Wnd_Display_Flag = DSReg(0x000, 15, 15, 1, 0, "readwrite", Regs_Arm9.data);
-    GREENSWAP = DSReg(0x000, 31, 16, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Display_Mode = DSReg(0x000, 17, 16, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_VRAM_block = DSReg(0x000, 19, 18, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Tile_OBJ_1D_Boundary = DSReg(0x000, 21, 20, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Bitmap_OBJ_1D_Boundary = DSReg(0x000, 22, 22, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_OBJ_Process_H_Blank = DSReg(0x000, 23, 23, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Character_Base = DSReg(0x000, 26, 24, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_Screen_Base = DSReg(0x000, 29, 27, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_BG_Extended_Palettes = DSReg(0x000, 30, 30, 1, 0, "readwrite", Regs_Arm9.data);
+    DISPCNT_OBJ_Extended_Palettes = DSReg(0x000, 31, 31, 1, 0, "readwrite", Regs_Arm9.data);
     DISPSTAT = DSReg(0x004, 15, 0, 1, 0x0004, "readwrite", Regs_Arm9.data);
     DISPSTAT_V_Blank_flag = DSReg(0x004, 0, 0, 1, 0, "readonly", Regs_Arm9.data);
     DISPSTAT_H_Blank_flag = DSReg(0x004, 1, 1, 1, 0, "readonly", Regs_Arm9.data);
@@ -246,7 +254,6 @@ RegSect_keypad9::RegSect_keypad9()
 {
     KEYINPUT = DSReg(0x130, 15, 0, 1, 0, "readonly", Regs_Arm9.data);
     KEYCNT = DSReg(0x130, 31, 16, 1, 0, "readwrite", Regs_Arm9.data);
-    EXTKEYIN = DSReg(0x134, 23, 16, 1, 0, "readonly", Regs_Arm9.data);
 }
 
 RegSect_system9::RegSect_system9()
@@ -372,7 +379,7 @@ RegSect_system9::RegSect_system9()
     MemControl1_VRAM_G_MST = DSReg(0x244, 18, 16, 1, 0, "writeonly", Regs_Arm9.data);
     MemControl1_VRAM_G_Offset = DSReg(0x244, 20, 19, 1, 0, "writeonly", Regs_Arm9.data);
     MemControl1_VRAM_G_Enable = DSReg(0x244, 23, 23, 1, 0, "writeonly", Regs_Arm9.data);
-    MemControl2_WRAM = DSReg(0x244, 25, 24, 1, 0, "readwrite", Regs_Arm9.data);
+    MemControl2_WRAM = DSReg(0x244, 25, 24, 1, 3, "readwrite", Regs_Arm9.data);
     MemControl3 = DSReg(0x248, 15, 0, 1, 0, "writeonly", Regs_Arm9.data);
     MemControl1_VRAM_H_MST = DSReg(0x248, 1, 0, 1, 0, "writeonly", Regs_Arm9.data);
     MemControl1_VRAM_H_Offset = DSReg(0x248, 4, 3, 1, 0, "writeonly", Regs_Arm9.data);
@@ -393,7 +400,7 @@ RegSect_system9::RegSect_system9()
     DIVREM_RESULT_High = DSReg(0x2A8, 31, 0, 1, 0, "readonly", Regs_Arm9.data);
     DIVREM_RESULT_Low = DSReg(0x2AC, 31, 0, 1, 0, "readonly", Regs_Arm9.data);
     SQRTCN = DSReg(0x280, 31, 0, 1, 0, "writeonly", Regs_Arm9.data);
-    SQRTCN_Division_Mode = DSReg(0x280, 0, 0, 1, 0, "readwrite", Regs_Arm9.data);
+    SQRTCN_Mode = DSReg(0x280, 0, 0, 1, 0, "readwrite", Regs_Arm9.data);
     SQRTCN_Busy = DSReg(0x280, 15, 15, 1, 0, "readonly", Regs_Arm9.data);
     SQRT_RESULT = DSReg(0x2B4, 31, 0, 1, 0, "readonly", Regs_Arm9.data);
     SQRT_PARAM_High = DSReg(0x2B8, 31, 0, 1, 0, "readwrite", Regs_Arm9.data);
@@ -401,7 +408,7 @@ RegSect_system9::RegSect_system9()
     POSTFLG = DSReg(0x300, 1, 0, 1, 0, "writeonly", Regs_Arm9.data);
     POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 1, "readonly", Regs_Arm9.data);
     POSTFLG_RW = DSReg(0x300, 1, 1, 1, 0, "readwrite", Regs_Arm9.data);
-    POWCNT1 = DSReg(0x304, 15, 0, 1, 0, "writeonly", Regs_Arm9.data);
+    POWCNT1 = DSReg(0x304, 15, 0, 1, 33295, "writeonly", Regs_Arm9.data);
     POWCNT1_Enable_Flag_for_both_LCDs = DSReg(0x304, 0, 0, 1, 0, "readwrite", Regs_Arm9.data);
     POWCNT1_2D_Graphics_Engine_A = DSReg(0x304, 1, 1, 1, 0, "readwrite", Regs_Arm9.data);
     POWCNT1_3D_Rendering_Engine = DSReg(0x304, 2, 2, 1, 0, "readwrite", Regs_Arm9.data);
@@ -430,8 +437,16 @@ void REGS_Arm9::reset()
       data[53] = (16777216 >> 8) & 0xFF;
       data[54] = (16777216 >> 16) & 0xFF;
       data[55] = (16777216 >> 24) & 0xFF;
+      // MemControl2_WRAM at 0x244 = 3;
+      data[580] = 50331648 & 0xFF;
+      data[581] = (50331648 >> 8) & 0xFF;
+      data[582] = (50331648 >> 16) & 0xFF;
+      data[583] = (50331648 >> 24) & 0xFF;
       // POSTFLG_Flag at 0x300 = 1;
       data[768] = 1 & 0xFF;
+      // POWCNT1 at 0x304 = 33295;
+      data[772] = 33295 & 0xFF;
+      data[773] = (33295 >> 8) & 0xFF;
 
     // DISPCNT at 0x000 = 0xFFFFFFFF;
     rwmask[0] = (byte)(0xFFFFFFFF & 0xFF);
@@ -693,11 +708,6 @@ void REGS_Arm9::reset()
     rwmask[305] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[306] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[307] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
-    // EXTKEYIN at 0x134 = 0xFF0000;
-    rwmask[308] = (byte)(0xFF0000 & 0xFF);
-    rwmask[309] = (byte)((0xFF0000 >> 8) & 0xFF);
-    rwmask[310] = (byte)((0xFF0000 >> 16) & 0xFF);
-    rwmask[311] = (byte)((0xFF0000 >> 24) & 0xFF);
     // IPCSYNC at 0x180 = 0x6F0F;
     rwmask[384] = (byte)(0x6F0F & 0xFF);
     rwmask[385] = (byte)((0x6F0F >> 8) & 0xFF);

@@ -255,7 +255,24 @@ RegSect_keypad7::RegSect_keypad7()
 {
     KEYINPUT = DSReg(0x130, 15, 0, 1, 0, "readonly", Regs_Arm7.data);
     KEYCNT = DSReg(0x130, 31, 16, 1, 0, "readwrite", Regs_Arm7.data);
+    RCNT = DSReg(0x134, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
     EXTKEYIN = DSReg(0x134, 23, 16, 1, 0, "readonly", Regs_Arm7.data);
+}
+
+RegSect_serial7::RegSect_serial7()
+{
+    SIODATA32 = DSReg(0x120, 31, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIOMULTI0 = DSReg(0x120, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIOMULTI1 = DSReg(0x122, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIOMULTI2 = DSReg(0x124, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIOMULTI3 = DSReg(0x126, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIOCNT = DSReg(0x128, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIOMLT_SEND = DSReg(0x12A, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    SIODATA8 = DSReg(0x12A, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    JOYCNT = DSReg(0x140, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    JOY_RECV = DSReg(0x150, 31, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    JOY_TRANS = DSReg(0x154, 31, 0, 1, 0, "readwrite", Regs_Arm7.data);
+    JOYSTAT = DSReg(0x158, 15, 0, 1, 0, "readwrite", Regs_Arm7.data);
 }
 
 RegSect_system7::RegSect_system7()
@@ -390,7 +407,7 @@ RegSect_system7::RegSect_system7()
     RAMSTAT = DSReg(0x240, 9, 0, 1, 0, "readonly", Regs_Arm7.data);
     RAMSTAT_VRAMSTAT_C = DSReg(0x240, 0, 0, 1, 0, "readonly", Regs_Arm7.data);
     RAMSTAT_VRAMSTAT_D = DSReg(0x240, 1, 1, 1, 0, "readonly", Regs_Arm7.data);
-    MemControl2_WRAM = DSReg(0x240, 9, 8, 1, 0, "readonly", Regs_Arm7.data);
+    MemControl2_WRAM = DSReg(0x240, 9, 8, 1, 3, "readonly", Regs_Arm7.data);
     POSTFLG = DSReg(0x300, 15, 0, 1, 0, "writeonly", Regs_Arm7.data);
     POSTFLG_Flag = DSReg(0x300, 0, 0, 1, 1, "readonly", Regs_Arm7.data);
     POSTFLG_Power_Down_Mode = DSReg(0x300, 15, 14, 1, 0, "readwrite", Regs_Arm7.data);
@@ -423,6 +440,9 @@ void REGS_Arm7::reset()
       // SOUNDBIAS at 0x504 = 0x0200;
       data[1284] = 512 & 0xFF;
       data[1285] = (512 >> 8) & 0xFF;
+      // MemControl2_WRAM at 0x240 = 3;
+      data[576] = 768 & 0xFF;
+      data[577] = (768 >> 8) & 0xFF;
       // POSTFLG_Flag at 0x300 = 1;
       data[768] = 1 & 0xFF;
       // POWCNT2_Sound at 0x304 = 1;
@@ -651,21 +671,71 @@ void REGS_Arm7::reset()
     rwmask[269] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[270] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[271] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
+    // SIODATA32 at 0x120 = 0xFFFFFFFF;
+    rwmask[288] = (byte)(0xFFFFFFFF & 0xFF);
+    rwmask[289] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
+    rwmask[290] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
+    rwmask[291] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
+    // SIOMULTI1 at 0x122 = 0xFFFF;
+    rwmask[290] = (byte)(0xFFFF & 0xFF);
+    rwmask[291] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[292] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[293] = (byte)((0xFFFF >> 24) & 0xFF);
+    // SIOMULTI2 at 0x124 = 0xFFFF;
+    rwmask[292] = (byte)(0xFFFF & 0xFF);
+    rwmask[293] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[294] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[295] = (byte)((0xFFFF >> 24) & 0xFF);
+    // SIOMULTI3 at 0x126 = 0xFFFF;
+    rwmask[294] = (byte)(0xFFFF & 0xFF);
+    rwmask[295] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[296] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[297] = (byte)((0xFFFF >> 24) & 0xFF);
+    // SIOCNT at 0x128 = 0xFFFF;
+    rwmask[296] = (byte)(0xFFFF & 0xFF);
+    rwmask[297] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[298] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[299] = (byte)((0xFFFF >> 24) & 0xFF);
+    // SIOMLT_SEND at 0x12A = 0xFFFF;
+    rwmask[298] = (byte)(0xFFFF & 0xFF);
+    rwmask[299] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[300] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[301] = (byte)((0xFFFF >> 24) & 0xFF);
     // KEYINPUT at 0x130 = 0xFFFFFFFF;
     rwmask[304] = (byte)(0xFFFFFFFF & 0xFF);
     rwmask[305] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[306] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[307] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
-    // EXTKEYIN at 0x134 = 0xFF0000;
-    rwmask[308] = (byte)(0xFF0000 & 0xFF);
-    rwmask[309] = (byte)((0xFF0000 >> 8) & 0xFF);
-    rwmask[310] = (byte)((0xFF0000 >> 16) & 0xFF);
-    rwmask[311] = (byte)((0xFF0000 >> 24) & 0xFF);
+    // RCNT at 0x134 = 0xFFFFFF;
+    rwmask[308] = (byte)(0xFFFFFF & 0xFF);
+    rwmask[309] = (byte)((0xFFFFFF >> 8) & 0xFF);
+    rwmask[310] = (byte)((0xFFFFFF >> 16) & 0xFF);
+    rwmask[311] = (byte)((0xFFFFFF >> 24) & 0xFF);
     // RTC_reg at 0x138 = 0xFFFF;
     rwmask[312] = (byte)(0xFFFF & 0xFF);
     rwmask[313] = (byte)((0xFFFF >> 8) & 0xFF);
     rwmask[314] = (byte)((0xFFFF >> 16) & 0xFF);
     rwmask[315] = (byte)((0xFFFF >> 24) & 0xFF);
+    // JOYCNT at 0x140 = 0xFFFF;
+    rwmask[320] = (byte)(0xFFFF & 0xFF);
+    rwmask[321] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[322] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[323] = (byte)((0xFFFF >> 24) & 0xFF);
+    // JOY_RECV at 0x150 = 0xFFFFFFFF;
+    rwmask[336] = (byte)(0xFFFFFFFF & 0xFF);
+    rwmask[337] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
+    rwmask[338] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
+    rwmask[339] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
+    // JOY_TRANS at 0x154 = 0xFFFFFFFF;
+    rwmask[340] = (byte)(0xFFFFFFFF & 0xFF);
+    rwmask[341] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
+    rwmask[342] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
+    rwmask[343] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
+    // JOYSTAT at 0x158 = 0xFFFF;
+    rwmask[344] = (byte)(0xFFFF & 0xFF);
+    rwmask[345] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[346] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[347] = (byte)((0xFFFF >> 24) & 0xFF);
     // IPCSYNC at 0x180 = 0x6F0F;
     rwmask[384] = (byte)(0x6F0F & 0xFF);
     rwmask[385] = (byte)((0x6F0F >> 8) & 0xFF);

@@ -259,6 +259,7 @@ analyze_file("regds_sound7.vhd")
 analyze_file("regds_dma7.vhd")
 analyze_file("regds_timer7.vhd")
 analyze_file("regds_keypad7.vhd")
+analyze_file("regds_serial7.vhd")
 analyze_file("regds_system7.vhd")
 
 max_addr = max_addr + 4

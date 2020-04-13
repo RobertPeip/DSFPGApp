@@ -13,25 +13,25 @@ public:
     /// </summary>
     DSReg DISPCNT;
     /// <summary>
-    /// BG Mode (0-5=Video Mode 0-5, 6-7=Prohibited)
+    /// BG Mode (0-5=Video Mode 0-6, 7=Prohibited)
     /// </summary>
     DSReg DISPCNT_BG_Mode;
     /// <summary>
-    /// Reserved / CGB Mode (0=GBA, 1=CGB; can be set only by BIOS opcodes)
+    /// A only BG0 2D/3D Selection (instead CGB Mode) (0=2D, 1=3D)
     /// </summary>
-    DSReg DISPCNT_Reserved_CGB_Mode;
+    DSReg DISPCNT_BG0_2D_3D;
     /// <summary>
-    /// Display Frame Select (0-1=Frame 0-1) (for BG Modes 4,5 only)
+    /// Tile OBJ Mapping (0=2D; max 32KB, 1=1D; max 32KB..256KB)
     /// </summary>
-    DSReg DISPCNT_Display_Frame_Select;
+    DSReg DISPCNT_Tile_OBJ_Mapping;
     /// <summary>
-    /// H-Blank Interval Free (1=Allow access to OAM during H-Blank)
+    /// Bitmap OBJ 2D-Dimension (0=128x512 dots, 1=256x256 dots)
     /// </summary>
-    DSReg DISPCNT_H_Blank_IntervalFree;
+    DSReg DISPCNT_Bitmap_OBJ_2D_Dim;
     /// <summary>
-    /// OBJ Character VRAM Mapping (0=Two dimensional, 1=One dimensional)
+    /// Bitmap OBJ Mapping (0=2D; max 128KB, 1=1D; max 128KB..256KB)
     /// </summary>
-    DSReg DISPCNT_OBJ_Char_VRAM_Map;
+    DSReg DISPCNT_Bitmap_OBJ_Mapping;
     /// <summary>
     /// Forced Blank (1=Allow FAST access to VRAM,Palette,OAM)
     /// </summary>
@@ -69,9 +69,41 @@ public:
     /// </summary>
     DSReg DISPCNT_OBJ_Wnd_Display_Flag;
     /// <summary>
-    /// Undocumented - Green Swap 2 R/W
+    /// 16-17 A+B Display Mode (Engine A: 0..3, Engine B: 0..1, GBA: Green Swap)
     /// </summary>
-    DSReg GREENSWAP;
+    DSReg DISPCNT_Display_Mode;
+    /// <summary>
+    /// 18-19 A VRAM block (0..3=VRAM A..D) (For Capture & above Display Mode=2)
+    /// </summary>
+    DSReg DISPCNT_VRAM_block;
+    /// <summary>
+    /// 20-21 A+B Tile OBJ 1D-Boundary (see Bit4)
+    /// </summary>
+    DSReg DISPCNT_Tile_OBJ_1D_Boundary;
+    /// <summary>
+    /// 22 A Bitmap OBJ 1D-Boundary (see Bit5-6)
+    /// </summary>
+    DSReg DISPCNT_Bitmap_OBJ_1D_Boundary;
+    /// <summary>
+    /// 23 A+B OBJ Processing during H-Blank (was located in Bit5 on GBA)
+    /// </summary>
+    DSReg DISPCNT_OBJ_Process_H_Blank;
+    /// <summary>
+    /// 24-26 A Character Base (in 64K steps) (merged with 16K step in BGxCNT)
+    /// </summary>
+    DSReg DISPCNT_Character_Base;
+    /// <summary>
+    /// 27-29 A Screen Base (in 64K steps) (merged with 2K step in BGxCNT)
+    /// </summary>
+    DSReg DISPCNT_Screen_Base;
+    /// <summary>
+    /// 30 A+B BG Extended Palettes (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg DISPCNT_BG_Extended_Palettes;
+    /// <summary>
+    /// 31 A+B OBJ Extended Palettes (0=Disable, 1=Enable
+    /// </summary>
+    DSReg DISPCNT_OBJ_Extended_Palettes;
     /// <summary>
     /// General LCD Status (STAT,LYC) 2 R/W
     /// </summary>
@@ -945,10 +977,6 @@ public:
     /// Key Interrupt Control 2 R/W
     /// </summary>
     DSReg KEYCNT;
-    /// <summary>
-    /// Key X/Y Input (R)
-    /// </summary>
-    DSReg EXTKEYIN;
 
     RegSect_keypad9();
 };
@@ -1527,7 +1555,7 @@ public:
     /// <summary>
     /// 0 Mode (0=32bit input, 1=64bit input)
     /// </summary>
-    DSReg SQRTCN_Division_Mode;
+    DSReg SQRTCN_Mode;
     /// <summary>
     /// 15 Busy (0=Ready, 1=Busy) (Execution time is 13 clks, in either Mode)
     /// </summary>
@@ -1557,7 +1585,7 @@ public:
     /// </summary>
     DSReg POSTFLG_RW;
     /// <summary>
-    /// Graphics Power Control Register (R/W)
+    /// Graphics Power Control Register (R/W) - default all available bits set
     /// </summary>
     DSReg POWCNT1;
     /// <summary>

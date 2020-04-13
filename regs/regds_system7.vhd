@@ -158,7 +158,7 @@ package pReg_ds_system_7 is
    constant RAMSTAT                                : regmap_type := (12#240#,   9,      0,        1,        0,   readonly ); -- VRAM Bank Status (R) + WRAM Bank Status (R)
    constant RAMSTAT_VRAMSTAT_C                     : regmap_type := (12#240#,   0,      0,        1,        0,   readonly ); -- VRAM C enabled and allocated to NDS7  (0=No, 1=Yes)
    constant RAMSTAT_VRAMSTAT_D                     : regmap_type := (12#240#,   1,      1,        1,        0,   readonly ); -- VRAM D enabled and allocated to NDS7  (0=No, 1=Yes)
-   constant MemControl2_WRAM                       : regmap_type := (12#240#,   9,      8,        1,        0,   readonly ); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
+   constant MemControl2_WRAM                       : regmap_type := (12#240#,   9,      8,        1,        3,   readonly ); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
    
    constant POSTFLG                                : regmap_type := (12#300#,  15,      0,        1,        0,   writeonly); -- Post Boot Flag (R/W)    
    constant POSTFLG_Flag                           : regmap_type := (12#300#,   0,      0,        1,        1,   readonly ); -- Post Boot Flag (0=Boot in progress, 1=Boot completed)

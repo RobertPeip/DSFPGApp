@@ -970,11 +970,70 @@ public:
     /// </summary>
     DSReg KEYCNT;
     /// <summary>
+    /// SIO Mode Select/General Purpose Data 2 R/W
+    /// </summary>
+    DSReg RCNT;
+    /// <summary>
     /// Key X/Y Input (R)
     /// </summary>
     DSReg EXTKEYIN;
 
     RegSect_keypad7();
+};
+
+class RegSect_serial7
+{
+public:
+    /// <summary>
+    /// SIO Data (Normal-32bit Mode; shared with below) 4 R/W
+    /// </summary>
+    DSReg SIODATA32;
+    /// <summary>
+    /// SIO Data 0 (Parent) (Multi-Player Mode) 2 R/W
+    /// </summary>
+    DSReg SIOMULTI0;
+    /// <summary>
+    /// SIO Data 1 (1st Child) (Multi-Player Mode) 2 R/W
+    /// </summary>
+    DSReg SIOMULTI1;
+    /// <summary>
+    /// SIO Data 2 (2nd Child) (Multi-Player Mode) 2 R/W
+    /// </summary>
+    DSReg SIOMULTI2;
+    /// <summary>
+    /// SIO Data 3 (3rd Child) (Multi-Player Mode) 2 R/W
+    /// </summary>
+    DSReg SIOMULTI3;
+    /// <summary>
+    /// SIO Control Register 2 R/W
+    /// </summary>
+    DSReg SIOCNT;
+    /// <summary>
+    /// SIO Data (Local of MultiPlayer; shared below) 2 R/W
+    /// </summary>
+    DSReg SIOMLT_SEND;
+    /// <summary>
+    /// SIO Data (Normal-8bit and UART Mode) 2 R/W
+    /// </summary>
+    DSReg SIODATA8;
+    /// <summary>
+    /// SIO JOY Bus Control 2 R/W
+    /// </summary>
+    DSReg JOYCNT;
+    /// <summary>
+    /// SIO JOY Bus Receive Data 4 R/W
+    /// </summary>
+    DSReg JOY_RECV;
+    /// <summary>
+    /// SIO JOY Bus Transmit Data 4 R/W
+    /// </summary>
+    DSReg JOY_TRANS;
+    /// <summary>
+    /// SIO JOY Bus Receive Status 2 R/?
+    /// </summary>
+    DSReg JOYSTAT;
+
+    RegSect_serial7();
 };
 
 class RegSect_system7
@@ -1544,6 +1603,7 @@ public:
     RegSect_dma7 Sect_dma7;
     RegSect_timer7 Sect_timer7;
     RegSect_keypad7 Sect_keypad7;
+    RegSect_serial7 Sect_serial7;
     RegSect_system7 Sect_system7;
 
     byte data[4208];

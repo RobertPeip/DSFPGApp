@@ -15,8 +15,8 @@ using namespace std;
 #include "Memory.h"
 #include "OSD.h"
 
-const int WIDTH = 240;
-const int HEIGHT = 160;
+const int WIDTH = 256;
+const int HEIGHT = 192;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -403,11 +403,11 @@ void drawer()
 			UInt64 cpucycles = (UInt64)gameboy.totalticks;
 			double newcycles = (double)(cpucycles - oldcycles);
 #ifdef CONSOLE
-			std::cout << "CPU%: " << (int)(100 * newcycles / 16780000);
+			std::cout << "CPU%: " << (int)(100 * newcycles / 67027964);
 			std::cout << " | FPS: " << frames;
 			std::cout << " | Intern FPS: " << GPU.intern_frames;
 			std::cout << "(" << GPU.videomode_frames << ")";
-			std::cout << " | AVG Cycles: " << (newcycles / (CPU.commands - oldcommands)) << "\n";
+			std::cout << " | AVG Cycles: " << (newcycles / (CPU9.commands - oldcommands)) << "\n";
 #endif
 			SDL_SetWindowTitle(window, std::to_string(100 * newcycles / 67027964).c_str());
 
@@ -447,9 +447,7 @@ int main(int argc, char* argv[])
 	GPU.drawlock = SDL_CreateMutex();
 
 	// debug
-	//gameboy.filename = "C:\\Users\\FPGADev\\Desktop\\Emu-Docs-master\\Nintendo DS\\testroms\\Eigenmath1.0.nds";
-	gameboy.filename = "C:\\Users\\FPGADev\\Desktop\\Emu-Docs-master\\Nintendo DS\\testroms\\gxDemos\\2D_BmpBg_MainRam.nds";
-
+	
 	openrom();
 
 	//loadstate_fromdisk("savestate.sst");

@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "types.h"
+#include <queue>
 
 class Pixel
 {
@@ -53,21 +54,22 @@ public:
 
 	// registers
 	byte videomode;
+	byte displaymode;
 	bool forcedblank;
 
 	// static array, so less allocate
-	unsigned int buffer[240 * 160];
+	unsigned int buffer[256 * 192];
 
-	Pixel pixels[480][320];
-	Pixel pixels_interlace[480][320];
+	Pixel pixels[512][384];
+	Pixel pixels_interlace[512][384];
 
-	Pixel pixels_bg0[240];
-	Pixel pixels_bg1[240];
+	Pixel pixels_bg0[256];
+	Pixel pixels_bg1[256];
 	Pixel* pixels_bg2;
-	Pixel pixels_bg2_1[480];
-	Pixel pixels_bg2_2[480];
-	Pixel pixels_bg3[240];
-	Pixel pixels_obj[240];
+	Pixel pixels_bg2_1[512];
+	Pixel pixels_bg2_2[512];
+	Pixel pixels_bg3[256];
+	Pixel pixels_obj[256];
 	Pixel pixelbackdrop;
 	Pixel pixelspecial;
 	Pixel pixelalpha2;
@@ -101,6 +103,8 @@ public:
 	byte mosaik_bg1_vcnt;
 	byte mosaik_bg2_vcnt;
 	byte mosaik_bg3_vcnt;
+
+	std::queue<uint> mainmemfifo;
 
 	// frametime
 	const long FRAMETIME = (1000000 / 60);

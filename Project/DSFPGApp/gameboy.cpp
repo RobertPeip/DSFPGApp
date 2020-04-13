@@ -21,6 +21,7 @@
 #include "spi_intern.h"
 #include "IPC.h"
 #include "MathDIV.h"
+#include "MathSQRT.h"
 
 Gameboy gameboy;
 
@@ -43,11 +44,12 @@ void Gameboy::reset()
 	IRP9.reset(true);
 	IRP7.reset(false);
 	MathDIV.reset();
+	MathSQRT.reset();
 	InstrCache.reset();
 	DataCache.reset();
 	GPU_Timing.reset();
 	Sound.reset();
-	Joypad.set_reg();
+	Joypad.reset();
 	Timer.reset();
 	DMA.reset();
 	SoundDMA.reset();
@@ -83,6 +85,7 @@ void Gameboy::run()
 		Timer.work();
 		
 		if (MathDIV.calculating) { MathDIV.finish(); }
+		if (MathSQRT.calculating) { MathSQRT.finish(); }
 		//Sound.work();
 		//if (GPU.lockSpeed)
 		//{
@@ -97,7 +100,7 @@ void Gameboy::run()
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 29724)
+		if (tracer.traclist_ptr == 86944)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -119,10 +122,10 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 1300000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 1700000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 200000;
+			tracer.runmoretrace = 300000;
 		}
 
 		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
@@ -136,7 +139,7 @@ void Gameboy::run()
 			{
 				tracer.runmoretrace = -1;
 				//tracer.trace_file_last();
-				tracer.vcd_file_last();
+				//tracer.vcd_file_last();
 			}
 		}
 		tracer.commands++;
@@ -173,13 +176,22 @@ UInt64 Gameboy::next_event_time()
 {
 	UInt64 nexttime = GPU_Timing.next_event_time;
 
-	if (MathDIV.calculating) nexttime = min(nexttime, MathDIV.next_event_ticks);
+	if (MathDIV.calculating) nexttime = min(nexttime, MathDIV.next_event_time);
+	if (MathSQRT.calculating) nexttime = min(nexttime, MathSQRT.next_event_time);
 
 	if (DMA.dma_active)
 	{
 		for (int i = 0; i < 8; i++)
 		{
 			nexttime = min(nexttime, DMA.DMAs[i].next_event_time);
+		}
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (Timer.timers[i].on)
+		{
+			nexttime = min(nexttime, Timer.timers[i].next_event_time);
 		}
 	}
 

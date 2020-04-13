@@ -61,7 +61,7 @@ int BUSTiming::dataTicksAccess816(bool isArm9, bool is8Bit, UInt32 address, bool
 
 		int value = memoryWait16Arm9[addr];
 
-		if (address != lastAddress + 2)
+		if ((is8Bit && address != lastAddress + 1) || (!is8Bit && address != lastAddress + 2))
 		{
 			value += 6;
 		}
@@ -185,3 +185,27 @@ int BUSTiming::codeTicksAccessSeq32(bool isArm9, UInt32 address) // ARM SEQ
 	}
 }
 
+int BUSTiming::dmaTicksAccess16(bool isArm9, UInt32 address)
+{
+	UInt32 addr = (address >> 24) & 15;
+	if (isArm9)
+	{
+		return memoryWait16Arm9[addr];
+	}
+	else
+	{
+		return memoryWait16Arm7[addr];
+	}
+}
+int BUSTiming::dmaTicksAccess32(bool isArm9, UInt32 address)
+{
+	UInt32 addr = (address >> 24) & 15;
+	if (isArm9)
+	{
+		return memoryWait32Arm9[addr];
+	}
+	else
+	{
+		return memoryWait32Arm7[addr];
+	}
+}

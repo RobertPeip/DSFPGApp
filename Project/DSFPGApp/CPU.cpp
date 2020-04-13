@@ -80,7 +80,7 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x038094e4);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000304);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -577,6 +577,12 @@ void Cpu::interrupt()
 	PC = irpTarget + 0x18;
 	IRQ_disable = true;
 	thumbmode = false;
+	halt = false;
+
+#ifdef DEBUG
+	regs[15] = PC + 0x8;
+	lastinstruction = 0;
+#endif
 }
 
 void Cpu::thumb_command()
@@ -1591,14 +1597,23 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				UInt32 writeval;
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{
-					if (i >= 8 && i <= 14)
+					// for desmume, old implementation below
+					if (i >= 13 && i <= 14)
 					{
 						writeval = regbanks[0][i];
 					}
 					else
 					{
-						writeval = 0;
+						writeval = regs[i];
 					}
+					//if (i >= 8 && i <= 14)
+					//{
+					//	writeval = regbanks[0][i];
+					//}
+					//else
+					//{
+					//	writeval = 0;
+					//}
 				}
 				else
 				{
@@ -1615,7 +1630,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 						writeval += 4;
 					}
 				}
-				if (!first && i == Rn_op1)
+				if (!first && i == Rn_op1) // baseaddress register usually changed if written as second or later!
 				{
 					writeval = endaddress_baserlist;
 				}
@@ -1623,7 +1638,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				newticks += BusTiming.dataTicksAccess32(isArm9, address & 0xFFFFFFFC, false, lastAddress);
 				first = false;
 				address += 4;
-				// baseaddress register usually changed if written as second or later!
 			}
 			reglist = (UInt16)(reglist >> 1);
 		}
@@ -3100,8 +3114,7 @@ void Cpu::coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byt
 	case 7:
 		if ((opRegm == 0) && (opMode == 0) && ((coInfo == 4)))
 		{
-			//NDS_ARM9.freeze = CPU_FREEZE_IRQ_IE_IF; //CP15wait4IRQ;
-			//IME set deliberately omitted: only SWI sets IME to 1
+			halt = true;
 			return;
 		}
 		return;

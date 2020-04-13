@@ -2,9 +2,23 @@
 
 #include "Joypad.h"
 #include "regs_arm9.h"
+#include "regs_arm7.h"
 #include "IRP.h"
 
 JOYPAD Joypad;
+
+void JOYPAD::reset()
+{
+	oldvalue = 0x3FF;
+	oldvalue_ext = 0x7F;
+	Regs_Arm9.Sect_keypad9.KEYINPUT.write(oldvalue);
+	Regs_Arm7.Sect_keypad7.KEYINPUT.write(oldvalue);
+	Regs_Arm7.Sect_keypad7.EXTKEYIN.write(oldvalue_ext);
+
+	KeyDebug = false;
+	KeyPen = false;
+	KeyHinge = true;
+}
 
 void JOYPAD::set_reg()
 {
@@ -30,7 +44,22 @@ void JOYPAD::set_reg()
 	if (value != oldvalue)
 	{
 		Regs_Arm9.Sect_keypad9.KEYINPUT.write(value);
+		Regs_Arm7.Sect_keypad7.KEYINPUT.write(value);
 		check_irp();
+	}
+
+	oldvalue_ext = value_ext;
+	value_ext = 0x34;
+
+	if (!KeyX) { value_ext |= 1; }
+	if (!KeyY) { value_ext |= 2; }
+	if (!KeyDebug) { value_ext |= 8; }
+	if (!KeyPen) { value_ext |= 64; }
+	if (!KeyHinge) { value_ext |= 128; }
+
+	if (value_ext != oldvalue_ext)
+	{
+		Regs_Arm7.Sect_keypad7.EXTKEYIN.write(value_ext);
 	}
 }
 

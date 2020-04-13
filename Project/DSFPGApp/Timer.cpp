@@ -76,7 +76,7 @@ void TIMER::set_settings(int index)
 
 		if (!timers[index].countup)
 		{
-			timers[index].next_event_ticks = gameboy.totalticks + (65536 - timers[index].reload) * timers[index].prescale;
+			timers[index].next_event_time = gameboy.totalticks + (65536 - timers[index].reload) * timers[index].prescale;
 		}
 	}
 }
@@ -96,9 +96,9 @@ void TIMER::work()
 		{
 			timers[i].stopnow = false;
 
-			if (!timers[i].countup && gameboy.totalticks >= timers[i].next_event_ticks)
+			if (!timers[i].countup && gameboy.totalticks >= timers[i].next_event_time)
 			{
-				timers[i].next_event_ticks = timers[i].next_event_ticks + (65536 - timers[i].reload) * timers[i].prescale;
+				timers[i].next_event_time = timers[i].next_event_time + (65536 - timers[i].reload) * timers[i].prescale;
 				Timer.overflow(i);
 			}
 		}
@@ -136,7 +136,7 @@ void TIMER::updatereg(int index)
 		}
 		else
 		{
-			int diff = Timer.timers[index].next_event_ticks - gameboy.totalticks;
+			int diff = Timer.timers[index].next_event_time - gameboy.totalticks;
 			diff = diff / timers[index].prescale;
 			if (diff == 65536)
 			{

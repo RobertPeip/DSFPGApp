@@ -18,7 +18,8 @@ public:
 	bool gpio_enable = false;
 
 	Byte WRAM_Large[4194304];
-	Byte WRAM_Small[98304];
+	Byte WRAM_Small_64[65536];
+	Byte WRAM_Small_32[32768];
 	Byte VRAM[655360];
 	Byte OAMRAM[2048];
 	Byte PaletteRAM[2048];
@@ -36,16 +37,7 @@ public:
 	Byte Bios7[16384];
 	Byte Bios9[4096];
 
-	bool EEPROMEnabled;
-	bool FlashEnabled;
-	bool SramEnabled;
-	bool EEPROMSensorEnabled;
-	//Func<UInt32, byte, object> SaveGameFunc;
-
-	byte biosProtected[4];
-
-	UInt16 tiltx;
-	UInt16 tilty;
+	byte wrammux;
 
 	bool unreadable;
 	UInt32 lastreadvalue;

@@ -78,6 +78,11 @@ void Gpu::reset()
 	pixelbackdrop.transparent = false;
 	pixelbackdrop.prio = 4;
 
+	while (!mainmemfifo.empty()) mainmemfifo.pop();
+
+	videomode = 0;
+	displaymode = 0;
+
 	frametimeleft = FRAMETIME;
 	//stopwatch_frame.Start();
 }
@@ -85,6 +90,7 @@ void Gpu::reset()
 void Gpu::dispcnt_write()
 {
 	videomode = (byte)Regs_Arm9.Sect_display9.DISPCNT_BG_Mode.read();
+	displaymode = (byte)Regs_Arm9.Sect_display9.DISPCNT_Display_Mode.read();
 
 	bool new_forcedblank = Regs_Arm9.Sect_display9.DISPCNT_Forced_Blank.on();
 	if (forcedblank && !new_forcedblank)
@@ -244,7 +250,7 @@ void Gpu::next_line(byte line)
 
 		if (videomode > 3)
 		{
-			bool framebuffer_select_new = Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on();
+			bool framebuffer_select_new = false;// Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on();
 			if (framebuffer_select_new != framebuffer_select)
 			{
 				framebuffer_select = framebuffer_select_new;
@@ -278,6 +284,7 @@ void Gpu::draw_line(byte y_in)
 {
 	if (frameskip_counter < frameskip)
 	{
+		while (!mainmemfifo.empty()) mainmemfifo.pop();
 		return;
 	}
 
@@ -311,10 +318,10 @@ void Gpu::draw_line(byte y_in)
 		byte mosaic_bg_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_BG_Mosaic_H_Size.read();
 		byte mosaic_bg_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_BG_Mosaic_V_Size.read();
 
-		int pixelcount = 240;
+		int pixelcount = 256;
 		if (doubleres)
 		{
-			pixelcount = 480;
+			pixelcount = 512;
 		}
 
 		if (on_delay_bg0[2])
@@ -682,7 +689,7 @@ void Gpu::draw_line(byte y_in)
 					pixels_bg2 = pixels_bg2_2;
 				}
 			}
-			for (int xi = 0; xi < 480; xi += step)
+			for (int xi = 0; xi < 512; xi += step)
 			{
 				int x = xi / 2;
 				int xd = xi / 2;
@@ -839,7 +846,19 @@ void Gpu::draw_line(byte y_in)
 					}
 				}
 
-				if (special_out)
+				if (displaymode == 3 && !mainmemfifo.empty())
+				{
+					uint color = mainmemfifo.front();
+					if ((x & 1) == 1)
+					{
+						mainmemfifo.pop();
+						color = color >> 16;
+					}
+					pixelfinal.color_blue = ((color >> 10) & 0x1F) << 3;
+					pixelfinal.color_green = ((color >> 5) & 0x1F) << 3;
+					pixelfinal.color_red = (color & 0x1F) << 3;
+				}
+				else if (special_out)
 				{
 					pixelfinal.copycolor(pixelspecial);
 				}
@@ -1233,10 +1252,10 @@ void Gpu::draw_bg_mode4(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 		if (xxx >= 0 && yyy >= 0 && xxx < 240 && yyy < 160)
 		{
 			int address = yyy * 240 + xxx;
-			if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
-			{
-				address += 0xA000;
-			}
+			//if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
+			//{
+			//	address += 0xA000;
+			//}
 			byte colorptr = Memory.VRAM[address];
 			UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[colorptr * 2];
 			pixels_bg2_1[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
@@ -1261,10 +1280,10 @@ void Gpu::draw_bg_mode5(Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 		if (xxx >= 0 && yyy >= 0 && xxx < 160 && yyy < 128)
 		{
 			int address = yyy * 320 + (xxx * 2);
-			if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
-			{
-				address += 0xA000;
-			}
+			//if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
+			//{
+			//	address += 0xA000;
+			//}
 			UInt16 colorall = *(UInt16*)&Memory.VRAM[address];
 			pixels_bg2_1[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixels_bg2_1[x].transparent = false;
@@ -1285,17 +1304,17 @@ void Gpu::draw_obj(int y, int baseaddr)
 		pixels_obj[x].alpha = false;
 	}
 
-	bool one_dim_mapping = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Char_VRAM_Map.on();
+	bool one_dim_mapping = false; // Regs_Arm9.Sect_display9.DISPCNT_OBJ_Char_VRAM_Map.on();
 
 	byte mosaic_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_H_Size.read();
 	byte mosaic_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_V_Size.read();
 
 	int cycles = 0;
 	int pixellimit = 1210;
-	if (Regs_Arm9.Sect_display9.DISPCNT_H_Blank_IntervalFree.on())
-	{
-		pixellimit = 954;
-	}
+	//if (Regs_Arm9.Sect_display9.DISPCNT_H_Blank_IntervalFree.on())
+	//{
+	//	pixellimit = 954;
+	//}
 
 	for (int i = 0; i < 128; i++)
 	{
@@ -1631,12 +1650,12 @@ void Gpu::draw_game()
 		//}
 		//else
 		{
-			for (int y = 0; y < 160; y++)
+			for (int y = 0; y < 192; y++)
 			{
-				for (int x = 0; x < 240; x++)
+				for (int x = 0; x < 256; x++)
 				{
 					unsigned int color = (pixels[x][y].color_red << 16) | (pixels[x][y].color_green << 8) | pixels[x][y].color_blue;
-					buffer[y * 240 + x] = color;
+					buffer[y * 256 + x] = color;
 				}
 			}
 		}

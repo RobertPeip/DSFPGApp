@@ -27,7 +27,7 @@ public:
 	bool countup;
 	int prescale;
 
-	UInt64 next_event_ticks;
+	UInt64 next_event_time;
 
 	UInt16 retval;
 

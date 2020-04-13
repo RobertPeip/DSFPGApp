@@ -18,5 +18,7 @@ public:
 	int codeTicksAccess32(bool isArm9, UInt32 address); // ARM NON SEQ
 	int codeTicksAccessSeq16(bool isArm9, UInt32 address); // THUMB SEQ
 	int codeTicksAccessSeq32(bool isArm9, UInt32 address); // ARM SEQ
+	int dmaTicksAccess16(bool isArm9, UInt32 address);
+	int dmaTicksAccess32(bool isArm9, UInt32 address);
 };
 extern BUSTiming BusTiming;

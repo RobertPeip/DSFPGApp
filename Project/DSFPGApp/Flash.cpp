@@ -65,20 +65,6 @@ void FLASH::flashSaveDecide(UInt32 address, byte data)
 	{
 		return;
 	}
-
-	if (Memory.SramEnabled && Memory.FlashEnabled)
-	{
-		if (address == 0x0e005555)
-		{
-			saveType = SAVETYPE::GBA_SAVE_FLASH;
-			Memory.SramEnabled = false;
-		}
-		else
-		{
-			saveType = SAVETYPE::GBA_SAVE_SRAM;
-			Memory.FlashEnabled = false;
-		}
-	}
 	
 	if (saveType == SAVETYPE::GBA_SAVE_FLASH)
 	{

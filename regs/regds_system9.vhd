@@ -148,7 +148,7 @@ package pReg_ds_system_9 is
    constant MemControl1_VRAM_G_MST                 : regmap_type := (12#244#,  18,     16,        1,        0,   writeonly); -- 
    constant MemControl1_VRAM_G_Offset              : regmap_type := (12#244#,  20,     19,        1,        0,   writeonly); -- 
    constant MemControl1_VRAM_G_Enable              : regmap_type := (12#244#,  23,     23,        1,        0,   writeonly); -- 
-   constant MemControl2_WRAM                       : regmap_type := (12#244#,  25,     24,        1,        0,   readwrite); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
+   constant MemControl2_WRAM                       : regmap_type := (12#244#,  25,     24,        1,        3,   readwrite); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
 
    constant MemControl3                            : regmap_type := (12#248#,  15,      0,        1,        0,   writeonly); -- 
    constant MemControl1_VRAM_H_MST                 : regmap_type := (12#248#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
@@ -173,7 +173,7 @@ package pReg_ds_system_9 is
    constant DIVREM_RESULT_Low                      : regmap_type := (12#2AC#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
          
    constant SQRTCN                                 : regmap_type := (12#280#,  31,      0,        1,        0,   writeonly); -- Square Root Control (R/W)      
-   constant SQRTCN_Division_Mode                   : regmap_type := (12#280#,   0,      0,        1,        0,   readwrite); -- 0     Mode (0=32bit input, 1=64bit input)
+   constant SQRTCN_Mode                            : regmap_type := (12#280#,   0,      0,        1,        0,   readwrite); -- 0     Mode (0=32bit input, 1=64bit input)
    constant SQRTCN_Busy                            : regmap_type := (12#280#,  15,     15,        1,        0,   readonly ); -- 15    Busy (0=Ready, 1=Busy) (Execution time is 13 clks, in either Mode)
    constant SQRT_RESULT                            : regmap_type := (12#2B4#,  31,      0,        1,        0,   readonly ); -- Square Root Result (R)       
    constant SQRT_PARAM_High                        : regmap_type := (12#2B8#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)          
@@ -185,7 +185,7 @@ package pReg_ds_system_9 is
    constant POSTFLG_RW                             : regmap_type := (12#300#,   1,      1,        1,        0,   readwrite); -- Bit1 is read-writeable   
    
    
-   constant POWCNT1                                : regmap_type := (12#304#,  15,      0,        1,        0,   writeonly); -- Graphics Power Control Register (R/W)     
+   constant POWCNT1                                : regmap_type := (12#304#,  15,      0,        1,    33295,   writeonly); -- Graphics Power Control Register (R/W) - default all available bits set
    constant POWCNT1_Enable_Flag_for_both_LCDs      : regmap_type := (12#304#,   0,      0,        1,        0,   readwrite); -- 0     Enable Flag for both LCDs (0=Disable) (Prohibited, see notes)          
    constant POWCNT1_2D_Graphics_Engine_A           : regmap_type := (12#304#,   1,      1,        1,        0,   readwrite); -- 1     2D Graphics Engine A      (0=Disable) (Ports 008h-05Fh, Pal 5000000h)          
    constant POWCNT1_3D_Rendering_Engine            : regmap_type := (12#304#,   2,      2,        1,        0,   readwrite); -- 2     3D Rendering Engine       (0=Disable) (Ports 320h-3FFh)          

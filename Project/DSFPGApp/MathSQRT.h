@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-class MATHDIV
+class MATHSQRT
 {
 public:
 	bool calculating;
@@ -12,4 +12,4 @@ public:
 	void write();
 	void finish();
 };
-extern MATHDIV MathDIV;
+extern MATHSQRT MathSQRT;
