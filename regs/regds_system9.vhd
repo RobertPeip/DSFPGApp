@@ -139,45 +139,45 @@ package pReg_ds_system_9 is
    constant MemControl1_VRAM_D_Enable              : regmap_type := (12#240#,  31,     31,        1,        0,   writeonly); --  
  
    constant MemControl2                            : regmap_type := (12#244#,  25,      0,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_E_MST                 : regmap_type := (12#244#,   2,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
-   constant MemControl1_VRAM_E_Offset              : regmap_type := (12#244#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
-   constant MemControl1_VRAM_E_Enable              : regmap_type := (12#244#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
-   constant MemControl1_VRAM_F_MST                 : regmap_type := (12#244#,  10,      8,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_F_Offset              : regmap_type := (12#244#,  12,     11,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_F_Enable              : regmap_type := (12#244#,  15,     15,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_G_MST                 : regmap_type := (12#244#,  18,     16,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_G_Offset              : regmap_type := (12#244#,  20,     19,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_G_Enable              : regmap_type := (12#244#,  23,     23,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_E_MST                 : regmap_type := (12#244#,   2,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl2_VRAM_E_Offset              : regmap_type := (12#244#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
+   constant MemControl2_VRAM_E_Enable              : regmap_type := (12#244#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
+   constant MemControl2_VRAM_F_MST                 : regmap_type := (12#244#,  10,      8,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_F_Offset              : regmap_type := (12#244#,  12,     11,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_F_Enable              : regmap_type := (12#244#,  15,     15,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_G_MST                 : regmap_type := (12#244#,  18,     16,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_G_Offset              : regmap_type := (12#244#,  20,     19,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_G_Enable              : regmap_type := (12#244#,  23,     23,        1,        0,   writeonly); -- 
    constant MemControl2_WRAM                       : regmap_type := (12#244#,  25,     24,        1,        3,   readwrite); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
 
    constant MemControl3                            : regmap_type := (12#248#,  15,      0,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_H_MST                 : regmap_type := (12#248#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
-   constant MemControl1_VRAM_H_Offset              : regmap_type := (12#248#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
-   constant MemControl1_VRAM_H_Enable              : regmap_type := (12#248#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
-   constant MemControl1_VRAM_I_MST                 : regmap_type := (12#248#,   9,      8,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_I_Offset              : regmap_type := (12#248#,  12,     11,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_I_Enable              : regmap_type := (12#248#,  15,     15,        1,        0,   writeonly); --  
+   constant MemControl3_VRAM_H_MST                 : regmap_type := (12#248#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl3_VRAM_H_Offset              : regmap_type := (12#248#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
+   constant MemControl3_VRAM_H_Enable              : regmap_type := (12#248#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
+   constant MemControl3_VRAM_I_MST                 : regmap_type := (12#248#,   9,      8,        1,        0,   writeonly); -- 
+   constant MemControl3_VRAM_I_Offset              : regmap_type := (12#248#,  12,     11,        1,        0,   writeonly); -- 
+   constant MemControl3_VRAM_I_Enable              : regmap_type := (12#248#,  15,     15,        1,        0,   writeonly); --  
 
     
    constant DIVCNT                                 : regmap_type := (12#280#,  31,      0,        1,        0,   writeonly); -- Division Control (R/W)             
    constant DIVCNT_Division_Mode                   : regmap_type := (12#280#,   1,      0,        1,        0,   readwrite); -- 0-1   Division Mode    (0-2=See below) (3=Reserved; same as Mode 1)
    constant DIVCNT_Division_by_zero                : regmap_type := (12#280#,  14,     14,        1,        0,   readonly ); -- 14    Division by zero (0=Okay, 1=Division by zero error; 64bit Denom=0)
    constant DIVCNT_Busy                            : regmap_type := (12#280#,  15,     15,        1,        0,   readonly ); -- 15    Busy             (0=Ready, 1=Busy) (Execution time see below)
-   constant DIV_NUMER_High                         : regmap_type := (12#290#,  31,      0,        1,        0,   readwrite); -- 64bit Division Numerator (R/W)           
-   constant DIV_NUMER_Low                          : regmap_type := (12#294#,  31,      0,        1,        0,   readwrite); -- 64bit Division Numerator (R/W)      
-   constant DIV_DENOM_High                         : regmap_type := (12#298#,  31,      0,        1,        0,   readwrite); -- 64bit Division Denominator (R/W)   
-   constant DIV_DENOM_Low                          : regmap_type := (12#29C#,  31,      0,        1,        0,   readwrite); -- 64bit Division Denominator (R/W)     
-   constant DIV_RESULT_High                        : regmap_type := (12#2A0#,  31,      0,        1,        0,   readonly ); -- 64bit Division Quotient (=Numer/Denom) (R)
-   constant DIV_RESULT_Low                         : regmap_type := (12#2A4#,  31,      0,        1,        0,   readonly ); -- 64bit Division Quotient (=Numer/Denom) (R)
-   constant DIVREM_RESULT_High                     : regmap_type := (12#2A8#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
-   constant DIVREM_RESULT_Low                      : regmap_type := (12#2AC#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
+   constant DIV_NUMER_Low                          : regmap_type := (12#290#,  31,      0,        1,        0,   readwrite); -- 64bit Division Numerator (R/W)           
+   constant DIV_NUMER_High                         : regmap_type := (12#294#,  31,      0,        1,        0,   readwrite); -- 64bit Division Numerator (R/W)      
+   constant DIV_DENOM_Low                          : regmap_type := (12#298#,  31,      0,        1,        0,   readwrite); -- 64bit Division Denominator (R/W)   
+   constant DIV_DENOM_High                         : regmap_type := (12#29C#,  31,      0,        1,        0,   readwrite); -- 64bit Division Denominator (R/W)     
+   constant DIV_RESULT_Low                         : regmap_type := (12#2A0#,  31,      0,        1,        0,   readonly ); -- 64bit Division Quotient (=Numer/Denom) (R)
+   constant DIV_RESULT_High                        : regmap_type := (12#2A4#,  31,      0,        1,        0,   readonly ); -- 64bit Division Quotient (=Numer/Denom) (R)
+   constant DIVREM_RESULT_Low                      : regmap_type := (12#2A8#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
+   constant DIVREM_RESULT_High                     : regmap_type := (12#2AC#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
          
    constant SQRTCN                                 : regmap_type := (12#280#,  31,      0,        1,        0,   writeonly); -- Square Root Control (R/W)      
    constant SQRTCN_Mode                            : regmap_type := (12#280#,   0,      0,        1,        0,   readwrite); -- 0     Mode (0=32bit input, 1=64bit input)
    constant SQRTCN_Busy                            : regmap_type := (12#280#,  15,     15,        1,        0,   readonly ); -- 15    Busy (0=Ready, 1=Busy) (Execution time is 13 clks, in either Mode)
    constant SQRT_RESULT                            : regmap_type := (12#2B4#,  31,      0,        1,        0,   readonly ); -- Square Root Result (R)       
-   constant SQRT_PARAM_High                        : regmap_type := (12#2B8#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)          
-   constant SQRT_PARAM_Low                         : regmap_type := (12#2BC#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)    
+   constant SQRT_PARAM_Low                         : regmap_type := (12#2B8#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)          
+   constant SQRT_PARAM_High                        : regmap_type := (12#2BC#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)    
    
    
    constant POSTFLG                                : regmap_type := (12#300#,   1,      0,        1,        0,   writeonly); -- Post Boot Flag (R/W)    

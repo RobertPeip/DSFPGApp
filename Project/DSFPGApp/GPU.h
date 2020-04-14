@@ -125,11 +125,11 @@ public:
 	void next_line(byte line);
 	void draw_line(byte y_in);
 	void draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY);
-	void draw_bg_mode2(Pixel pixelslocal[], UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2);
+	void draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, bool extpalette, UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2);
 	void draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool is_bg2);
-	void draw_bg_mode3(Int32 refX, Int32 refY, Int16 dx, Int16 dy);
-	void draw_bg_mode4(Int32 refX, Int32 refY, Int16 dx, Int16 dy);
-	void draw_bg_mode5(Int32 refX, Int32 refY, Int16 dx, Int16 dy);
+	void draw_bg_mode3(Pixel pixelslocal[], Int32 refX, Int32 refY, Int16 dx, Int16 dy);
+	void draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy);
+	void draw_bg_mode5(Pixel pixelslocal[], Int32 refX, Int32 refY, Int16 dx, Int16 dy);
 	void draw_obj(int y, int baseaddr);
 	void draw_game();
 

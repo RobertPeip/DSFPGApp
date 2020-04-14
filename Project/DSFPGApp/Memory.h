@@ -11,10 +11,19 @@ enum class ACCESSTYPE
 	DMA
 };
 
-enum class VRAMMODE
+enum VRAMBANK
 {
-	LCDC,
-	UNDEFINED
+	A, B, C, D, E, F, G, H, I
+};
+
+class VRAMMUX
+{
+public:
+	bool ena9;
+	bool ena7;
+	uint start;
+	uint end;
+	uint vramoffset;
 };
 
 class MEMORY
@@ -50,7 +59,7 @@ public:
 
 	bool gpio_used;
 
-	VRAMMODE vrammode;
+	VRAMMUX vrammux[9];
 
 	void reset(string filename);
 	void GameRAMSnapshot();
@@ -65,6 +74,8 @@ public:
 	void write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess);
 	void write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess);
 	void set_vrammode();
+	void set_single_vrammode(VRAMBANK bank, uint mst, uint OFS);
+	UInt32 get_vram_address(bool isArm9, UInt32 address_in);
 };
 extern MEMORY Memory;
 

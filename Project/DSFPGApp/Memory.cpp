@@ -62,7 +62,21 @@ void MEMORY::reset(string filename)
 	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF808, 0x6ee6); //  header checksum crc16
 
 	wrammux = 3;
-	vrammode = VRAMMODE::LCDC;
+	for (int i = 0; i < 9; i++)
+	{
+		vrammux[i].ena9 = false;
+		vrammux[i].ena7 = false;
+		set_single_vrammode((VRAMBANK)i, 0, 0);
+	}
+	vrammux[0].vramoffset = 0;
+	vrammux[1].vramoffset = 0x20000;
+	vrammux[2].vramoffset = 0x40000;
+	vrammux[3].vramoffset = 0x60000;
+	vrammux[4].vramoffset = 0x80000;
+	vrammux[5].vramoffset = 0x90000;
+	vrammux[6].vramoffset = 0x94000;
+	vrammux[7].vramoffset = 0x98000;
+	vrammux[8].vramoffset = 0xA0000;
 
 	load_gameram(filename);
 }
@@ -282,9 +296,12 @@ byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 	case 5: return Memory.PaletteRAM[address & 0x3FF];
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (adr > 0x17FFF) { adr -= 0x8000; }
-		return Memory.VRAM[adr & 0x1FFFF];
+		adr = Memory.get_vram_address(true, address);
+		if (adr != 0xFFFFFFFF)
+		{
+			return Memory.VRAM[adr];
+		}
+		return 0;
 
 	case 7: return Memory.OAMRAM[address & 0x3FF];
 
@@ -373,9 +390,11 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 	case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x3FF]; break;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (adr > 0x17FFF) { adr -= 0x8000; }
-		value = *(UInt16*)&Memory.VRAM[adr];
+		adr = Memory.get_vram_address(true, address);
+		if (adr != 0xFFFFFFFF)
+		{
+			value = *(UInt16*)&Memory.VRAM[adr];
+		}
 		break;
 
 	case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
@@ -458,9 +477,11 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 	case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x3FF]; break;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (adr > 0x17FFF) { adr -= 0x8000; }
-		value = *(UInt32*)&Memory.VRAM[adr];
+		adr = Memory.get_vram_address(true, address);
+		if (adr != 0xFFFFFFFF)
+		{
+			value = *(UInt32*)&Memory.VRAM[adr];
+		}
 		break;
 
 	case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
@@ -612,16 +633,11 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 6:
-		switch (Memory.vrammode)
+		adr = Memory.get_vram_address(true, address);
+		if (adr != 0xFFFFFFFF)
 		{
-		case VRAMMODE::LCDC:
-			if (address >= 0x6800000 && address <= 0x68A3FFF)
-			{
-				adr = address - 0x6800000;
-				Memory.VRAM[adr] = (byte)(data & 0xFF);
-				Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-			}
-			return;
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
+			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
 		return;
 
@@ -724,18 +740,13 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 6:
-		switch (Memory.vrammode)
+		adr = Memory.get_vram_address(true, address);
+		if (adr != 0xFFFFFFFF)
 		{
-		case VRAMMODE::LCDC:
-			if (address >= 0x6800000 && address <= 0x68A3FFF)
-			{
-				adr = address - 0x6800000;
-				Memory.VRAM[adr] = (byte)(data & 0xFF);
-				Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-				Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-				Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
-			}
-			return;
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
+			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
+			Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
+			Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
 		}
 		return;
 
@@ -818,9 +829,12 @@ byte read_byte_7(ACCESSTYPE accesstype, UInt32 address)
 	case 5: return Memory.PaletteRAM[address & 0x3FF];
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (adr > 0x17FFF) { adr -= 0x8000; }
-		return Memory.VRAM[adr & 0x1FFFF];
+		adr = Memory.get_vram_address(false, address);
+		if (adr != 0xFFFFFFFF)
+		{
+			return Memory.VRAM[adr];
+		}
+		return 0;
 
 	case 7: return Memory.OAMRAM[address & 0x3FF];
 
@@ -920,9 +934,11 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 	case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x3FF]; break;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (adr > 0x17FFF) { adr -= 0x8000; }
-		value = *(UInt16*)&Memory.VRAM[adr];
+		adr = Memory.get_vram_address(false, address);
+		if (adr != 0xFFFFFFFF)
+		{
+			value = *(UInt16*)&Memory.VRAM[adr];
+		}
 		break;
 
 	case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
@@ -1016,9 +1032,11 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 	case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x3FF]; break;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (adr > 0x17FFF) { adr -= 0x8000; }
-		value = *(UInt32*)&Memory.VRAM[adr];
+		adr = Memory.get_vram_address(false, address);
+		if (adr != 0xFFFFFFFF)
+		{
+			value = *(UInt32*)&Memory.VRAM[adr];
+		}
 		break;
 
 	case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
@@ -1093,12 +1111,10 @@ void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data)
 	case 5: Memory.PaletteRAM[address & 0x3FE] = data; Memory.PaletteRAM[(address & 0x3FE) + 1] = data; return;
 
 	case 6:
-		adr = address & 0x1FFFE;
-		if ((GPU.videomode <= 2 && adr <= 0xFFFF) || GPU.videomode >= 3 && adr <= 0x013FFF)
+		adr = Memory.get_vram_address(false, address);
+		if (adr != 0xFFFFFFFF)
 		{
-			if (adr > 0x17FFF) { adr -= 0x8000; }
-			Memory.VRAM[adr] = data;
-			Memory.VRAM[adr + 1] = data;
+			Memory.VRAM[adr] = (byte)(data & 0xFF);
 		}
 		return;
 
@@ -1173,10 +1189,9 @@ void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
+		adr = Memory.get_vram_address(false, address);
+		if (adr != 0xFFFFFFFF)
 		{
-			if (adr > 0x17FFF) { adr -= 0x8000; }
 			Memory.VRAM[adr] = (byte)(data & 0xFF);
 			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
@@ -1276,10 +1291,9 @@ void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 6:
-		adr = address & 0x1FFFF;
-		if (GPU.videomode < 3 || ((address & 0x1C000) != 0x18000))
+		adr = Memory.get_vram_address(false, address);
+		if (adr != 0xFFFFFFFF)
 		{
-			if (adr > 0x17FFF) { adr -= 0x8000; }
 			Memory.VRAM[adr] = (byte)(data & 0xFF);
 			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 			Memory.VRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
@@ -1362,16 +1376,11 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	} 
 
 	if (adr == Regs_Arm9.Sect_system9.MemControl2_WRAM.address + 2) { Regs_Arm7.Sect_system7.MemControl2_WRAM.write(Regs_Arm9.Sect_system9.MemControl2_WRAM.read()); } // no return as check below
-	if (adr == Regs_Arm9.Sect_system9.MemControl1.address && adr < Regs_Arm9.Sect_system9.MemControl3.address + 4)
-	{	
-		set_vrammode();
-		return;
-	}
+	if (adr >= Regs_Arm9.Sect_system9.MemControl1.address && adr < Regs_Arm9.Sect_system9.MemControl3.address + 4) { set_vrammode(); return; }
 
-
-	if (adr >= Regs_Arm9.Sect_system9.DIVCNT.address && adr < Regs_Arm9.Sect_system9.DIV_DENOM_Low.address + 4) { MathDIV.write(); return; }
+	if (adr >= Regs_Arm9.Sect_system9.DIVCNT.address && adr < Regs_Arm9.Sect_system9.DIV_DENOM_High.address + 4) { MathDIV.write(); return; }
 	if (adr >= Regs_Arm9.Sect_system9.SQRTCN.address && adr < Regs_Arm9.Sect_system9.SQRTCN.address + 4) { MathSQRT.write(); return; }
-	if (adr >= Regs_Arm9.Sect_system9.SQRT_PARAM_High.address && adr < Regs_Arm9.Sect_system9.SQRT_PARAM_Low.address + 4) { MathSQRT.write(); return; }
+	if (adr >= Regs_Arm9.Sect_system9.SQRT_PARAM_Low.address && adr < Regs_Arm9.Sect_system9.SQRT_PARAM_High.address + 4) { MathSQRT.write(); return; }
 }
 
 void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
@@ -1411,18 +1420,216 @@ void MEMORY::set_vrammode()
 	uint mst_b = Regs_Arm9.Sect_system9.MemControl1_VRAM_B_MST.read();
 	uint mst_c = Regs_Arm9.Sect_system9.MemControl1_VRAM_C_MST.read();
 	uint mst_d = Regs_Arm9.Sect_system9.MemControl1_VRAM_D_MST.read();
-	uint mst_e = Regs_Arm9.Sect_system9.MemControl1_VRAM_E_MST.read();
-	uint mst_f = Regs_Arm9.Sect_system9.MemControl1_VRAM_F_MST.read();
-	uint mst_g = Regs_Arm9.Sect_system9.MemControl1_VRAM_G_MST.read();
-	uint mst_h = Regs_Arm9.Sect_system9.MemControl1_VRAM_H_MST.read();
-	uint mst_i = Regs_Arm9.Sect_system9.MemControl1_VRAM_I_MST.read();
+	uint mst_e = Regs_Arm9.Sect_system9.MemControl2_VRAM_E_MST.read();
+	uint mst_f = Regs_Arm9.Sect_system9.MemControl2_VRAM_F_MST.read();
+	uint mst_g = Regs_Arm9.Sect_system9.MemControl2_VRAM_G_MST.read();
+	uint mst_h = Regs_Arm9.Sect_system9.MemControl3_VRAM_H_MST.read();
+	uint mst_i = Regs_Arm9.Sect_system9.MemControl3_VRAM_I_MST.read();
 
-	if (mst_a == 0 && mst_b == 0 && mst_c == 0 && mst_d == 0 && mst_e == 0 && mst_f == 0 && mst_g == 0 && mst_h == 0 && mst_i == 0)
+	uint offset_a = Regs_Arm9.Sect_system9.MemControl1_VRAM_A_Offset.read();
+	uint offset_b = Regs_Arm9.Sect_system9.MemControl1_VRAM_B_Offset.read();
+	uint offset_c = Regs_Arm9.Sect_system9.MemControl1_VRAM_C_Offset.read();
+	uint offset_d = Regs_Arm9.Sect_system9.MemControl1_VRAM_D_Offset.read();
+	uint offset_e = Regs_Arm9.Sect_system9.MemControl2_VRAM_E_Offset.read();
+	uint offset_f = Regs_Arm9.Sect_system9.MemControl2_VRAM_F_Offset.read();
+	uint offset_g = Regs_Arm9.Sect_system9.MemControl2_VRAM_G_Offset.read();
+	uint offset_h = Regs_Arm9.Sect_system9.MemControl3_VRAM_H_Offset.read();
+	uint offset_i = Regs_Arm9.Sect_system9.MemControl3_VRAM_I_Offset.read();
+
+	bool ena_a = Regs_Arm9.Sect_system9.MemControl1_VRAM_A_Enable.on();
+	bool ena_b = Regs_Arm9.Sect_system9.MemControl1_VRAM_B_Enable.on();
+	bool ena_c = Regs_Arm9.Sect_system9.MemControl1_VRAM_C_Enable.on();
+	bool ena_d = Regs_Arm9.Sect_system9.MemControl1_VRAM_D_Enable.on();
+	bool ena_e = Regs_Arm9.Sect_system9.MemControl2_VRAM_E_Enable.on();
+	bool ena_f = Regs_Arm9.Sect_system9.MemControl2_VRAM_F_Enable.on();
+	bool ena_g = Regs_Arm9.Sect_system9.MemControl2_VRAM_G_Enable.on();
+	bool ena_h = Regs_Arm9.Sect_system9.MemControl3_VRAM_H_Enable.on();
+	bool ena_i = Regs_Arm9.Sect_system9.MemControl3_VRAM_I_Enable.on();
+
+	for (int i = 0; i < 9; i++)
 	{
-		vrammode = VRAMMODE::LCDC;
+		vrammux[i].ena9 = false;
+		vrammux[i].ena7 = false;
 	}
-	else
+
+	if (ena_a) set_single_vrammode(VRAMBANK::A, mst_a, offset_a);
+	if (ena_b) set_single_vrammode(VRAMBANK::B, mst_b, offset_b);
+	if (ena_c) set_single_vrammode(VRAMBANK::C, mst_c, offset_c);
+	if (ena_d) set_single_vrammode(VRAMBANK::D, mst_d, offset_d);
+	if (ena_e) set_single_vrammode(VRAMBANK::E, mst_e, offset_e);
+	if (ena_f) set_single_vrammode(VRAMBANK::F, mst_f, offset_f);
+	if (ena_g) set_single_vrammode(VRAMBANK::G, mst_g, offset_g);
+	if (ena_h) set_single_vrammode(VRAMBANK::H, mst_h, offset_h);
+	if (ena_i) set_single_vrammode(VRAMBANK::I, mst_i, offset_i);
+}
+
+void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
+{
+	int i = (int)bank;
+
+	switch (bank)
 	{
-		vrammode = VRAMMODE::UNDEFINED;
+	case VRAMBANK::A:
+	case VRAMBANK::B:
+		switch (mst)
+		{
+		case 0: //LCDC
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6800000 + i * 0x20000;
+			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			break;
+		case 1: // ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6000000 + OFS * 0x20000;
+			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			break;
+		case 2: // ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
+			if (OFS < 2)
+			{
+				vrammux[i].ena9 = true;
+				vrammux[i].start = 0x6400000 + OFS * 0x20000;
+				vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			}
+			break;
+		}
+		break;
+
+	case VRAMBANK::C:
+	case VRAMBANK::D:
+		switch (mst)
+		{
+		case 0: //LCDC
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6800000 + i * 0x20000;
+			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			break;
+		case 1: // ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6000000 + i * 0x20000;
+			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			break;
+		case 2: // <ARM7>, Plain <ARM7>-CPU Access
+			if (OFS < 2)
+			{
+				vrammux[i].ena7 = true;
+				vrammux[i].start = 0x6000000 + OFS * 0x20000;
+				vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			}
+			break;
+		case 4: // ARM9, 2D Graphics Engine B, BG - VRAM(max 128K) (C) - ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K) (D)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6200000 + (i - 2) * 0x400000;
+			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+		}
+		break;
+
+
+	case VRAMBANK::E:
+		switch (mst)
+		{
+		case 0: //LCDC
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6880000;
+			vrammux[i].end = vrammux[i].start + 0xFFFF;
+			break;
+		case 1: // ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6000000;
+			vrammux[i].end = vrammux[i].start + 0xFFFF;
+			break;
+		case 2: // ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6400000;
+			vrammux[i].end = vrammux[i].start + 0xFFFF;
+			break;
+		}
+		break;
+
+	case VRAMBANK::F:
+	case VRAMBANK::G:
+		switch (mst)
+		{
+		case 0: //LCDC
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6890000 + 0x4000 * (i - 5);
+			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			break;
+		case 1: // ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)
+			vrammux[i].ena9 = true;
+			switch (OFS)
+			{
+			case 0: vrammux[i].start = 0x6000000; break;
+			case 1: vrammux[i].start = 0x6004000; break;
+			case 2: vrammux[i].start = 0x6010000; break;
+			case 3: vrammux[i].start = 0x6014000; break;
+			}
+			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			break;
+		case 2: // ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
+			vrammux[i].ena9 = true;
+			switch (OFS)
+			{
+			case 0: vrammux[i].start = 0x6400000; break;
+			case 1: vrammux[i].start = 0x6404000; break;
+			case 2: vrammux[i].start = 0x6410000; break;
+			case 3: vrammux[i].start = 0x6414000; break;
+			}
+			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			break;
+		}
+		break;
+
+	case VRAMBANK::H:
+		switch (mst)
+		{
+		case 0: //LCDC
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6898000;
+			vrammux[i].end = vrammux[i].start + 0x7FFF;
+			break;
+		case 1: //ARM9, 2D Graphics Engine B, BG-VRAM (max 128K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6200000;
+			vrammux[i].end = vrammux[i].start + 0x7FFF;
+			break;
+		}
+		break;
+
+	case VRAMBANK::I:
+		switch (mst)
+		{
+		case 0: //LCDC
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x68A0000;
+			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			break;
+		case 1: //ARM9, 2D Graphics Engine B, BG-VRAM (max 128K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6208000;
+			vrammux[i].end = vrammux[i].start + 0x3FFF;
+		case 2: //ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K)
+			vrammux[i].ena9 = true;
+			vrammux[i].start = 0x6600000;
+			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			break;
+		}
+		break;
+
 	}
+}
+
+UInt32 MEMORY::get_vram_address(bool isArm9, UInt32 address_in)
+{
+	for (int i = 0; i < 9; i++)
+	{
+		if ((isArm9 && vrammux[i].ena9) || (!isArm9 && vrammux[i].ena7))
+		{
+			if (address_in >= vrammux[i].start && address_in <= vrammux[i].end)
+			{
+				return vrammux[i].vramoffset + (address_in - vrammux[i].start);
+			}
+		}
+	}
+
+	return 0xFFFFFFFF;
 }

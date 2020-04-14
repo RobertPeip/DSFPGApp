@@ -1577,6 +1577,10 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 			address += 4;
 			if (!isArm9) newticks += 4;
 			if (newticks < 4) newticks = 4;
+			if (isArm9)
+			{
+				thumbmode = (PC & 1) == 1;
+			}
 		}
 		else
 		{
@@ -1630,7 +1634,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 						writeval += 4;
 					}
 				}
-				if (!first && i == Rn_op1) // baseaddress register usually changed if written as second or later!
+				if (!isArm9 && !first && i == Rn_op1) // baseaddress register usually changed if written as second or later! - only for ArmV4
 				{
 					writeval = endaddress_baserlist;
 				}
@@ -1751,7 +1755,22 @@ void Cpu::single_data_transfer(bool use_imm, byte opcode, byte opcode_low, bool 
 			//newticks = 3; // +BusTiming.codeTicksAccess32(isArm9, PC) + BusTiming.codeTicksAccessSeq32(isArm9, PC);
 			if (!isArm9) newticks += 5;
 			if (newticks < 5) newticks = 5;
-			PC -= 4;
+			if (isArm9)
+			{
+				thumbmode = (regs[Rdest] & 1) == 1;
+				if (thumbmode)
+				{
+					PC -= 2;
+				}
+				else
+				{
+					PC -= 4;
+				}
+			}
+			else
+			{
+				PC -= 4;
+			}
 		}
 		else
 		{

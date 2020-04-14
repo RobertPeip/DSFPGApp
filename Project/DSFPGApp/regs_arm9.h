@@ -1435,39 +1435,39 @@ public:
     /// <summary>
     /// Bit2 not used by VRAM-A,B,H,I
     /// </summary>
-    DSReg MemControl1_VRAM_E_MST;
+    DSReg MemControl2_VRAM_E_MST;
     /// <summary>
     /// Offset not used by VRAM-E,H,I
     /// </summary>
-    DSReg MemControl1_VRAM_E_Offset;
+    DSReg MemControl2_VRAM_E_Offset;
     /// <summary>
     /// (0=Disable, 1=Enable)
     /// </summary>
-    DSReg MemControl1_VRAM_E_Enable;
+    DSReg MemControl2_VRAM_E_Enable;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_F_MST;
+    DSReg MemControl2_VRAM_F_MST;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_F_Offset;
+    DSReg MemControl2_VRAM_F_Offset;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_F_Enable;
+    DSReg MemControl2_VRAM_F_Enable;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_G_MST;
+    DSReg MemControl2_VRAM_G_MST;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_G_Offset;
+    DSReg MemControl2_VRAM_G_Offset;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_G_Enable;
+    DSReg MemControl2_VRAM_G_Enable;
     /// <summary>
     /// (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
     /// </summary>
@@ -1479,27 +1479,27 @@ public:
     /// <summary>
     /// Bit2 not used by VRAM-A,B,H,I
     /// </summary>
-    DSReg MemControl1_VRAM_H_MST;
+    DSReg MemControl3_VRAM_H_MST;
     /// <summary>
     /// Offset not used by VRAM-E,H,I
     /// </summary>
-    DSReg MemControl1_VRAM_H_Offset;
+    DSReg MemControl3_VRAM_H_Offset;
     /// <summary>
     /// (0=Disable, 1=Enable)
     /// </summary>
-    DSReg MemControl1_VRAM_H_Enable;
+    DSReg MemControl3_VRAM_H_Enable;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_I_MST;
+    DSReg MemControl3_VRAM_I_MST;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_I_Offset;
+    DSReg MemControl3_VRAM_I_Offset;
     /// <summary>
     /// 
     /// </summary>
-    DSReg MemControl1_VRAM_I_Enable;
+    DSReg MemControl3_VRAM_I_Enable;
     /// <summary>
     /// Division Control (R/W)
     /// </summary>
@@ -1519,35 +1519,35 @@ public:
     /// <summary>
     /// 64bit Division Numerator (R/W)
     /// </summary>
-    DSReg DIV_NUMER_High;
+    DSReg DIV_NUMER_Low;
     /// <summary>
     /// 64bit Division Numerator (R/W)
     /// </summary>
-    DSReg DIV_NUMER_Low;
-    /// <summary>
-    /// 64bit Division Denominator (R/W)
-    /// </summary>
-    DSReg DIV_DENOM_High;
+    DSReg DIV_NUMER_High;
     /// <summary>
     /// 64bit Division Denominator (R/W)
     /// </summary>
     DSReg DIV_DENOM_Low;
     /// <summary>
-    /// 64bit Division Quotient (=Numer/Denom) (R)
+    /// 64bit Division Denominator (R/W)
     /// </summary>
-    DSReg DIV_RESULT_High;
+    DSReg DIV_DENOM_High;
     /// <summary>
     /// 64bit Division Quotient (=Numer/Denom) (R)
     /// </summary>
     DSReg DIV_RESULT_Low;
     /// <summary>
-    /// 64bit Remainder (=Numer MOD Denom) (R)
+    /// 64bit Division Quotient (=Numer/Denom) (R)
     /// </summary>
-    DSReg DIVREM_RESULT_High;
+    DSReg DIV_RESULT_High;
     /// <summary>
     /// 64bit Remainder (=Numer MOD Denom) (R)
     /// </summary>
     DSReg DIVREM_RESULT_Low;
+    /// <summary>
+    /// 64bit Remainder (=Numer MOD Denom) (R)
+    /// </summary>
+    DSReg DIVREM_RESULT_High;
     /// <summary>
     /// Square Root Control (R/W)
     /// </summary>
@@ -1567,11 +1567,11 @@ public:
     /// <summary>
     /// Square Root Parameter Input (R/W)
     /// </summary>
-    DSReg SQRT_PARAM_High;
+    DSReg SQRT_PARAM_Low;
     /// <summary>
     /// Square Root Parameter Input (R/W)
     /// </summary>
-    DSReg SQRT_PARAM_Low;
+    DSReg SQRT_PARAM_High;
     /// <summary>
     /// Post Boot Flag (R/W)
     /// </summary>

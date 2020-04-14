@@ -37,7 +37,7 @@ int BUSTiming::dataTicksAccess816(bool isArm9, bool is8Bit, UInt32 address, bool
 			else
 			{
 				int ticks = 0;
-				if (address == lastAddress + 2)
+				if ((is8Bit && address == lastAddress + 1) || (!is8Bit && address == lastAddress + 2))
 				{
 					ticks = 2;
 				}
