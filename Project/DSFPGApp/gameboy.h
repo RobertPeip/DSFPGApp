@@ -18,6 +18,7 @@ public:
 	string statefilename;
 	bool do_savestate = false;
 	bool do_loadstate = false;
+	bool do_exportmem = false;
 	bool loading_state;
 	UInt32 savestate[131072];
 
@@ -26,5 +27,6 @@ public:
 	UInt64 next_event_time();
 	void create_savestate();
 	void load_savestate();
+	void exportmem();
 };
 extern Gameboy gameboy;

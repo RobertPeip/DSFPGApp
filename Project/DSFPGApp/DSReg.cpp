@@ -9,7 +9,7 @@ DSReg::DSReg()
     msb = 0;
 }
 
-DSReg::DSReg(UInt32 address, byte msb, byte lsb, UInt16 count, UInt32 defaultvalue, string accesstype, byte data[])
+DSReg::DSReg(UInt32 address, byte msb, byte lsb, UInt16 count, UInt32 defaultvalue, string accesstype, string name, byte data[])
 {
     this->address = address;
     this->msb = msb;
@@ -17,6 +17,7 @@ DSReg::DSReg(UInt32 address, byte msb, byte lsb, UInt16 count, UInt32 defaultval
     this->count = count;
     this->defaultvalue = defaultvalue;
 	this->data = data;
+	this->name = name;
 }
 
 void DSReg::write(UInt32 value)

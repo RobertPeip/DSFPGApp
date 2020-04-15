@@ -1627,6 +1627,8 @@ public:
 
     byte data[4208];
     byte rwmask[4208];
+    const int allregcount = 394;
+    DSReg allregs[394];
 
     void reset();
 };

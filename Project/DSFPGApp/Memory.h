@@ -21,9 +21,12 @@ class VRAMMUX
 public:
 	bool ena9;
 	bool ena7;
+	uint MST;
 	uint start;
 	uint end;
 	uint vramoffset;
+	uint gpustart;
+	uint gpuend;
 };
 
 class MEMORY

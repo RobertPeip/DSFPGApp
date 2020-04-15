@@ -86,6 +86,15 @@ void savestate_todisk(string filename)
 	FileIO.writefile(gameboy.savestate, savefilename, 131072 * 4,false);
 }
 
+void exportmem()
+{
+	gameboy.do_exportmem = true;
+	while (gameboy.do_exportmem)
+	{
+		SDL_Delay(1);
+	}
+}
+
 void openrom()
 {
 	if (gameboy.filename != "")
@@ -306,12 +315,14 @@ void drawer()
 
 				Joypad.KeyA = keystate[SDL_SCANCODE_A] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
 				Joypad.KeyB = keystate[SDL_SCANCODE_S] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
-				Joypad.KeyAToggle = keystate[SDL_SCANCODE_D];
-				Joypad.KeyBToggle = keystate[SDL_SCANCODE_F];
+				Joypad.KeyAToggle = keystate[SDL_SCANCODE_F];
+				Joypad.KeyBToggle = keystate[SDL_SCANCODE_G];
 				Joypad.KeyL = keystate[SDL_SCANCODE_Q] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
 				Joypad.KeyR = keystate[SDL_SCANCODE_W] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-				Joypad.KeyStart = keystate[SDL_SCANCODE_X] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
-				Joypad.KeySelect = keystate[SDL_SCANCODE_Y] | keystate[SDL_SCANCODE_Z] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+				Joypad.KeyStart = keystate[SDL_SCANCODE_D] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+				Joypad.KeySelect = keystate[SDL_SCANCODE_C] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+				Joypad.KeyX = keystate[SDL_SCANCODE_X] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+				Joypad.KeyY = keystate[SDL_SCANCODE_Y] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 				Joypad.KeyLeft = keystate[SDL_SCANCODE_LEFT] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 				Joypad.KeyRight = keystate[SDL_SCANCODE_RIGHT] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 				Joypad.KeyUp = keystate[SDL_SCANCODE_UP] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
@@ -350,6 +361,10 @@ void drawer()
 				if (keystate[SDL_SCANCODE_F10])
 				{
 					loadstate_fromdisk_auto(gameboy.filename);
+				}
+				if (keystate[SDL_SCANCODE_F3])
+				{
+					exportmem();
 				}
 
 				if (keystate[SDL_SCANCODE_SPACE] || keystate[SDL_SCANCODE_0] || SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y))

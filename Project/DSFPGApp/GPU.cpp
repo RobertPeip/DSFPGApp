@@ -83,6 +83,9 @@ void Gpu::reset()
 	videomode = 0;
 	displaymode = 0;
 
+	ext_palette_bg = false;
+	ext_palette_obj = false;
+
 	frametimeleft = FRAMETIME;
 	//stopwatch_frame.Start();
 }
@@ -91,6 +94,9 @@ void Gpu::dispcnt_write()
 {
 	videomode = (byte)Regs_Arm9.Sect_display9.DISPCNT_BG_Mode.read();
 	displaymode = (byte)Regs_Arm9.Sect_display9.DISPCNT_Display_Mode.read();
+
+	ext_palette_bg = Regs_Arm9.Sect_display9.DISPCNT_BG_Extended_Palettes.on();
+	ext_palette_obj = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Extended_Palettes.on();
 
 	bool new_forcedblank = Regs_Arm9.Sect_display9.DISPCNT_Forced_Blank.on();
 	if (forcedblank && !new_forcedblank)
@@ -336,19 +342,16 @@ void Gpu::draw_line(byte y_in)
 						pixels_bg0[x].prio = prio_bg0;
 						pixels_bg0[x].transparent = true;
 					}
-					switch (videomode)
+					if (videomode < 6)
 					{
-					case 0:
-					case 1:
 						draw_bg_mode0(pixels_bg0,
 							y,
 							Regs_Arm9.Sect_display9.BG0CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG0CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG0CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 							Regs_Arm9.Sect_display9.BG0CNT_Colors_Palettes.on(),
 							(byte)Regs_Arm9.Sect_display9.BG0CNT_Screen_Size.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG0HOFS.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG0VOFS.read());
-						break;
 					}
 					if (mosaic_on)
 					{
@@ -385,19 +388,16 @@ void Gpu::draw_line(byte y_in)
 						pixels_bg1[x].prio = prio_bg1;
 						pixels_bg1[x].transparent = true;
 					}
-					switch (videomode)
+					if (videomode < 6)
 					{
-					case 0:
-					case 1:
 						draw_bg_mode0(pixels_bg1,
 							y,
 							Regs_Arm9.Sect_display9.BG1CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG1CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG1CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 							Regs_Arm9.Sect_display9.BG1CNT_Colors_Palettes.on(),
 							(byte)Regs_Arm9.Sect_display9.BG1CNT_Screen_Size.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG1HOFS.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG1VOFS.read());
-						break;
 					}
 					if (mosaic_on)
 					{
@@ -442,23 +442,24 @@ void Gpu::draw_line(byte y_in)
 					switch (videomode)
 					{
 					case 0:
+					case 1:
+					case 3:
 						draw_bg_mode0(pixels_bg2_1,
 							y,
 							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 							Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.on(),
 							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG2HOFS.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG2VOFS.read());
 						break;
-					case 1:
 					case 2:
+					case 4:
 						draw_bg_mode2(pixels_bg2_1,
 							2,
 							false,
-							Regs_Arm9.Sect_display9.DISPCNT_BG_Extended_Palettes.on(),
 							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 							Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
 							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
 							ref2_x,
@@ -474,9 +475,8 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode2(pixels_bg2_2,
 								2,
 								false,
-								Regs_Arm9.Sect_display9.DISPCNT_BG_Extended_Palettes.on(),
 								Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-								Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read(),
+								Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
 								(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
 								ref2_x + BG2_DMX / 2,
@@ -487,30 +487,48 @@ void Gpu::draw_line(byte y_in)
 								true);
 						}
 						break;
-					case 3:
-						draw_bg_mode3(
-							pixels_bg2_1,
-							ref2_x,
-							ref2_y,
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
-						break;
-					case 4:
-						draw_bg_mode4(
-							pixels_bg2_1,
-							false,
-							ref2_x,
-							ref2_y,
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
-						break;
 					case 5:
-						draw_bg_mode5(
-							pixels_bg2_1,
-							ref2_x,
-							ref2_y,
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+						switch ((Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.read() * 2) + (Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() & 1))
+						{
+						case 0: //rot / scal with 16bit bgmap entries(Text + Affine mixup)
+						case 1:
+							draw_bg_mode2(pixels_bg2,
+								3,
+								true,
+								Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
+								Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
+								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+								(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+								ref2_x,
+								ref2_y,
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
+								false,
+								false);
+							break;
+
+						case 2: // rot/scal 256 color bitmap
+							draw_bg_mode4(
+								pixels_bg2,
+								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+								ref2_x,
+								ref2_y,
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+							break;
+
+						case 3: // rot/scal direct color bitmap
+							draw_bg_mode5(
+								pixels_bg2,
+								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+								ref2_x,
+								ref2_y,
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
+								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+							break;
+						}
+						break;
+					case 6: // large
 						break;
 					}
 					if (mosaic_on)
@@ -558,19 +576,19 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode0(pixels_bg3,
 							y,
 							Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 							Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.on(),
 							(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG3HOFS.read(),
 							(UInt16)Regs_Arm9.Sect_display9.BG3VOFS.read());
 						break;
+					case 1:
 					case 2:
 						draw_bg_mode2(pixels_bg3,
 							3,
 							false,
-							Regs_Arm9.Sect_display9.DISPCNT_BG_Extended_Palettes.on(),
 							Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read(),
+							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 							Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
 							(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
 							ref3_x,
@@ -581,15 +599,15 @@ void Gpu::draw_line(byte y_in)
 							false);
 						break;
 					case 3:
-						uint extended_mode = (Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.read() * 2) + (Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() & 1);
-						switch (extended_mode)
+					case 4:
+					case 5:
+						switch ((Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.read() * 2) + (Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() & 1))
 						{
 						case 0: //rot / scal with 16bit bgmap entries(Text + Affine mixup)
 						case 1:
 							draw_bg_mode2(pixels_bg3,
 								3,
 								true,
-								Regs_Arm9.Sect_display9.DISPCNT_BG_Extended_Palettes.on(),
 								Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
 								Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
 								Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
@@ -613,6 +631,13 @@ void Gpu::draw_line(byte y_in)
 							break;
 
 						case 3: // rot/scal direct color bitmap
+							draw_bg_mode5(
+								pixels_bg3,
+								Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
+								ref3_x,
+								ref3_y,
+								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
+								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read());
 							break;
 						}
 					}
@@ -653,7 +678,7 @@ void Gpu::draw_line(byte y_in)
 			}
 			if (spriteon)
 			{
-				draw_obj(y, 0x10000);
+				draw_obj(y, 0);
 			}
 
 			////////////////////////
@@ -969,6 +994,20 @@ void Gpu::draw_line(byte y_in)
 	}
 }
 
+uint Gpu::get_mapped_bg_address(uint address_in)
+{
+	for (int i = 0; i < 7; i++) // A..G
+	{
+		if (Memory.vrammux[i].MST == 1)
+		{
+			if (address_in >= Memory.vrammux[i].gpustart && address_in <= Memory.vrammux[i].gpuend)
+			{
+				return Memory.vrammux[i].vramoffset + (address_in - Memory.vrammux[i].gpustart);
+			}
+		}
+	}
+}
+
 void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY)
 {
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
@@ -1027,7 +1066,13 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tile
 		}
 		tileindex += offset_y + (x_scrolled / 8);
 
-		UInt16 tileinfo = *(UInt16*)&Memory.VRAM[min(mapbaseaddr + (tileindex * 2), 0x17FFF)];
+		UInt16 tileinfo = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(mapbaseaddr + (tileindex * 2))];
+
+		if (tileinfo != 0)
+		{
+			int a = 5;
+		}
+
 		UInt16 tilenr = (UInt16)(tileinfo & 0x3FF);
 		bool horflip = ((tileinfo >> 10) & 1) == 1;
 		bool verflip = ((tileinfo >> 11) & 1) == 1;
@@ -1048,8 +1093,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tile
 		{
 			pixeladdr += y_scrolled % 8 * x_size;
 		}
-		pixeladdr = min(pixeladdr, 0x17FFF);
-		byte colordata = Memory.VRAM[pixeladdr];
+		byte colordata = Memory.VRAM[get_mapped_bg_address(pixeladdr)];
 
 		if (!hicolor)
 		{
@@ -1082,7 +1126,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tile
 	}
 }
 
-void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, bool extpalette, UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2)
+void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2)
 {
 	if (SSAA4x)
 	{
@@ -1186,7 +1230,7 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, bool ex
 			byte colordata = Memory.VRAM[tilebaseaddr + pixeladdr];
 
 			UInt16 colorall = 0;
-			if (extpalette)
+			if (ext_palette_bg)
 			{
 				colorall = *(UInt16*)&Memory.VRAM[0x80000 + 0x2000 * engine + palette * 512 + colordata * 2];
 			}
@@ -1335,29 +1379,6 @@ void Gpu::draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tileb
 	}
 }
 
-void Gpu::draw_bg_mode3(Pixel pixelslocal[], Int32 refX, Int32 refY, Int16 dx, Int16 dy)
-{
-	int realX = refX;
-	int realY = refY;
-	int xxx = (realX >> 8);
-	int yyy = (realY >> 8);
-
-	for (int x = 0; x < 256; x++)
-	{
-		if (xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 192)
-		{
-			int address = yyy * 512 + (xxx * 2);
-			UInt16 colorall = *(UInt16*)&Memory.VRAM[address];
-			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
-			pixelslocal[x].transparent = false;
-		}
-		realX += dx;
-		realY += dy;
-		xxx = (realX >> 8);
-		yyy = (realY >> 8);
-	}
-}
-
 void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 {
 	int realX = refX;
@@ -1391,7 +1412,7 @@ void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 	}
 }
 
-void Gpu::draw_bg_mode5(Pixel pixelslocal[], Int32 refX, Int32 refY, Int16 dx, Int16 dy)
+void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 {
 	int realX = refX;
 	int realY = refY;
@@ -1400,14 +1421,14 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], Int32 refX, Int32 refY, Int16 dx, I
 
 	for (int x = 0; x < 256; x++)
 	{
-		if (xxx >= 0 && yyy >= 0 && xxx < 160 && yyy < 128)
+		if (wrap || xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 256)
 		{
-			int address = yyy * 320 + (xxx * 2);
+			int address = yyy * 512 + (xxx * 2);
 			//if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
 			//{
 			//	address += 0xA000;
 			//}
-			UInt16 colorall = *(UInt16*)&Memory.VRAM[address];
+			UInt16 colorall = *(UInt16*)&Memory.VRAM[address & 0x1FFFF];
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixelslocal[x].transparent = false;
 		}
@@ -1415,6 +1436,20 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], Int32 refX, Int32 refY, Int16 dx, I
 		realY += dy;
 		xxx = (realX >> 8);
 		yyy = (realY >> 8);
+	}
+}
+
+uint Gpu::get_mapped_obj_extpalette_address(uint address_in)
+{
+	for (int i = 5; i < 7; i++) // F..G
+	{
+		if (Memory.vrammux[i].MST == 5)
+		{
+			if (address_in >= Memory.vrammux[i].gpustart && address_in <= Memory.vrammux[i].gpuend)
+			{
+				return Memory.vrammux[i].vramoffset + (address_in - Memory.vrammux[i].gpustart);
+			}
+		}
 	}
 }
 
@@ -1427,7 +1462,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 		pixels_obj[x].alpha = false;
 	}
 
-	bool one_dim_mapping = false; // Regs_Arm9.Sect_display9.DISPCNT_OBJ_Char_VRAM_Map.on();
+	bool one_dim_mapping = Regs_Arm9.Sect_display9.DISPCNT_Tile_OBJ_Mapping.on();
 
 	byte mosaic_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_H_Size.read();
 	byte mosaic_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_V_Size.read();
@@ -1441,11 +1476,6 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 	for (int i = 0; i < 128; i++)
 	{
-		if (i == 0 && y == 50)
-		{
-			int a = 5;
-		}
-
 		UInt16 Atr0 = *(UInt16*)&Memory.OAMRAM[i * 8];
 		if (((Atr0 >> 8) & 1) == 1 || ((Atr0 >> 9) & 1) == 0) // rot/scale or disable
 		{
@@ -1609,7 +1639,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 					int target = x + posX;
 					bool second_pix = false;
-					if (target > 239) { break; }
+					if (target > 255) { break; }
 					if (target >= 0)
 					{
 						if (mosaic_on && mosaik_h_cnt > 0 && (target - mosaik_h_cnt) >= 0)
@@ -1658,17 +1688,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 							if (pixeladdr_X >= 0)
 							{
-								byte colordata;
-								if (pixeladdr_X < 0x14000 && videomode >= 3)
-								{
-									colordata = 0;
-								}
-								else
-								{
-									pixeladdr_X = pixeladdr_X & 0x7FFF;
-									pixeladdr_X += 0x10000;
-									colordata = Memory.VRAM[pixeladdr_X];
-								}
+								byte colordata = Memory.VRAM[pixeladdr_X];
 
 								if (!hicolor)
 								{
@@ -1707,7 +1727,12 @@ void Gpu::draw_obj(int y, int baseaddr)
 									if (pixels_obj[target].undrawn || pixels_obj[target].transparent || prio < pixels_obj[target].prio)
 									{
 										UInt16 colorall;
-										if (!hicolor)
+										if (ext_palette_obj)
+										{
+											byte palette = (byte)(Atr2 >> 12);
+											colorall = *(UInt16*)&Memory.VRAM[get_mapped_obj_extpalette_address(palette * 512 + colordata * 2)];
+										}
+										else if (!hicolor)
 										{
 											byte palette = (byte)(Atr2 >> 12);
 											colorall = *(UInt16*)&Memory.PaletteRAM[512 + palette * 32 + colordata * 2];

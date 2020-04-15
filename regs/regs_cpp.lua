@@ -106,6 +106,7 @@ function output_h(filename, classname, objectname)
    io.write("\n")
    
    -- write section classes
+   local regcount = 0
    for i = 1, #sections do
       io.write("class RegSect_"..sections[i].name.."\n")
       io.write("{\n")
@@ -117,6 +118,7 @@ function output_h(filename, classname, objectname)
             io.write("    /// </summary>\n")
          end
          io.write("    DSReg "..sections[i].regs[j].name..";\n")
+         regcount = regcount + 1
       end
       io.write("\n")
       io.write("    RegSect_"..sections[i].name.."();\n")
@@ -133,6 +135,8 @@ function output_h(filename, classname, objectname)
    io.write("\n")
    io.write("    byte data[4208];\n")
    io.write("    byte rwmask[4208];\n")
+   io.write("    const int allregcount = "..regcount..";\n")
+   io.write("    DSReg allregs["..regcount.."];\n")
    io.write("\n")
    io.write("    void reset();\n")
    io.write("};\n")
@@ -170,6 +174,7 @@ function output_cpp(filename, filename_h, classname, objectname)
          io.write(sections[i].regs[j].count..", ")
          io.write(sections[i].regs[j].default..", ")
          io.write("\""..sections[i].regs[j].accesstype.."\", ")
+         io.write("\""..sections[i].regs[j].name.."\", ")
          io.write(objectname..".data")
          io.write(");\n")
       end
@@ -180,6 +185,16 @@ function output_cpp(filename, filename_h, classname, objectname)
    -- write combined class
    io.write("void "..classname.."::reset()\n")
    io.write("{\n")
+   
+   local regpos = 0
+   for i = 1, #sections do
+      for j = 1, #sections[i].regs do
+         io.write("      allregs["..regpos.."] = "..objectname..".Sect_"..sections[i].name.."."..sections[i].regs[j].name..";\n") 
+         regpos = regpos + 1
+      end
+   end
+   
+   
    for i = 1, #sections do
       for j = 1, #sections[i].regs do
          local value = tonumber(sections[i].regs[j].default) * math.pow(2, sections[i].regs[j].lsb)

@@ -1450,6 +1450,7 @@ void MEMORY::set_vrammode()
 	{
 		vrammux[i].ena9 = false;
 		vrammux[i].ena7 = false;
+		vrammux[i].MST = -1;
 	}
 
 	if (ena_a) set_single_vrammode(VRAMBANK::A, mst_a, offset_a);
@@ -1467,6 +1468,8 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 {
 	int i = (int)bank;
 
+	vrammux[i].MST = mst;
+
 	switch (bank)
 	{
 	case VRAMBANK::A:
@@ -1482,13 +1485,17 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6000000 + OFS * 0x20000;
 			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			vrammux[i].gpustart = OFS * 0x20000;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 			break;
 		case 2: // ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
 			if (OFS < 2)
 			{
 				vrammux[i].ena9 = true;
 				vrammux[i].start = 0x6400000 + OFS * 0x20000;
-				vrammux[i].end = vrammux[i].start + 0x1FFFF;
+				vrammux[i].end = vrammux[i].start + 0x1FFFF;			
+				vrammux[i].gpustart = OFS * 0x20000;
+				vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 			}
 			break;
 		}
@@ -1507,6 +1514,8 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6000000 + i * 0x20000;
 			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			vrammux[i].gpustart = OFS * 0x20000;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 			break;
 		case 2: // <ARM7>, Plain <ARM7>-CPU Access
 			if (OFS < 2)
@@ -1514,12 +1523,16 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 				vrammux[i].ena7 = true;
 				vrammux[i].start = 0x6000000 + OFS * 0x20000;
 				vrammux[i].end = vrammux[i].start + 0x1FFFF;
+				vrammux[i].gpustart = OFS * 0x20000;
+				vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 			}
 			break;
 		case 4: // ARM9, 2D Graphics Engine B, BG - VRAM(max 128K) (C) - ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K) (D)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6200000 + (i - 2) * 0x400000;
 			vrammux[i].end = vrammux[i].start + 0x1FFFF;
+			vrammux[i].gpustart = OFS * 0x20000;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 		}
 		break;
 
@@ -1531,16 +1544,22 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6880000;
 			vrammux[i].end = vrammux[i].start + 0xFFFF;
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0xFFFF;
 			break;
 		case 1: // ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6000000;
 			vrammux[i].end = vrammux[i].start + 0xFFFF;
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0xFFFF;
 			break;
 		case 2: // ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6400000;
 			vrammux[i].end = vrammux[i].start + 0xFFFF;
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0xFFFF;
 			break;
 		}
 		break;
@@ -1558,23 +1577,29 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			vrammux[i].ena9 = true;
 			switch (OFS)
 			{
-			case 0: vrammux[i].start = 0x6000000; break;
-			case 1: vrammux[i].start = 0x6004000; break;
-			case 2: vrammux[i].start = 0x6010000; break;
-			case 3: vrammux[i].start = 0x6014000; break;
+			case 0: vrammux[i].start = 0x6000000; vrammux[i].gpustart = 0x00000; break;
+			case 1: vrammux[i].start = 0x6004000; vrammux[i].gpustart = 0x04000; break;
+			case 2: vrammux[i].start = 0x6010000; vrammux[i].gpustart = 0x10000; break;
+			case 3: vrammux[i].start = 0x6014000; vrammux[i].gpustart = 0x14000; break;
 			}
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x3FFF;
 			vrammux[i].end = vrammux[i].start + 0x3FFF;
 			break;
 		case 2: // ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
 			vrammux[i].ena9 = true;
 			switch (OFS)
 			{
-			case 0: vrammux[i].start = 0x6400000; break;
-			case 1: vrammux[i].start = 0x6404000; break;
-			case 2: vrammux[i].start = 0x6410000; break;
-			case 3: vrammux[i].start = 0x6414000; break;
+			case 0: vrammux[i].start = 0x6400000; vrammux[i].gpustart = 0x00000; break;
+			case 1: vrammux[i].start = 0x6404000; vrammux[i].gpustart = 0x04000; break;
+			case 2: vrammux[i].start = 0x6410000; vrammux[i].gpustart = 0x10000; break;
+			case 3: vrammux[i].start = 0x6414000; vrammux[i].gpustart = 0x14000; break;
 			}
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x3FFF;
 			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			break;
+		case 5: // 2D Graphics Engine A, OBJ Extended Palette
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x3FFF;
 			break;
 		}
 		break;
@@ -1591,6 +1616,8 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6200000;
 			vrammux[i].end = vrammux[i].start + 0x7FFF;
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x7FFF;
 			break;
 		}
 		break;
@@ -1607,10 +1634,14 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6208000;
 			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x3FFF;
 		case 2: //ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K)
 			vrammux[i].ena9 = true;
 			vrammux[i].start = 0x6600000;
 			vrammux[i].end = vrammux[i].start + 0x3FFF;
+			vrammux[i].gpustart = 0;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x3FFF;
 			break;
 		}
 		break;

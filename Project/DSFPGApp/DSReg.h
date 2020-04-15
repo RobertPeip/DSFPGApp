@@ -11,12 +11,13 @@ public:
     byte msb;
     byte lsb;
     UInt16 count;
-    UInt32 defaultvalue;
+	UInt32 defaultvalue;
+	string name;
 
 	byte* data;
 
 	DSReg();
-	DSReg(UInt32 address, byte msb, byte lsb, UInt16 count, UInt32 defaultvalue, string accesstype, byte data[]);
+	DSReg(UInt32 address, byte msb, byte lsb, UInt16 count, UInt32 defaultvalue, string accesstype, string name, byte data[]);
     void write(UInt32 value);
     UInt32 read();
     bool on();

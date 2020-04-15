@@ -100,7 +100,7 @@ void Gameboy::run()
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 86944)
+		if (tracer.traclist_ptr == 30159)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -138,7 +138,6 @@ void Gameboy::run()
 			if (tracer.runmoretrace == 0)
 			{
 				tracer.runmoretrace = -1;
-				//tracer.trace_file_last();
 				//tracer.vcd_file_last();
 			}
 		}
@@ -162,6 +161,12 @@ void Gameboy::run()
 			{
 				load_savestate();
 				do_loadstate = false;
+			}
+
+			if (do_exportmem)
+			{
+				exportmem();
+				do_exportmem = false;
 			}
 
 			while (pause && on)
@@ -496,4 +501,33 @@ void Gameboy::load_savestate()
 		gpio.state = (GPIOState)((gpiomix >> 28) & 0x3);
 	}
 	*/
+}
+
+void Gameboy::exportmem()
+{
+	//register
+	FILE* file = fopen("R:\\regs.csv", "w");
+	for (int i = 0; i < Regs_Arm9.allregcount; i++)
+	{
+		fprintf(file, "0x%08x %-40s(0x%08x)\n", Regs_Arm9.allregs[i].read(), Regs_Arm9.allregs[i].name.c_str(), Regs_Arm9.allregs[i].address);
+	}
+	for (int i = 0; i < Regs_Arm7.allregcount; i++)
+	{
+		fprintf(file, "0x%08x %-40s(0x%08x)\n", Regs_Arm9.allregs[i].read(), Regs_Arm9.allregs[i].name.c_str(), Regs_Arm9.allregs[i].address);
+	}
+	fclose(file);
+
+	// vram
+	file = fopen("R:\\vram_a.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6000000 + i, Memory.VRAM[0x00000 + i]); } fclose(file);
+	file = fopen("R:\\vram_b.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6020000 + i, Memory.VRAM[0x20000 + i]); } fclose(file);
+	file = fopen("R:\\vram_c.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6040000 + i, Memory.VRAM[0x40000 + i]); } fclose(file);
+	file = fopen("R:\\vram_d.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6060000 + i, Memory.VRAM[0x60000 + i]); } fclose(file);
+	file = fopen("R:\\vram_e.csv", "w"); for (int i = 0; i < 0x10000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6080000 + i, Memory.VRAM[0x80000 + i]); } fclose(file);
+	file = fopen("R:\\vram_f.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6090000 + i, Memory.VRAM[0x90000 + i]); } fclose(file);
+	file = fopen("R:\\vram_g.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6094000 + i, Memory.VRAM[0x94000 + i]); } fclose(file);
+	file = fopen("R:\\vram_h.csv", "w"); for (int i = 0; i < 0x08000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6098000 + i, Memory.VRAM[0x98000 + i]); } fclose(file);
+	file = fopen("R:\\vram_i.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x60A0000 + i, Memory.VRAM[0xA0000 + i]); } fclose(file);
+
+	file = fopen("R:\\palette.csv", "w"); for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x5000000 + i, Memory.PaletteRAM[0x00000 + i]); } fclose(file);
+	file = fopen("R:\\oam.csv", "w");     for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x7000000 + i, Memory.OAMRAM[0x00000 + i]); }     fclose(file);
 }
