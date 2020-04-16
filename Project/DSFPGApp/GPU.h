@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "types.h"
+#include "DSReg.h"
 #include <queue>
 
 class Pixel
@@ -36,6 +37,9 @@ enum WINDOWSTATE
 class Gpu
 {
 public:
+	bool isGPUA;
+	bool disabled = false;
+
 	bool lockSpeed = true;
 	int speedmult = 1;
 	int frameskip = 0;
@@ -60,8 +64,6 @@ public:
 	bool ext_palette_obj;
 
 	// static array, so less allocate
-	unsigned int buffer[256 * 192];
-
 	Pixel pixels[512][384];
 	Pixel pixels_interlace[512][384];
 
@@ -112,7 +114,150 @@ public:
 	const long FRAMETIME = (1000000 / 60);
 	long frametimeleft;
 
-	void reset();
+	// regs
+	DSReg DISPCNT_BG_Mode;
+	DSReg DISPCNT_BG0_2D_3D;
+	DSReg DISPCNT_Tile_OBJ_Mapping;
+	DSReg DISPCNT_Bitmap_OBJ_2D_Dim;
+	DSReg DISPCNT_Bitmap_OBJ_Mapping;
+	DSReg DISPCNT_Forced_Blank;
+	DSReg DISPCNT_Screen_Display_BG0;
+	DSReg DISPCNT_Screen_Display_BG1;
+	DSReg DISPCNT_Screen_Display_BG2;
+	DSReg DISPCNT_Screen_Display_BG3;
+	DSReg DISPCNT_Screen_Display_OBJ;
+	DSReg DISPCNT_Window_0_Display_Flag;
+	DSReg DISPCNT_Window_1_Display_Flag;
+	DSReg DISPCNT_OBJ_Wnd_Display_Flag;
+	DSReg DISPCNT_Display_Mode;
+	DSReg DISPCNT_VRAM_block;
+	DSReg DISPCNT_Tile_OBJ_1D_Boundary;
+	DSReg DISPCNT_Bitmap_OBJ_1D_Boundary;
+	DSReg DISPCNT_OBJ_Process_H_Blank;
+	DSReg DISPCNT_Character_Base;
+	DSReg DISPCNT_Screen_Base;
+	DSReg DISPCNT_BG_Extended_Palettes;
+	DSReg DISPCNT_OBJ_Extended_Palettes;
+
+	DSReg BG0CNT_BG_Priority;
+	DSReg BG0CNT_Character_Base_Block;
+	DSReg BG0CNT_Mosaic;
+	DSReg BG0CNT_Colors_Palettes;
+	DSReg BG0CNT_Screen_Base_Block;
+	DSReg BG0CNT_Screen_Size;
+
+	DSReg BG1CNT_BG_Priority;
+	DSReg BG1CNT_Character_Base_Block;
+	DSReg BG1CNT_Mosaic;
+	DSReg BG1CNT_Colors_Palettes;
+	DSReg BG1CNT_Screen_Base_Block;
+	DSReg BG1CNT_Screen_Size;
+
+	DSReg BG2CNT_BG_Priority;
+	DSReg BG2CNT_Character_Base_Block;
+	DSReg BG2CNT_Mosaic;
+	DSReg BG2CNT_Colors_Palettes;
+	DSReg BG2CNT_Screen_Base_Block;
+	DSReg BG2CNT_Display_Area_Overflow;
+	DSReg BG2CNT_Screen_Size;
+
+	DSReg BG3CNT_BG_Priority;
+	DSReg BG3CNT_Character_Base_Block;
+	DSReg BG3CNT_Mosaic;
+	DSReg BG3CNT_Colors_Palettes;
+	DSReg BG3CNT_Screen_Base_Block;
+	DSReg BG3CNT_Display_Area_Overflow;
+	DSReg BG3CNT_Screen_Size;
+
+	DSReg BG0HOFS;
+	DSReg BG0VOFS;
+	DSReg BG1HOFS;
+	DSReg BG1VOFS;
+	DSReg BG2HOFS;
+	DSReg BG2VOFS;
+	DSReg BG3HOFS;
+	DSReg BG3VOFS;
+
+	DSReg BG2RotScaleParDX;
+	DSReg BG2RotScaleParDMX;
+	DSReg BG2RotScaleParDY;
+	DSReg BG2RotScaleParDMY;
+	DSReg BG2RefX;
+	DSReg BG2RefY;
+
+	DSReg BG3RotScaleParDX;
+	DSReg BG3RotScaleParDMX;
+	DSReg BG3RotScaleParDY;
+	DSReg BG3RotScaleParDMY;
+	DSReg BG3RefX;
+	DSReg BG3RefY;
+
+	DSReg WIN0H_X2;
+	DSReg WIN0H_X1;
+
+	DSReg WIN1H_X2;
+	DSReg WIN1H_X1;
+
+	DSReg WIN0V_Y2;
+	DSReg WIN0V_Y1;
+
+	DSReg WIN1V_Y2;
+	DSReg WIN1V_Y1;
+
+	DSReg WININ;
+	DSReg WININ_Window_0_BG0_Enable;
+	DSReg WININ_Window_0_BG1_Enable;
+	DSReg WININ_Window_0_BG2_Enable;
+	DSReg WININ_Window_0_BG3_Enable;
+	DSReg WININ_Window_0_OBJ_Enable;
+	DSReg WININ_Window_0_Special_Effect;
+	DSReg WININ_Window_1_BG0_Enable;
+	DSReg WININ_Window_1_BG1_Enable;
+	DSReg WININ_Window_1_BG2_Enable;
+	DSReg WININ_Window_1_BG3_Enable;
+	DSReg WININ_Window_1_OBJ_Enable;
+	DSReg WININ_Window_1_Special_Effect;
+
+	DSReg WINOUT;
+	DSReg WINOUT_Outside_BG0_Enable;
+	DSReg WINOUT_Outside_BG1_Enable;
+	DSReg WINOUT_Outside_BG2_Enable;
+	DSReg WINOUT_Outside_BG3_Enable;
+	DSReg WINOUT_Outside_OBJ_Enable;
+	DSReg WINOUT_Outside_Special_Effect;
+	DSReg WINOUT_Objwnd_BG0_Enable;
+	DSReg WINOUT_Objwnd_BG1_Enable;
+	DSReg WINOUT_Objwnd_BG2_Enable;
+	DSReg WINOUT_Objwnd_BG3_Enable;
+	DSReg WINOUT_Objwnd_OBJ_Enable;
+	DSReg WINOUT_Objwnd_Special_Effect;
+
+	DSReg MOSAIC_BG_Mosaic_H_Size;
+	DSReg MOSAIC_BG_Mosaic_V_Size;
+	DSReg MOSAIC_OBJ_Mosaic_H_Size;
+	DSReg MOSAIC_OBJ_Mosaic_V_Size;
+
+	DSReg BLDCNT;
+	DSReg BLDCNT_BG0_1st_Target_Pixel;
+	DSReg BLDCNT_BG1_1st_Target_Pixel;
+	DSReg BLDCNT_BG2_1st_Target_Pixel;
+	DSReg BLDCNT_BG3_1st_Target_Pixel;
+	DSReg BLDCNT_OBJ_1st_Target_Pixel;
+	DSReg BLDCNT_BD_1st_Target_Pixel;
+	DSReg BLDCNT_Color_Special_Effect;
+	DSReg BLDCNT_BG0_2nd_Target_Pixel;
+	DSReg BLDCNT_BG1_2nd_Target_Pixel;
+	DSReg BLDCNT_BG2_2nd_Target_Pixel;
+	DSReg BLDCNT_BG3_2nd_Target_Pixel;
+	DSReg BLDCNT_OBJ_2nd_Target_Pixel;
+	DSReg BLDCNT_BD_2nd_Target_Pixel;
+
+	DSReg BLDALPHA_EVA_Coefficient;
+	DSReg BLDALPHA_EVB_Coefficient;
+
+	DSReg BLDY;
+
+	void reset(bool isGPUA);
 	void dispcnt_write();
 	void refpoint_update_all();
 	void refpoint_update_2x();
@@ -132,11 +277,13 @@ public:
 	void draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool is_bg2);
 	void draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy);
 	void draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy);
+	uint get_mapped_obj_address(uint address_in);
 	uint get_mapped_obj_extpalette_address(uint address_in);
 	void draw_obj(int y, int baseaddr);
-	void draw_game();
+	void draw_game(uint* framebuffer_raw);
 
-//private:
-	//void GetPointBounds(PointF[] points, out float xmin, out float xmax, out float ymin, out float ymax)
+	//private:
+		//void GetPointBounds(PointF[] points, out float xmin, out float xmax, out float ymin, out float ymax)
 };
-extern Gpu GPU;
+extern Gpu GPU_A;
+extern Gpu GPU_B;

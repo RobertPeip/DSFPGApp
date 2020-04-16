@@ -70,8 +70,10 @@ void GPUTiming::work()
 				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank);
 				old_dispstat = Regs_Arm9.data[4];
 
-				GPU.once_per_hblank();
-				GPU.next_line(line);
+				GPU_A.once_per_hblank();
+				GPU_B.once_per_hblank();
+				GPU_A.next_line(line);
+				GPU_B.next_line(line);
 			}
 			break;
 
@@ -94,7 +96,8 @@ void GPUTiming::work()
 				else
 				{
 					gpustate = GPUState::VBLANK_START;
-					GPU.refpoint_update_all();
+					GPU_A.refpoint_update_all();
+					GPU_B.refpoint_update_all();
 					//Cheats.apply_cheats();
 					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(1);
 					Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_flag.write(1);
@@ -155,7 +158,8 @@ void GPUTiming::work()
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(0);
 				Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_flag.write(0);
 				DMA.new_hblank = false;
-				GPU.once_per_hblank();
+				GPU_A.once_per_hblank();
+				GPU_B.once_per_hblank();
 				if (line == 0)
 				{
 					gpustate = GPUState::HSTART;

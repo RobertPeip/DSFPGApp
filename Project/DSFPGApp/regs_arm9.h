@@ -11,99 +11,99 @@ public:
     /// <summary>
     /// LCD Control 2 R/W
     /// </summary>
-    DSReg DISPCNT;
+    DSReg A_DISPCNT;
     /// <summary>
     /// BG Mode (0-5=Video Mode 0-6, 7=Prohibited)
     /// </summary>
-    DSReg DISPCNT_BG_Mode;
+    DSReg A_DISPCNT_BG_Mode;
     /// <summary>
     /// A only BG0 2D/3D Selection (instead CGB Mode) (0=2D, 1=3D)
     /// </summary>
-    DSReg DISPCNT_BG0_2D_3D;
+    DSReg A_DISPCNT_BG0_2D_3D;
     /// <summary>
     /// Tile OBJ Mapping (0=2D; max 32KB, 1=1D; max 32KB..256KB)
     /// </summary>
-    DSReg DISPCNT_Tile_OBJ_Mapping;
+    DSReg A_DISPCNT_Tile_OBJ_Mapping;
     /// <summary>
     /// Bitmap OBJ 2D-Dimension (0=128x512 dots, 1=256x256 dots)
     /// </summary>
-    DSReg DISPCNT_Bitmap_OBJ_2D_Dim;
+    DSReg A_DISPCNT_Bitmap_OBJ_2D_Dim;
     /// <summary>
     /// Bitmap OBJ Mapping (0=2D; max 128KB, 1=1D; max 128KB..256KB)
     /// </summary>
-    DSReg DISPCNT_Bitmap_OBJ_Mapping;
+    DSReg A_DISPCNT_Bitmap_OBJ_Mapping;
     /// <summary>
     /// Forced Blank (1=Allow FAST access to VRAM,Palette,OAM)
     /// </summary>
-    DSReg DISPCNT_Forced_Blank;
+    DSReg A_DISPCNT_Forced_Blank;
     /// <summary>
     /// Screen Display BG0 (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Screen_Display_BG0;
+    DSReg A_DISPCNT_Screen_Display_BG0;
     /// <summary>
     /// Screen Display BG1 (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Screen_Display_BG1;
+    DSReg A_DISPCNT_Screen_Display_BG1;
     /// <summary>
     /// Screen Display BG2 (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Screen_Display_BG2;
+    DSReg A_DISPCNT_Screen_Display_BG2;
     /// <summary>
     /// Screen Display BG3 (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Screen_Display_BG3;
+    DSReg A_DISPCNT_Screen_Display_BG3;
     /// <summary>
     /// Screen Display OBJ (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Screen_Display_OBJ;
+    DSReg A_DISPCNT_Screen_Display_OBJ;
     /// <summary>
     /// Window 0 Display Flag (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Window_0_Display_Flag;
+    DSReg A_DISPCNT_Window_0_Display_Flag;
     /// <summary>
     /// Window 1 Display Flag (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_Window_1_Display_Flag;
+    DSReg A_DISPCNT_Window_1_Display_Flag;
     /// <summary>
     /// OBJ Window Display Flag (0=Off, 1=On)
     /// </summary>
-    DSReg DISPCNT_OBJ_Wnd_Display_Flag;
+    DSReg A_DISPCNT_OBJ_Wnd_Display_Flag;
     /// <summary>
     /// 16-17 A+B Display Mode (Engine A: 0..3, Engine B: 0..1, GBA: Green Swap)
     /// </summary>
-    DSReg DISPCNT_Display_Mode;
+    DSReg A_DISPCNT_Display_Mode;
     /// <summary>
     /// 18-19 A VRAM block (0..3=VRAM A..D) (For Capture & above Display Mode=2)
     /// </summary>
-    DSReg DISPCNT_VRAM_block;
+    DSReg A_DISPCNT_VRAM_block;
     /// <summary>
     /// 20-21 A+B Tile OBJ 1D-Boundary (see Bit4)
     /// </summary>
-    DSReg DISPCNT_Tile_OBJ_1D_Boundary;
+    DSReg A_DISPCNT_Tile_OBJ_1D_Boundary;
     /// <summary>
     /// 22 A Bitmap OBJ 1D-Boundary (see Bit5-6)
     /// </summary>
-    DSReg DISPCNT_Bitmap_OBJ_1D_Boundary;
+    DSReg A_DISPCNT_Bitmap_OBJ_1D_Boundary;
     /// <summary>
     /// 23 A+B OBJ Processing during H-Blank (was located in Bit5 on GBA)
     /// </summary>
-    DSReg DISPCNT_OBJ_Process_H_Blank;
+    DSReg A_DISPCNT_OBJ_Process_H_Blank;
     /// <summary>
     /// 24-26 A Character Base (in 64K steps) (merged with 16K step in BGxCNT)
     /// </summary>
-    DSReg DISPCNT_Character_Base;
+    DSReg A_DISPCNT_Character_Base;
     /// <summary>
     /// 27-29 A Screen Base (in 64K steps) (merged with 2K step in BGxCNT)
     /// </summary>
-    DSReg DISPCNT_Screen_Base;
+    DSReg A_DISPCNT_Screen_Base;
     /// <summary>
     /// 30 A+B BG Extended Palettes (0=Disable, 1=Enable)
     /// </summary>
-    DSReg DISPCNT_BG_Extended_Palettes;
+    DSReg A_DISPCNT_BG_Extended_Palettes;
     /// <summary>
     /// 31 A+B OBJ Extended Palettes (0=Disable, 1=Enable
     /// </summary>
-    DSReg DISPCNT_OBJ_Extended_Palettes;
+    DSReg A_DISPCNT_OBJ_Extended_Palettes;
     /// <summary>
     /// General LCD Status (STAT,LYC) 2 R/W
     /// </summary>
@@ -147,455 +147,463 @@ public:
     /// <summary>
     /// BG0 Control 2 R/W
     /// </summary>
-    DSReg BG0CNT;
+    DSReg A_BG0CNT;
     /// <summary>
     /// BG Priority (0-3, 0=Highest)
     /// </summary>
-    DSReg BG0CNT_BG_Priority;
+    DSReg A_BG0CNT_BG_Priority;
     /// <summary>
     /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
-    DSReg BG0CNT_Character_Base_Block;
+    DSReg A_BG0CNT_Character_Base_Block;
     /// <summary>
     /// 4-5 Not used (must be zero)
     /// </summary>
-    DSReg BG0CNT_UNUSED_4_5;
+    DSReg A_BG0CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
-    DSReg BG0CNT_Mosaic;
+    DSReg A_BG0CNT_Mosaic;
     /// <summary>
     /// Colors/Palettes (0=16/16, 1=256/1)
     /// </summary>
-    DSReg BG0CNT_Colors_Palettes;
+    DSReg A_BG0CNT_Colors_Palettes;
     /// <summary>
     /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
     /// </summary>
-    DSReg BG0CNT_Screen_Base_Block;
+    DSReg A_BG0CNT_Screen_Base_Block;
     /// <summary>
     /// Screen Size (0-3)
     /// </summary>
-    DSReg BG0CNT_Screen_Size;
+    DSReg A_BG0CNT_Screen_Size;
     /// <summary>
     /// BG1 Control 2 R/W
     /// </summary>
-    DSReg BG1CNT;
+    DSReg A_BG1CNT;
     /// <summary>
     /// BG Priority (0-3, 0=Highest)
     /// </summary>
-    DSReg BG1CNT_BG_Priority;
+    DSReg A_BG1CNT_BG_Priority;
     /// <summary>
     /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
-    DSReg BG1CNT_Character_Base_Block;
+    DSReg A_BG1CNT_Character_Base_Block;
     /// <summary>
     /// 4-5 Not used (must be zero)
     /// </summary>
-    DSReg BG1CNT_UNUSED_4_5;
+    DSReg A_BG1CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
-    DSReg BG1CNT_Mosaic;
+    DSReg A_BG1CNT_Mosaic;
     /// <summary>
     /// Colors/Palettes (0=16/16, 1=256/1)
     /// </summary>
-    DSReg BG1CNT_Colors_Palettes;
+    DSReg A_BG1CNT_Colors_Palettes;
     /// <summary>
     /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
     /// </summary>
-    DSReg BG1CNT_Screen_Base_Block;
+    DSReg A_BG1CNT_Screen_Base_Block;
     /// <summary>
     /// Screen Size (0-3)
     /// </summary>
-    DSReg BG1CNT_Screen_Size;
+    DSReg A_BG1CNT_Screen_Size;
     /// <summary>
     /// BG2 Control 2 R/W
     /// </summary>
-    DSReg BG2CNT;
+    DSReg A_BG2CNT;
     /// <summary>
     /// BG Priority (0-3, 0=Highest)
     /// </summary>
-    DSReg BG2CNT_BG_Priority;
+    DSReg A_BG2CNT_BG_Priority;
     /// <summary>
     /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
-    DSReg BG2CNT_Character_Base_Block;
+    DSReg A_BG2CNT_Character_Base_Block;
+    /// <summary>
+    /// 4-5 Not used (must be zero)
+    /// </summary>
+    DSReg A_BG2CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
-    DSReg BG2CNT_Mosaic;
+    DSReg A_BG2CNT_Mosaic;
     /// <summary>
     /// Colors/Palettes (0=16/16, 1=256/1)
     /// </summary>
-    DSReg BG2CNT_Colors_Palettes;
+    DSReg A_BG2CNT_Colors_Palettes;
     /// <summary>
     /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
     /// </summary>
-    DSReg BG2CNT_Screen_Base_Block;
+    DSReg A_BG2CNT_Screen_Base_Block;
     /// <summary>
     /// Display Area Overflow (0=Transparent, 1=Wraparound; BG2CNT/BG3CNT only)
     /// </summary>
-    DSReg BG2CNT_Display_Area_Overflow;
+    DSReg A_BG2CNT_Display_Area_Overflow;
     /// <summary>
     /// Screen Size (0-3)
     /// </summary>
-    DSReg BG2CNT_Screen_Size;
+    DSReg A_BG2CNT_Screen_Size;
     /// <summary>
     /// BG3 Control 2 R/W
     /// </summary>
-    DSReg BG3CNT;
+    DSReg A_BG3CNT;
     /// <summary>
     /// BG Priority (0-3, 0=Highest)
     /// </summary>
-    DSReg BG3CNT_BG_Priority;
+    DSReg A_BG3CNT_BG_Priority;
     /// <summary>
     /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
-    DSReg BG3CNT_Character_Base_Block;
+    DSReg A_BG3CNT_Character_Base_Block;
+    /// <summary>
+    /// 4-5 Not used (must be zero)
+    /// </summary>
+    DSReg A_BG3CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
-    DSReg BG3CNT_Mosaic;
+    DSReg A_BG3CNT_Mosaic;
     /// <summary>
     /// Colors/Palettes (0=16/16, 1=256/1)
     /// </summary>
-    DSReg BG3CNT_Colors_Palettes;
+    DSReg A_BG3CNT_Colors_Palettes;
     /// <summary>
     /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
     /// </summary>
-    DSReg BG3CNT_Screen_Base_Block;
+    DSReg A_BG3CNT_Screen_Base_Block;
     /// <summary>
     /// Display Area Overflow (0=Transparent, 1=Wraparound; BG2CNT/BG3CNT only)
     /// </summary>
-    DSReg BG3CNT_Display_Area_Overflow;
+    DSReg A_BG3CNT_Display_Area_Overflow;
     /// <summary>
     /// Screen Size (0-3)
     /// </summary>
-    DSReg BG3CNT_Screen_Size;
+    DSReg A_BG3CNT_Screen_Size;
     /// <summary>
     /// BG0 X-Offset 2 W
     /// </summary>
-    DSReg BG0HOFS;
+    DSReg A_BG0HOFS;
     /// <summary>
     /// BG0 Y-Offset 2 W
     /// </summary>
-    DSReg BG0VOFS;
+    DSReg A_BG0VOFS;
     /// <summary>
     /// BG1 X-Offset 2 W
     /// </summary>
-    DSReg BG1HOFS;
+    DSReg A_BG1HOFS;
     /// <summary>
     /// BG1 Y-Offset 2 W
     /// </summary>
-    DSReg BG1VOFS;
+    DSReg A_BG1VOFS;
     /// <summary>
     /// BG2 X-Offset 2 W
     /// </summary>
-    DSReg BG2HOFS;
+    DSReg A_BG2HOFS;
     /// <summary>
     /// BG2 Y-Offset 2 W
     /// </summary>
-    DSReg BG2VOFS;
+    DSReg A_BG2VOFS;
     /// <summary>
     /// BG3 X-Offset 2 W
     /// </summary>
-    DSReg BG3HOFS;
+    DSReg A_BG3HOFS;
     /// <summary>
     /// BG3 Y-Offset 2 W
     /// </summary>
-    DSReg BG3VOFS;
+    DSReg A_BG3VOFS;
     /// <summary>
     /// BG2 Rotation/Scaling Parameter A (dx) 2 W
     /// </summary>
-    DSReg BG2RotScaleParDX;
+    DSReg A_BG2RotScaleParDX;
     /// <summary>
     /// BG2 Rotation/Scaling Parameter B (dmx) 2 W
     /// </summary>
-    DSReg BG2RotScaleParDMX;
+    DSReg A_BG2RotScaleParDMX;
     /// <summary>
     /// BG2 Rotation/Scaling Parameter C (dy) 2 W
     /// </summary>
-    DSReg BG2RotScaleParDY;
+    DSReg A_BG2RotScaleParDY;
     /// <summary>
     /// BG2 Rotation/Scaling Parameter D (dmy) 2 W
     /// </summary>
-    DSReg BG2RotScaleParDMY;
+    DSReg A_BG2RotScaleParDMY;
     /// <summary>
     /// BG2 Reference Point X-Coordinate 4 W
     /// </summary>
-    DSReg BG2RefX;
+    DSReg A_BG2RefX;
     /// <summary>
     /// BG2 Reference Point Y-Coordinate 4 W
     /// </summary>
-    DSReg BG2RefY;
+    DSReg A_BG2RefY;
     /// <summary>
     /// BG3 Rotation/Scaling Parameter A (dx) 2 W
     /// </summary>
-    DSReg BG3RotScaleParDX;
+    DSReg A_BG3RotScaleParDX;
     /// <summary>
     /// BG3 Rotation/Scaling Parameter B (dmx) 2 W
     /// </summary>
-    DSReg BG3RotScaleParDMX;
+    DSReg A_BG3RotScaleParDMX;
     /// <summary>
     /// BG3 Rotation/Scaling Parameter C (dy) 2 W
     /// </summary>
-    DSReg BG3RotScaleParDY;
+    DSReg A_BG3RotScaleParDY;
     /// <summary>
     /// BG3 Rotation/Scaling Parameter D (dmy) 2 W
     /// </summary>
-    DSReg BG3RotScaleParDMY;
+    DSReg A_BG3RotScaleParDMY;
     /// <summary>
     /// BG3 Reference Point X-Coordinate 4 W
     /// </summary>
-    DSReg BG3RefX;
+    DSReg A_BG3RefX;
     /// <summary>
     /// BG3 Reference Point Y-Coordinate 4 W
     /// </summary>
-    DSReg BG3RefY;
+    DSReg A_BG3RefY;
     /// <summary>
     /// Window 0 Horizontal Dimensions 2 W
     /// </summary>
-    DSReg WIN0H;
+    DSReg A_WIN0H;
     /// <summary>
     /// Window 0 Horizontal Dimensions 2 W
     /// </summary>
-    DSReg WIN0H_X2;
+    DSReg A_WIN0H_X2;
     /// <summary>
     /// Window 0 Horizontal Dimensions 2 W
     /// </summary>
-    DSReg WIN0H_X1;
+    DSReg A_WIN0H_X1;
     /// <summary>
     /// Window 1 Horizontal Dimensions 2 W
     /// </summary>
-    DSReg WIN1H;
+    DSReg A_WIN1H;
     /// <summary>
     /// Window 1 Horizontal Dimensions 2 W
     /// </summary>
-    DSReg WIN1H_X2;
+    DSReg A_WIN1H_X2;
     /// <summary>
     /// Window 1 Horizontal Dimensions 2 W
     /// </summary>
-    DSReg WIN1H_X1;
+    DSReg A_WIN1H_X1;
     /// <summary>
     /// Window 0 Vertical Dimensions 2 W
     /// </summary>
-    DSReg WIN0V;
+    DSReg A_WIN0V;
     /// <summary>
     /// Window 0 Vertical Dimensions 2 W
     /// </summary>
-    DSReg WIN0V_Y2;
+    DSReg A_WIN0V_Y2;
     /// <summary>
     /// Window 0 Vertical Dimensions 2 W
     /// </summary>
-    DSReg WIN0V_Y1;
+    DSReg A_WIN0V_Y1;
     /// <summary>
     /// Window 1 Vertical Dimensions 2 W
     /// </summary>
-    DSReg WIN1V;
+    DSReg A_WIN1V;
     /// <summary>
     /// Window 1 Vertical Dimensions 2 W
     /// </summary>
-    DSReg WIN1V_Y2;
+    DSReg A_WIN1V_Y2;
     /// <summary>
     /// Window 1 Vertical Dimensions 2 W
     /// </summary>
-    DSReg WIN1V_Y1;
+    DSReg A_WIN1V_Y1;
     /// <summary>
     /// Inside of Window 0 and 1 2 R/W
     /// </summary>
-    DSReg WININ;
+    DSReg A_WININ;
     /// <summary>
     /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_0_BG0_Enable;
+    DSReg A_WININ_Window_0_BG0_Enable;
     /// <summary>
     /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_0_BG1_Enable;
+    DSReg A_WININ_Window_0_BG1_Enable;
     /// <summary>
     /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_0_BG2_Enable;
+    DSReg A_WININ_Window_0_BG2_Enable;
     /// <summary>
     /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_0_BG3_Enable;
+    DSReg A_WININ_Window_0_BG3_Enable;
     /// <summary>
     /// 4 Window_0_OBJ_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_0_OBJ_Enable;
+    DSReg A_WININ_Window_0_OBJ_Enable;
     /// <summary>
     /// 5 Window_0_Special_Effect (0=Disable, 1=Enable)
     /// </summary>
-    DSReg WININ_Window_0_Special_Effect;
+    DSReg A_WININ_Window_0_Special_Effect;
     /// <summary>
     /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_1_BG0_Enable;
+    DSReg A_WININ_Window_1_BG0_Enable;
     /// <summary>
     /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_1_BG1_Enable;
+    DSReg A_WININ_Window_1_BG1_Enable;
     /// <summary>
     /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_1_BG2_Enable;
+    DSReg A_WININ_Window_1_BG2_Enable;
     /// <summary>
     /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_1_BG3_Enable;
+    DSReg A_WININ_Window_1_BG3_Enable;
     /// <summary>
     /// 12 Window_1_OBJ_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WININ_Window_1_OBJ_Enable;
+    DSReg A_WININ_Window_1_OBJ_Enable;
     /// <summary>
     /// 13 Window_1_Special_Effect (0=Disable, 1=Enable)
     /// </summary>
-    DSReg WININ_Window_1_Special_Effect;
+    DSReg A_WININ_Window_1_Special_Effect;
     /// <summary>
     /// Inside of OBJ Window & Outside of Windows 2 R/W
     /// </summary>
-    DSReg WINOUT;
+    DSReg A_WINOUT;
     /// <summary>
     /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Outside_BG0_Enable;
+    DSReg A_WINOUT_Outside_BG0_Enable;
     /// <summary>
     /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Outside_BG1_Enable;
+    DSReg A_WINOUT_Outside_BG1_Enable;
     /// <summary>
     /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Outside_BG2_Enable;
+    DSReg A_WINOUT_Outside_BG2_Enable;
     /// <summary>
     /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Outside_BG3_Enable;
+    DSReg A_WINOUT_Outside_BG3_Enable;
     /// <summary>
     /// 4 Outside_OBJ_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Outside_OBJ_Enable;
+    DSReg A_WINOUT_Outside_OBJ_Enable;
     /// <summary>
     /// 5 Outside_Special_Effect (0=Disable, 1=Enable)
     /// </summary>
-    DSReg WINOUT_Outside_Special_Effect;
+    DSReg A_WINOUT_Outside_Special_Effect;
     /// <summary>
     /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Objwnd_BG0_Enable;
+    DSReg A_WINOUT_Objwnd_BG0_Enable;
     /// <summary>
     /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Objwnd_BG1_Enable;
+    DSReg A_WINOUT_Objwnd_BG1_Enable;
     /// <summary>
     /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Objwnd_BG2_Enable;
+    DSReg A_WINOUT_Objwnd_BG2_Enable;
     /// <summary>
     /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Objwnd_BG3_Enable;
+    DSReg A_WINOUT_Objwnd_BG3_Enable;
     /// <summary>
     /// 12 object window_OBJ_Enable (0=No Display, 1=Display)
     /// </summary>
-    DSReg WINOUT_Objwnd_OBJ_Enable;
+    DSReg A_WINOUT_Objwnd_OBJ_Enable;
     /// <summary>
     /// 13 object window_Special_Effect (0=Disable, 1=Enable)
     /// </summary>
-    DSReg WINOUT_Objwnd_Special_Effect;
+    DSReg A_WINOUT_Objwnd_Special_Effect;
     /// <summary>
     /// Mosaic Size 2 W
     /// </summary>
-    DSReg MOSAIC;
+    DSReg A_MOSAIC;
     /// <summary>
     ///  0-3 BG_Mosaic_H_Size (minus 1)
     /// </summary>
-    DSReg MOSAIC_BG_Mosaic_H_Size;
+    DSReg A_MOSAIC_BG_Mosaic_H_Size;
     /// <summary>
     ///  4-7 BG_Mosaic_V_Size (minus 1)
     /// </summary>
-    DSReg MOSAIC_BG_Mosaic_V_Size;
+    DSReg A_MOSAIC_BG_Mosaic_V_Size;
     /// <summary>
     ///  8-11 OBJ_Mosaic_H_Size (minus 1)
     /// </summary>
-    DSReg MOSAIC_OBJ_Mosaic_H_Size;
+    DSReg A_MOSAIC_OBJ_Mosaic_H_Size;
     /// <summary>
     ///  12-15 OBJ_Mosaic_V_Size (minus 1)
     /// </summary>
-    DSReg MOSAIC_OBJ_Mosaic_V_Size;
+    DSReg A_MOSAIC_OBJ_Mosaic_V_Size;
     /// <summary>
     /// Color Special Effects Selection 2 R/W
     /// </summary>
-    DSReg BLDCNT;
+    DSReg A_BLDCNT;
     /// <summary>
     /// 0 (Background 0)
     /// </summary>
-    DSReg BLDCNT_BG0_1st_Target_Pixel;
+    DSReg A_BLDCNT_BG0_1st_Target_Pixel;
     /// <summary>
     /// 1 (Background 1)
     /// </summary>
-    DSReg BLDCNT_BG1_1st_Target_Pixel;
+    DSReg A_BLDCNT_BG1_1st_Target_Pixel;
     /// <summary>
     /// 2 (Background 2)
     /// </summary>
-    DSReg BLDCNT_BG2_1st_Target_Pixel;
+    DSReg A_BLDCNT_BG2_1st_Target_Pixel;
     /// <summary>
     /// 3 (Background 3)
     /// </summary>
-    DSReg BLDCNT_BG3_1st_Target_Pixel;
+    DSReg A_BLDCNT_BG3_1st_Target_Pixel;
     /// <summary>
     /// 4 (Top-most OBJ pixel)
     /// </summary>
-    DSReg BLDCNT_OBJ_1st_Target_Pixel;
+    DSReg A_BLDCNT_OBJ_1st_Target_Pixel;
     /// <summary>
     /// 5 (Backdrop)
     /// </summary>
-    DSReg BLDCNT_BD_1st_Target_Pixel;
+    DSReg A_BLDCNT_BD_1st_Target_Pixel;
     /// <summary>
     /// 6-7 (0-3, see below) 0 = None (Special effects disabled), 1 = Alpha Blending (1st+2nd Target mixed), 2 = Brightness Increase (1st Target becomes whiter), 3 = Brightness Decrease (1st Target becomes blacker)
     /// </summary>
-    DSReg BLDCNT_Color_Special_Effect;
+    DSReg A_BLDCNT_Color_Special_Effect;
     /// <summary>
     /// 8 (Background 0)
     /// </summary>
-    DSReg BLDCNT_BG0_2nd_Target_Pixel;
+    DSReg A_BLDCNT_BG0_2nd_Target_Pixel;
     /// <summary>
     /// 9 (Background 1)
     /// </summary>
-    DSReg BLDCNT_BG1_2nd_Target_Pixel;
+    DSReg A_BLDCNT_BG1_2nd_Target_Pixel;
     /// <summary>
     /// 10 (Background 2)
     /// </summary>
-    DSReg BLDCNT_BG2_2nd_Target_Pixel;
+    DSReg A_BLDCNT_BG2_2nd_Target_Pixel;
     /// <summary>
     /// 11 (Background 3)
     /// </summary>
-    DSReg BLDCNT_BG3_2nd_Target_Pixel;
+    DSReg A_BLDCNT_BG3_2nd_Target_Pixel;
     /// <summary>
     /// 12 (Top-most OBJ pixel)
     /// </summary>
-    DSReg BLDCNT_OBJ_2nd_Target_Pixel;
+    DSReg A_BLDCNT_OBJ_2nd_Target_Pixel;
     /// <summary>
     /// 13 (Backdrop)
     /// </summary>
-    DSReg BLDCNT_BD_2nd_Target_Pixel;
+    DSReg A_BLDCNT_BD_2nd_Target_Pixel;
     /// <summary>
     /// Alpha Blending Coefficients 2 W
     /// </summary>
-    DSReg BLDALPHA;
+    DSReg A_BLDALPHA;
     /// <summary>
     /// 0-4 (1st Target) (0..16 = 0/16..16/16, 17..31=16/16)
     /// </summary>
-    DSReg BLDALPHA_EVA_Coefficient;
+    DSReg A_BLDALPHA_EVA_Coefficient;
     /// <summary>
     /// 8-12 (2nd Target) (0..16 = 0/16..16/16, 17..31=16/16)
     /// </summary>
-    DSReg BLDALPHA_EVB_Coefficient;
+    DSReg A_BLDALPHA_EVB_Coefficient;
     /// <summary>
     /// Brightness (Fade-In/Out) Coefficient 0-4 EVY Coefficient (Brightness) (0..16 = 0/16..16/16, 17..31=16/16
     /// </summary>
-    DSReg BLDY;
+    DSReg A_BLDY;
     /// <summary>
     /// Alpha Blending Coefficients 2 W
     /// </summary>
@@ -647,15 +655,583 @@ public:
     /// <summary>
     /// Alpha Blending Coefficients 2 W
     /// </summary>
-    DSReg MASTER_BRIGHT;
+    DSReg A_MASTER_BRIGHT;
     /// <summary>
     /// Factor used for 6bit R,G,B Intensities (0-16, values >16 same as 16)
     /// </summary>
-    DSReg MASTER_BRIGHT_Factor;
+    DSReg A_MASTER_BRIGHT_Factor;
     /// <summary>
     /// Mode (0=Disable, 1=Up, 2=Down, 3=Reserved)
     /// </summary>
-    DSReg MASTER_BRIGHT_Mode;
+    DSReg A_MASTER_BRIGHT_Mode;
+    /// <summary>
+    /// LCD Control 2 R/W
+    /// </summary>
+    DSReg B_DISPCNT;
+    /// <summary>
+    /// BG Mode (0-5=Video Mode 0-6, 7=Prohibited)
+    /// </summary>
+    DSReg B_DISPCNT_BG_Mode;
+    /// <summary>
+    /// A only BG0 2D/3D Selection (instead CGB Mode) (0=2D, 1=3D)
+    /// </summary>
+    DSReg B_DISPCNT_BG0_2D_3D;
+    /// <summary>
+    /// Tile OBJ Mapping (0=2D; max 32KB, 1=1D; max 32KB..256KB)
+    /// </summary>
+    DSReg B_DISPCNT_Tile_OBJ_Mapping;
+    /// <summary>
+    /// Bitmap OBJ 2D-Dimension (0=128x512 dots, 1=256x256 dots)
+    /// </summary>
+    DSReg B_DISPCNT_Bitmap_OBJ_2D_Dim;
+    /// <summary>
+    /// Bitmap OBJ Mapping (0=2D; max 128KB, 1=1D; max 128KB..256KB)
+    /// </summary>
+    DSReg B_DISPCNT_Bitmap_OBJ_Mapping;
+    /// <summary>
+    /// Forced Blank (1=Allow FAST access to VRAM,Palette,OAM)
+    /// </summary>
+    DSReg B_DISPCNT_Forced_Blank;
+    /// <summary>
+    /// Screen Display BG0 (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Screen_Display_BG0;
+    /// <summary>
+    /// Screen Display BG1 (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Screen_Display_BG1;
+    /// <summary>
+    /// Screen Display BG2 (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Screen_Display_BG2;
+    /// <summary>
+    /// Screen Display BG3 (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Screen_Display_BG3;
+    /// <summary>
+    /// Screen Display OBJ (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Screen_Display_OBJ;
+    /// <summary>
+    /// Window 0 Display Flag (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Window_0_Display_Flag;
+    /// <summary>
+    /// Window 1 Display Flag (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_Window_1_Display_Flag;
+    /// <summary>
+    /// OBJ Window Display Flag (0=Off, 1=On)
+    /// </summary>
+    DSReg B_DISPCNT_OBJ_Wnd_Display_Flag;
+    /// <summary>
+    /// 16-17 A+B Display Mode (Engine A: 0..3, Engine B: 0..1, GBA: Green Swap)
+    /// </summary>
+    DSReg B_DISPCNT_Display_Mode;
+    /// <summary>
+    /// 18-19 A VRAM block (0..3=VRAM A..D) (For Capture & above Display Mode=2)
+    /// </summary>
+    DSReg B_DISPCNT_VRAM_block;
+    /// <summary>
+    /// 20-21 A+B Tile OBJ 1D-Boundary (see Bit4)
+    /// </summary>
+    DSReg B_DISPCNT_Tile_OBJ_1D_Boundary;
+    /// <summary>
+    /// 22 A Bitmap OBJ 1D-Boundary (see Bit5-6)
+    /// </summary>
+    DSReg B_DISPCNT_Bitmap_OBJ_1D_Boundary;
+    /// <summary>
+    /// 23 A+B OBJ Processing during H-Blank (was located in Bit5 on GBA)
+    /// </summary>
+    DSReg B_DISPCNT_OBJ_Process_H_Blank;
+    /// <summary>
+    /// 24-26 A Character Base (in 64K steps) (merged with 16K step in BGxCNT)
+    /// </summary>
+    DSReg B_DISPCNT_Character_Base;
+    /// <summary>
+    /// 27-29 A Screen Base (in 64K steps) (merged with 2K step in BGxCNT)
+    /// </summary>
+    DSReg B_DISPCNT_Screen_Base;
+    /// <summary>
+    /// 30 A+B BG Extended Palettes (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_DISPCNT_BG_Extended_Palettes;
+    /// <summary>
+    /// 31 A+B OBJ Extended Palettes (0=Disable, 1=Enable
+    /// </summary>
+    DSReg B_DISPCNT_OBJ_Extended_Palettes;
+    /// <summary>
+    /// BG0 Control 2 R/W
+    /// </summary>
+    DSReg B_BG0CNT;
+    /// <summary>
+    /// BG Priority (0-3, 0=Highest)
+    /// </summary>
+    DSReg B_BG0CNT_BG_Priority;
+    /// <summary>
+    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// </summary>
+    DSReg B_BG0CNT_Character_Base_Block;
+    /// <summary>
+    /// 4-5 Not used (must be zero)
+    /// </summary>
+    DSReg B_BG0CNT_UNUSED_4_5;
+    /// <summary>
+    /// Mosaic (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_BG0CNT_Mosaic;
+    /// <summary>
+    /// Colors/Palettes (0=16/16, 1=256/1)
+    /// </summary>
+    DSReg B_BG0CNT_Colors_Palettes;
+    /// <summary>
+    /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
+    /// </summary>
+    DSReg B_BG0CNT_Screen_Base_Block;
+    /// <summary>
+    /// Screen Size (0-3)
+    /// </summary>
+    DSReg B_BG0CNT_Screen_Size;
+    /// <summary>
+    /// BG1 Control 2 R/W
+    /// </summary>
+    DSReg B_BG1CNT;
+    /// <summary>
+    /// BG Priority (0-3, 0=Highest)
+    /// </summary>
+    DSReg B_BG1CNT_BG_Priority;
+    /// <summary>
+    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// </summary>
+    DSReg B_BG1CNT_Character_Base_Block;
+    /// <summary>
+    /// 4-5 Not used (must be zero)
+    /// </summary>
+    DSReg B_BG1CNT_UNUSED_4_5;
+    /// <summary>
+    /// Mosaic (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_BG1CNT_Mosaic;
+    /// <summary>
+    /// Colors/Palettes (0=16/16, 1=256/1)
+    /// </summary>
+    DSReg B_BG1CNT_Colors_Palettes;
+    /// <summary>
+    /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
+    /// </summary>
+    DSReg B_BG1CNT_Screen_Base_Block;
+    /// <summary>
+    /// Screen Size (0-3)
+    /// </summary>
+    DSReg B_BG1CNT_Screen_Size;
+    /// <summary>
+    /// BG2 Control 2 R/W
+    /// </summary>
+    DSReg B_BG2CNT;
+    /// <summary>
+    /// BG Priority (0-3, 0=Highest)
+    /// </summary>
+    DSReg B_BG2CNT_BG_Priority;
+    /// <summary>
+    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// </summary>
+    DSReg B_BG2CNT_Character_Base_Block;
+    /// <summary>
+    /// 4-5 Not used (must be zero)
+    /// </summary>
+    DSReg B_BG2CNT_UNUSED_4_5;
+    /// <summary>
+    /// Mosaic (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_BG2CNT_Mosaic;
+    /// <summary>
+    /// Colors/Palettes (0=16/16, 1=256/1)
+    /// </summary>
+    DSReg B_BG2CNT_Colors_Palettes;
+    /// <summary>
+    /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
+    /// </summary>
+    DSReg B_BG2CNT_Screen_Base_Block;
+    /// <summary>
+    /// Display Area Overflow (0=Transparent, 1=Wraparound; BG2CNT/BG3CNT only)
+    /// </summary>
+    DSReg B_BG2CNT_Display_Area_Overflow;
+    /// <summary>
+    /// Screen Size (0-3)
+    /// </summary>
+    DSReg B_BG2CNT_Screen_Size;
+    /// <summary>
+    /// BG3 Control 2 R/W
+    /// </summary>
+    DSReg B_BG3CNT;
+    /// <summary>
+    /// BG Priority (0-3, 0=Highest)
+    /// </summary>
+    DSReg B_BG3CNT_BG_Priority;
+    /// <summary>
+    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// </summary>
+    DSReg B_BG3CNT_Character_Base_Block;
+    /// <summary>
+    /// 4-5 Not used (must be zero)
+    /// </summary>
+    DSReg B_BG3CNT_UNUSED_4_5;
+    /// <summary>
+    /// Mosaic (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_BG3CNT_Mosaic;
+    /// <summary>
+    /// Colors/Palettes (0=16/16, 1=256/1)
+    /// </summary>
+    DSReg B_BG3CNT_Colors_Palettes;
+    /// <summary>
+    /// Screen Base Block (0-31, in units of 2 KBytes) (=BG Map Data)
+    /// </summary>
+    DSReg B_BG3CNT_Screen_Base_Block;
+    /// <summary>
+    /// Display Area Overflow (0=Transparent, 1=Wraparound; BG2CNT/BG3CNT only)
+    /// </summary>
+    DSReg B_BG3CNT_Display_Area_Overflow;
+    /// <summary>
+    /// Screen Size (0-3)
+    /// </summary>
+    DSReg B_BG3CNT_Screen_Size;
+    /// <summary>
+    /// BG0 X-Offset 2 W
+    /// </summary>
+    DSReg B_BG0HOFS;
+    /// <summary>
+    /// BG0 Y-Offset 2 W
+    /// </summary>
+    DSReg B_BG0VOFS;
+    /// <summary>
+    /// BG1 X-Offset 2 W
+    /// </summary>
+    DSReg B_BG1HOFS;
+    /// <summary>
+    /// BG1 Y-Offset 2 W
+    /// </summary>
+    DSReg B_BG1VOFS;
+    /// <summary>
+    /// BG2 X-Offset 2 W
+    /// </summary>
+    DSReg B_BG2HOFS;
+    /// <summary>
+    /// BG2 Y-Offset 2 W
+    /// </summary>
+    DSReg B_BG2VOFS;
+    /// <summary>
+    /// BG3 X-Offset 2 W
+    /// </summary>
+    DSReg B_BG3HOFS;
+    /// <summary>
+    /// BG3 Y-Offset 2 W
+    /// </summary>
+    DSReg B_BG3VOFS;
+    /// <summary>
+    /// BG2 Rotation/Scaling Parameter A (dx) 2 W
+    /// </summary>
+    DSReg B_BG2RotScaleParDX;
+    /// <summary>
+    /// BG2 Rotation/Scaling Parameter B (dmx) 2 W
+    /// </summary>
+    DSReg B_BG2RotScaleParDMX;
+    /// <summary>
+    /// BG2 Rotation/Scaling Parameter C (dy) 2 W
+    /// </summary>
+    DSReg B_BG2RotScaleParDY;
+    /// <summary>
+    /// BG2 Rotation/Scaling Parameter D (dmy) 2 W
+    /// </summary>
+    DSReg B_BG2RotScaleParDMY;
+    /// <summary>
+    /// BG2 Reference Point X-Coordinate 4 W
+    /// </summary>
+    DSReg B_BG2RefX;
+    /// <summary>
+    /// BG2 Reference Point Y-Coordinate 4 W
+    /// </summary>
+    DSReg B_BG2RefY;
+    /// <summary>
+    /// BG3 Rotation/Scaling Parameter A (dx) 2 W
+    /// </summary>
+    DSReg B_BG3RotScaleParDX;
+    /// <summary>
+    /// BG3 Rotation/Scaling Parameter B (dmx) 2 W
+    /// </summary>
+    DSReg B_BG3RotScaleParDMX;
+    /// <summary>
+    /// BG3 Rotation/Scaling Parameter C (dy) 2 W
+    /// </summary>
+    DSReg B_BG3RotScaleParDY;
+    /// <summary>
+    /// BG3 Rotation/Scaling Parameter D (dmy) 2 W
+    /// </summary>
+    DSReg B_BG3RotScaleParDMY;
+    /// <summary>
+    /// BG3 Reference Point X-Coordinate 4 W
+    /// </summary>
+    DSReg B_BG3RefX;
+    /// <summary>
+    /// BG3 Reference Point Y-Coordinate 4 W
+    /// </summary>
+    DSReg B_BG3RefY;
+    /// <summary>
+    /// Window 0 Horizontal Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN0H;
+    /// <summary>
+    /// Window 0 Horizontal Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN0H_X2;
+    /// <summary>
+    /// Window 0 Horizontal Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN0H_X1;
+    /// <summary>
+    /// Window 1 Horizontal Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN1H;
+    /// <summary>
+    /// Window 1 Horizontal Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN1H_X2;
+    /// <summary>
+    /// Window 1 Horizontal Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN1H_X1;
+    /// <summary>
+    /// Window 0 Vertical Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN0V;
+    /// <summary>
+    /// Window 0 Vertical Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN0V_Y2;
+    /// <summary>
+    /// Window 0 Vertical Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN0V_Y1;
+    /// <summary>
+    /// Window 1 Vertical Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN1V;
+    /// <summary>
+    /// Window 1 Vertical Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN1V_Y2;
+    /// <summary>
+    /// Window 1 Vertical Dimensions 2 W
+    /// </summary>
+    DSReg B_WIN1V_Y1;
+    /// <summary>
+    /// Inside of Window 0 and 1 2 R/W
+    /// </summary>
+    DSReg B_WININ;
+    /// <summary>
+    /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_0_BG0_Enable;
+    /// <summary>
+    /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_0_BG1_Enable;
+    /// <summary>
+    /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_0_BG2_Enable;
+    /// <summary>
+    /// 0-3 Window_0_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_0_BG3_Enable;
+    /// <summary>
+    /// 4 Window_0_OBJ_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_0_OBJ_Enable;
+    /// <summary>
+    /// 5 Window_0_Special_Effect (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_WININ_Window_0_Special_Effect;
+    /// <summary>
+    /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_1_BG0_Enable;
+    /// <summary>
+    /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_1_BG1_Enable;
+    /// <summary>
+    /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_1_BG2_Enable;
+    /// <summary>
+    /// 8-11 Window_1_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_1_BG3_Enable;
+    /// <summary>
+    /// 12 Window_1_OBJ_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WININ_Window_1_OBJ_Enable;
+    /// <summary>
+    /// 13 Window_1_Special_Effect (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_WININ_Window_1_Special_Effect;
+    /// <summary>
+    /// Inside of OBJ Window & Outside of Windows 2 R/W
+    /// </summary>
+    DSReg B_WINOUT;
+    /// <summary>
+    /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Outside_BG0_Enable;
+    /// <summary>
+    /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Outside_BG1_Enable;
+    /// <summary>
+    /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Outside_BG2_Enable;
+    /// <summary>
+    /// 0-3 Outside_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Outside_BG3_Enable;
+    /// <summary>
+    /// 4 Outside_OBJ_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Outside_OBJ_Enable;
+    /// <summary>
+    /// 5 Outside_Special_Effect (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_WINOUT_Outside_Special_Effect;
+    /// <summary>
+    /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Objwnd_BG0_Enable;
+    /// <summary>
+    /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Objwnd_BG1_Enable;
+    /// <summary>
+    /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Objwnd_BG2_Enable;
+    /// <summary>
+    /// 8-11 object window_BG0_BG3_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Objwnd_BG3_Enable;
+    /// <summary>
+    /// 12 object window_OBJ_Enable (0=No Display, 1=Display)
+    /// </summary>
+    DSReg B_WINOUT_Objwnd_OBJ_Enable;
+    /// <summary>
+    /// 13 object window_Special_Effect (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg B_WINOUT_Objwnd_Special_Effect;
+    /// <summary>
+    /// Mosaic Size 2 W
+    /// </summary>
+    DSReg B_MOSAIC;
+    /// <summary>
+    ///  0-3 BG_Mosaic_H_Size (minus 1)
+    /// </summary>
+    DSReg B_MOSAIC_BG_Mosaic_H_Size;
+    /// <summary>
+    ///  4-7 BG_Mosaic_V_Size (minus 1)
+    /// </summary>
+    DSReg B_MOSAIC_BG_Mosaic_V_Size;
+    /// <summary>
+    ///  8-11 OBJ_Mosaic_H_Size (minus 1)
+    /// </summary>
+    DSReg B_MOSAIC_OBJ_Mosaic_H_Size;
+    /// <summary>
+    ///  12-15 OBJ_Mosaic_V_Size (minus 1)
+    /// </summary>
+    DSReg B_MOSAIC_OBJ_Mosaic_V_Size;
+    /// <summary>
+    /// Color Special Effects Selection 2 R/W
+    /// </summary>
+    DSReg B_BLDCNT;
+    /// <summary>
+    /// 0 (Background 0)
+    /// </summary>
+    DSReg B_BLDCNT_BG0_1st_Target_Pixel;
+    /// <summary>
+    /// 1 (Background 1)
+    /// </summary>
+    DSReg B_BLDCNT_BG1_1st_Target_Pixel;
+    /// <summary>
+    /// 2 (Background 2)
+    /// </summary>
+    DSReg B_BLDCNT_BG2_1st_Target_Pixel;
+    /// <summary>
+    /// 3 (Background 3)
+    /// </summary>
+    DSReg B_BLDCNT_BG3_1st_Target_Pixel;
+    /// <summary>
+    /// 4 (Top-most OBJ pixel)
+    /// </summary>
+    DSReg B_BLDCNT_OBJ_1st_Target_Pixel;
+    /// <summary>
+    /// 5 (Backdrop)
+    /// </summary>
+    DSReg B_BLDCNT_BD_1st_Target_Pixel;
+    /// <summary>
+    /// 6-7 (0-3, see below) 0 = None (Special effects disabled), 1 = Alpha Blending (1st+2nd Target mixed), 2 = Brightness Increase (1st Target becomes whiter), 3 = Brightness Decrease (1st Target becomes blacker)
+    /// </summary>
+    DSReg B_BLDCNT_Color_Special_Effect;
+    /// <summary>
+    /// 8 (Background 0)
+    /// </summary>
+    DSReg B_BLDCNT_BG0_2nd_Target_Pixel;
+    /// <summary>
+    /// 9 (Background 1)
+    /// </summary>
+    DSReg B_BLDCNT_BG1_2nd_Target_Pixel;
+    /// <summary>
+    /// 10 (Background 2)
+    /// </summary>
+    DSReg B_BLDCNT_BG2_2nd_Target_Pixel;
+    /// <summary>
+    /// 11 (Background 3)
+    /// </summary>
+    DSReg B_BLDCNT_BG3_2nd_Target_Pixel;
+    /// <summary>
+    /// 12 (Top-most OBJ pixel)
+    /// </summary>
+    DSReg B_BLDCNT_OBJ_2nd_Target_Pixel;
+    /// <summary>
+    /// 13 (Backdrop)
+    /// </summary>
+    DSReg B_BLDCNT_BD_2nd_Target_Pixel;
+    /// <summary>
+    /// Alpha Blending Coefficients 2 W
+    /// </summary>
+    DSReg B_BLDALPHA;
+    /// <summary>
+    /// 0-4 (1st Target) (0..16 = 0/16..16/16, 17..31=16/16)
+    /// </summary>
+    DSReg B_BLDALPHA_EVA_Coefficient;
+    /// <summary>
+    /// 8-12 (2nd Target) (0..16 = 0/16..16/16, 17..31=16/16)
+    /// </summary>
+    DSReg B_BLDALPHA_EVB_Coefficient;
+    /// <summary>
+    /// Brightness (Fade-In/Out) Coefficient 0-4 EVY Coefficient (Brightness) (0..16 = 0/16..16/16, 17..31=16/16
+    /// </summary>
+    DSReg B_BLDY;
+    /// <summary>
+    /// Alpha Blending Coefficients 2 W
+    /// </summary>
+    DSReg B_MASTER_BRIGHT;
+    /// <summary>
+    /// Factor used for 6bit R,G,B Intensities (0-16, values >16 same as 16)
+    /// </summary>
+    DSReg B_MASTER_BRIGHT_Factor;
+    /// <summary>
+    /// Mode (0=Disable, 1=Up, 2=Down, 3=Reserved)
+    /// </summary>
+    DSReg B_MASTER_BRIGHT_Mode;
 
     RegSect_display9();
 };
@@ -1627,8 +2203,8 @@ public:
 
     byte data[4208];
     byte rwmask[4208];
-    const int allregcount = 394;
-    DSReg allregs[394];
+    const int allregcount = 538;
+    DSReg allregs[538];
 
     void reset();
 };

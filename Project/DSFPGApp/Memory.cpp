@@ -271,9 +271,9 @@ byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 		}
 		
 	case 4:
-		if (address < 0x04000400)
+		if (address <= 0x0400106C)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0x1FFF;
 			byte rwmask = Regs_Arm9.rwmask[adr];
 
 			if (rwmask == 0)
@@ -354,9 +354,9 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 		break;
 		
 	case 4:
-		if (address < 0x04000400)
+		if (address <= 0x0400106C)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0x1FFF;
 
 			if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_L.address ||
 				adr == Regs_Arm9.Sect_dma9.DMA1CNT_L.address ||
@@ -460,7 +460,7 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 		break;
 
 	case 4:
-		if (address < 0x04000400)
+		if (address <= 0x0400106C)
 		{
 			value = (UInt16)read_word_9(accesstype, address) | (read_word_9(accesstype, address + 2) << 16);
 		}
@@ -543,9 +543,9 @@ void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 		}
 
 	case 4:
-		if (address < 0x04000400)
+		if (address <= 0x0400106C)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0x1FFF;
 			Regs_Arm9.data[adr] = data;
 			Memory.write_DSReg9(adr & 0xFFFFFFFE, data, false);
 		}
@@ -617,9 +617,9 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 4:
-		if (address < 0x04000400)
+		if (address <= 0x0400106C)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0x1FFF;
 			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
 			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
 			Memory.write_DSReg9(adr, data, false);
@@ -717,9 +717,9 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		}
 
 	case 4:
-		if (address < 0x04000400)
+		if (address <= 0x0400106C)
 		{
-			adr = address & 0x3FF;
+			adr = address & 0x1FFF;
 
 			Regs_Arm9.data[adr] = (byte)(data & 0xFF);
 			Regs_Arm9.data[adr + 1] = (byte)((data >> 8) & 0xFF);
@@ -1331,18 +1331,21 @@ void MEMORY::prepare_read_DSReg7(UInt32 adr)
 
 void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 {
-	if (adr == Regs_Arm9.Sect_display9.DISPCNT.address) { GPU.dispcnt_write(); }
-	if (adr == Regs_Arm9.Sect_display9.DISPSTAT.address) { GPU_Timing.dispstat_write(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG2RefX.address) { GPU.refpoint_update_2x_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG2RefX.address + 2) { GPU.refpoint_update_2x_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG2RefY.address) { GPU.refpoint_update_2y_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG2RefY.address + 2) { GPU.refpoint_update_2y_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG3RefX.address) { GPU.refpoint_update_3x_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG3RefX.address + 2) { GPU.refpoint_update_3x_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address) { GPU.refpoint_update_3y_new(); }
-	else if (adr == Regs_Arm9.Sect_display9.BG3RefY.address + 2) { GPU.refpoint_update_3y_new(); }
+	if (adr == Regs_Arm9.Sect_display9.A_DISPCNT.address) { GPU_A.dispcnt_write(); return; }
+	if (adr == Regs_Arm9.Sect_display9.B_DISPCNT.address) { GPU_B.dispcnt_write(); return; }
 
-	if (adr == Regs_Arm9.Sect_display9.DISP_MMEM_FIFO.address) { GPU.mainmemfifo.push(value); }
+	if (adr == Regs_Arm9.Sect_display9.DISPSTAT.address) { GPU_Timing.dispstat_write(); return; }
+
+	if (adr >= Regs_Arm9.Sect_display9.A_BG2RefX.address && adr < Regs_Arm9.Sect_display9.A_BG2RefX.address + 4) { GPU_A.refpoint_update_2x_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.A_BG2RefY.address && adr < Regs_Arm9.Sect_display9.A_BG2RefY.address + 4) { GPU_A.refpoint_update_2y_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.A_BG3RefX.address && adr < Regs_Arm9.Sect_display9.A_BG3RefX.address + 4) { GPU_A.refpoint_update_3x_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.A_BG3RefY.address && adr < Regs_Arm9.Sect_display9.A_BG3RefY.address + 4) { GPU_A.refpoint_update_3y_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.B_BG2RefX.address && adr < Regs_Arm9.Sect_display9.B_BG2RefX.address + 4) { GPU_B.refpoint_update_2x_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.B_BG2RefY.address && adr < Regs_Arm9.Sect_display9.B_BG2RefY.address + 4) { GPU_B.refpoint_update_2y_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.B_BG3RefX.address && adr < Regs_Arm9.Sect_display9.B_BG3RefX.address + 4) { GPU_B.refpoint_update_3x_new(); return; }
+	if (adr >= Regs_Arm9.Sect_display9.B_BG3RefY.address && adr < Regs_Arm9.Sect_display9.B_BG3RefY.address + 4) { GPU_B.refpoint_update_3y_new(); return; }
+
+	if (adr == Regs_Arm9.Sect_display9.DISP_MMEM_FIFO.address) { GPU_A.mainmemfifo.push(value); }
 
 	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address) { Timer.set_reload(0); }
 	else if (adr == Regs_Arm9.Sect_timer9.TM0CNT_L.address + 2) { Timer.set_settings(0); }

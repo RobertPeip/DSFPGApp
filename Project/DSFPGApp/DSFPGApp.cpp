@@ -18,6 +18,8 @@ using namespace std;
 const int WIDTH = 256;
 const int HEIGHT = 192;
 
+uint framebuffer_raw[256 * 192 * 2];
+
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Texture* framebuffer;
@@ -123,16 +125,16 @@ void set_displaysize(int mult, bool fullscreen)
 	{
 		OSD.displaysize = mult;
 		SDL_SetWindowFullscreen(window, 0);
-		SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult);
+		SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult * 2);
 	}
 }
 
 void drawer()
 {
-	window = SDL_CreateWindow ("DSFPGApp", 200, 200,WIDTH * 4, HEIGHT * 4, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow ("DSFPGApp", 200, 200, WIDTH * 3, HEIGHT * 3 * 2, SDL_WINDOW_OPENGL);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-	framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
-	SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
+	framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT * 2);
+	SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT * 2);
 	SDL_RenderSetIntegerScale(renderer, SDL_bool::SDL_TRUE);
 	mutex = SDL_CreateMutex();
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
@@ -190,8 +192,9 @@ void drawer()
 			}
 			else
 			{
-				GPU.draw_game();
-				SDL_UpdateTexture(framebuffer, NULL, GPU.buffer, WIDTH * sizeof(uint32_t));
+				GPU_A.draw_game(framebuffer_raw);
+				GPU_B.draw_game(framebuffer_raw);
+				SDL_UpdateTexture(framebuffer, NULL, framebuffer_raw, WIDTH * sizeof(uint32_t));
 				SDL_RenderClear(renderer);
 				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
 			}
@@ -259,8 +262,9 @@ void drawer()
 								}
 								break;
 							case OSDMAINMENU::FLICKERBLEND:
-								GPU.interlace_blending = !GPU.interlace_blending;
-								if (GPU.interlace_blending)
+								GPU_A.interlace_blending = !GPU_A.interlace_blending;
+								GPU_B.interlace_blending = GPU_A.interlace_blending;
+								if (GPU_A.interlace_blending)
 								{
 									OSD.exchangeText((int)OSDMAINMENU::FLICKERBLEND, "Flickerblend: on");
 								}
@@ -369,14 +373,18 @@ void drawer()
 
 				if (keystate[SDL_SCANCODE_SPACE] || keystate[SDL_SCANCODE_0] || SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y))
 				{
-					GPU.lockSpeed = false;
-					GPU.frameskip = 10;
+					GPU_A.lockSpeed = false;
+					GPU_A.frameskip = 10;
+					GPU_B.lockSpeed = false;
+					GPU_B.frameskip = 10;
 					speedunlock = keystate[SDL_SCANCODE_0];
 				}
 				else if (!speedunlock && !keystate[SDL_SCANCODE_SPACE])
 				{
-					GPU.lockSpeed = true;
-					GPU.frameskip = 0;
+					GPU_A.lockSpeed = true;
+					GPU_A.frameskip = 0;
+					GPU_B.lockSpeed = true;
+					GPU_B.frameskip = 0;
 				}
 				else if (speedunlock && keystate[SDL_SCANCODE_SPACE])
 				{
@@ -433,13 +441,13 @@ void drawer()
 				emuframes = 0;
 				SDL_UnlockMutex(mutex);
 			}
-			if (SDL_LockMutex(GPU.drawlock) == 0)
+			if (SDL_LockMutex(GPU_A.drawlock) == 0)
 			{
-				GPU.intern_frames = 0;
-				GPU.videomode_frames = 0;
+				GPU_A.intern_frames = 0;
+				GPU_A.videomode_frames = 0;
 				oldcycles = cpucycles;
 				oldcommands = CPU9.commands;
-				SDL_UnlockMutex(GPU.drawlock);
+				SDL_UnlockMutex(GPU_A.drawlock);
 			}
 		}
 	}
@@ -456,10 +464,13 @@ int main(int argc, char* argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER); // SDL_INIT_EVERYTHING
 	TTF_Init();
-	set_displaysize(4, false);
+	set_displaysize(3, false);
 	OSD.init();
 
-	GPU.drawlock = SDL_CreateMutex();
+	//GPU_A.disabled = true;
+	//GPU_B.disabled = true;
+
+	GPU_A.drawlock = SDL_CreateMutex();
 
 	// debug
 	

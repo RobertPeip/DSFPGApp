@@ -35,7 +35,8 @@ void Gameboy::reset()
 		Regs_Arm7.reset();
 		Flash.reset();
 		EEProm.reset();
-		GPU.reset();
+		GPU_A.reset(true);
+		GPU_B.reset(false);
 		Memory.reset(filename);
 	}
 

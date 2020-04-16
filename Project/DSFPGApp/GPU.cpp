@@ -8,7 +8,8 @@ using namespace std;
 #include "GPU_Timing.h"
 #include "Memory.h"
 
-Gpu GPU;
+Gpu GPU_A;
+Gpu GPU_B;
 
 void Pixel::update(Byte color_red, Byte color_green, Byte color_blue)
 {
@@ -64,12 +65,14 @@ void Pixel::blacker(byte change)
 	color_blue = (byte)max(0, color_blue - ((color_blue * change) >> 4));
 }
 
-void Gpu::reset()
+void Gpu::reset(bool isGPUA)
 {
+	this->isGPUA = isGPUA;
+
 #if DEBUG
 	lockSpeed = false;
 #endif
-	forcedblank = true;
+	forcedblank = false;
 
 	//drawlock = new object();
 
@@ -88,17 +91,272 @@ void Gpu::reset()
 
 	frametimeleft = FRAMETIME;
 	//stopwatch_frame.Start();
+
+	if (isGPUA)
+	{
+		DISPCNT_BG_Mode = Regs_Arm9.Sect_display9.A_DISPCNT_BG_Mode;
+		DISPCNT_BG0_2D_3D = Regs_Arm9.Sect_display9.A_DISPCNT_BG0_2D_3D;
+		DISPCNT_Tile_OBJ_Mapping = Regs_Arm9.Sect_display9.A_DISPCNT_Tile_OBJ_Mapping;
+		DISPCNT_Bitmap_OBJ_2D_Dim = Regs_Arm9.Sect_display9.A_DISPCNT_Bitmap_OBJ_2D_Dim;
+		DISPCNT_Bitmap_OBJ_Mapping = Regs_Arm9.Sect_display9.A_DISPCNT_Bitmap_OBJ_Mapping;
+		DISPCNT_Forced_Blank = Regs_Arm9.Sect_display9.A_DISPCNT_Forced_Blank;
+		DISPCNT_Screen_Display_BG0 = Regs_Arm9.Sect_display9.A_DISPCNT_Screen_Display_BG0;
+		DISPCNT_Screen_Display_BG1 = Regs_Arm9.Sect_display9.A_DISPCNT_Screen_Display_BG1;
+		DISPCNT_Screen_Display_BG2 = Regs_Arm9.Sect_display9.A_DISPCNT_Screen_Display_BG2;
+		DISPCNT_Screen_Display_BG3 = Regs_Arm9.Sect_display9.A_DISPCNT_Screen_Display_BG3;
+		DISPCNT_Screen_Display_OBJ = Regs_Arm9.Sect_display9.A_DISPCNT_Screen_Display_OBJ;
+		DISPCNT_Window_0_Display_Flag = Regs_Arm9.Sect_display9.A_DISPCNT_Window_0_Display_Flag;
+		DISPCNT_Window_1_Display_Flag = Regs_Arm9.Sect_display9.A_DISPCNT_Window_1_Display_Flag;
+		DISPCNT_OBJ_Wnd_Display_Flag = Regs_Arm9.Sect_display9.A_DISPCNT_OBJ_Wnd_Display_Flag;
+		DISPCNT_Display_Mode = Regs_Arm9.Sect_display9.A_DISPCNT_Display_Mode;
+		DISPCNT_VRAM_block = Regs_Arm9.Sect_display9.A_DISPCNT_VRAM_block;
+		DISPCNT_Tile_OBJ_1D_Boundary = Regs_Arm9.Sect_display9.A_DISPCNT_Tile_OBJ_1D_Boundary;
+		DISPCNT_Bitmap_OBJ_1D_Boundary = Regs_Arm9.Sect_display9.A_DISPCNT_Bitmap_OBJ_1D_Boundary;
+		DISPCNT_OBJ_Process_H_Blank = Regs_Arm9.Sect_display9.A_DISPCNT_OBJ_Process_H_Blank;
+		DISPCNT_Character_Base = Regs_Arm9.Sect_display9.A_DISPCNT_Character_Base;
+		DISPCNT_Screen_Base = Regs_Arm9.Sect_display9.A_DISPCNT_Screen_Base;
+		DISPCNT_BG_Extended_Palettes = Regs_Arm9.Sect_display9.A_DISPCNT_BG_Extended_Palettes;
+		DISPCNT_OBJ_Extended_Palettes = Regs_Arm9.Sect_display9.A_DISPCNT_OBJ_Extended_Palettes;
+		BG0CNT_BG_Priority = Regs_Arm9.Sect_display9.A_BG0CNT_BG_Priority;
+		BG0CNT_Character_Base_Block = Regs_Arm9.Sect_display9.A_BG0CNT_Character_Base_Block;
+		BG0CNT_Mosaic = Regs_Arm9.Sect_display9.A_BG0CNT_Mosaic;
+		BG0CNT_Colors_Palettes = Regs_Arm9.Sect_display9.A_BG0CNT_Colors_Palettes;
+		BG0CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.A_BG0CNT_Screen_Base_Block;
+		BG0CNT_Screen_Size = Regs_Arm9.Sect_display9.A_BG0CNT_Screen_Size;
+		BG1CNT_BG_Priority = Regs_Arm9.Sect_display9.A_BG1CNT_BG_Priority;
+		BG1CNT_Character_Base_Block = Regs_Arm9.Sect_display9.A_BG1CNT_Character_Base_Block;
+		BG1CNT_Mosaic = Regs_Arm9.Sect_display9.A_BG1CNT_Mosaic;
+		BG1CNT_Colors_Palettes = Regs_Arm9.Sect_display9.A_BG1CNT_Colors_Palettes;
+		BG1CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.A_BG1CNT_Screen_Base_Block;
+		BG1CNT_Screen_Size = Regs_Arm9.Sect_display9.A_BG1CNT_Screen_Size;
+		BG2CNT_BG_Priority = Regs_Arm9.Sect_display9.A_BG2CNT_BG_Priority;
+		BG2CNT_Character_Base_Block = Regs_Arm9.Sect_display9.A_BG2CNT_Character_Base_Block;
+		BG2CNT_Mosaic = Regs_Arm9.Sect_display9.A_BG2CNT_Mosaic;
+		BG2CNT_Colors_Palettes = Regs_Arm9.Sect_display9.A_BG2CNT_Colors_Palettes;
+		BG2CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.A_BG2CNT_Screen_Base_Block;
+		BG2CNT_Display_Area_Overflow = Regs_Arm9.Sect_display9.A_BG2CNT_Display_Area_Overflow;
+		BG2CNT_Screen_Size = Regs_Arm9.Sect_display9.A_BG2CNT_Screen_Size;
+		BG3CNT_BG_Priority = Regs_Arm9.Sect_display9.A_BG3CNT_BG_Priority;
+		BG3CNT_Character_Base_Block = Regs_Arm9.Sect_display9.A_BG3CNT_Character_Base_Block;
+		BG3CNT_Mosaic = Regs_Arm9.Sect_display9.A_BG3CNT_Mosaic;
+		BG3CNT_Colors_Palettes = Regs_Arm9.Sect_display9.A_BG3CNT_Colors_Palettes;
+		BG3CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.A_BG3CNT_Screen_Base_Block;
+		BG3CNT_Display_Area_Overflow = Regs_Arm9.Sect_display9.A_BG3CNT_Display_Area_Overflow;
+		BG3CNT_Screen_Size = Regs_Arm9.Sect_display9.A_BG3CNT_Screen_Size;
+		BG0HOFS = Regs_Arm9.Sect_display9.A_BG0HOFS;
+		BG0VOFS = Regs_Arm9.Sect_display9.A_BG0VOFS;
+		BG1HOFS = Regs_Arm9.Sect_display9.A_BG1HOFS;
+		BG1VOFS = Regs_Arm9.Sect_display9.A_BG1VOFS;
+		BG2HOFS = Regs_Arm9.Sect_display9.A_BG2HOFS;
+		BG2VOFS = Regs_Arm9.Sect_display9.A_BG2VOFS;
+		BG3HOFS = Regs_Arm9.Sect_display9.A_BG3HOFS;
+		BG3VOFS = Regs_Arm9.Sect_display9.A_BG3VOFS;
+		BG2RotScaleParDX = Regs_Arm9.Sect_display9.A_BG2RotScaleParDX;
+		BG2RotScaleParDMX = Regs_Arm9.Sect_display9.A_BG2RotScaleParDMX;
+		BG2RotScaleParDY = Regs_Arm9.Sect_display9.A_BG2RotScaleParDY;
+		BG2RotScaleParDMY = Regs_Arm9.Sect_display9.A_BG2RotScaleParDMY;
+		BG2RefX = Regs_Arm9.Sect_display9.A_BG2RefX;
+		BG2RefY = Regs_Arm9.Sect_display9.A_BG2RefY;
+		BG3RotScaleParDX = Regs_Arm9.Sect_display9.A_BG3RotScaleParDX;
+		BG3RotScaleParDMX = Regs_Arm9.Sect_display9.A_BG3RotScaleParDMX;
+		BG3RotScaleParDY = Regs_Arm9.Sect_display9.A_BG3RotScaleParDY;
+		BG3RotScaleParDMY = Regs_Arm9.Sect_display9.A_BG3RotScaleParDMY;
+		BG3RefX = Regs_Arm9.Sect_display9.A_BG3RefX;
+		BG3RefY = Regs_Arm9.Sect_display9.A_BG3RefY;
+		WIN0H_X2 = Regs_Arm9.Sect_display9.A_WIN0H_X2;
+		WIN0H_X1 = Regs_Arm9.Sect_display9.A_WIN0H_X1;
+		WIN1H_X2 = Regs_Arm9.Sect_display9.A_WIN1H_X2;
+		WIN1H_X1 = Regs_Arm9.Sect_display9.A_WIN1H_X1;
+		WIN0V_Y2 = Regs_Arm9.Sect_display9.A_WIN0V_Y2;
+		WIN0V_Y1 = Regs_Arm9.Sect_display9.A_WIN0V_Y1;
+		WIN1V_Y2 = Regs_Arm9.Sect_display9.A_WIN1V_Y2;
+		WIN1V_Y1 = Regs_Arm9.Sect_display9.A_WIN1V_Y1;
+		WININ = Regs_Arm9.Sect_display9.A_WININ;
+		WININ_Window_0_BG0_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_0_BG0_Enable;
+		WININ_Window_0_BG1_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_0_BG1_Enable;
+		WININ_Window_0_BG2_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_0_BG2_Enable;
+		WININ_Window_0_BG3_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_0_BG3_Enable;
+		WININ_Window_0_OBJ_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_0_OBJ_Enable;
+		WININ_Window_0_Special_Effect = Regs_Arm9.Sect_display9.A_WININ_Window_0_Special_Effect;
+		WININ_Window_1_BG0_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_1_BG0_Enable;
+		WININ_Window_1_BG1_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_1_BG1_Enable;
+		WININ_Window_1_BG2_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_1_BG2_Enable;
+		WININ_Window_1_BG3_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_1_BG3_Enable;
+		WININ_Window_1_OBJ_Enable = Regs_Arm9.Sect_display9.A_WININ_Window_1_OBJ_Enable;
+		WININ_Window_1_Special_Effect = Regs_Arm9.Sect_display9.A_WININ_Window_1_Special_Effect;
+		WINOUT = Regs_Arm9.Sect_display9.A_WINOUT;
+		WINOUT_Outside_BG0_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Outside_BG0_Enable;
+		WINOUT_Outside_BG1_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Outside_BG1_Enable;
+		WINOUT_Outside_BG2_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Outside_BG2_Enable;
+		WINOUT_Outside_BG3_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Outside_BG3_Enable;
+		WINOUT_Outside_OBJ_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Outside_OBJ_Enable;
+		WINOUT_Outside_Special_Effect = Regs_Arm9.Sect_display9.A_WINOUT_Outside_Special_Effect;
+		WINOUT_Objwnd_BG0_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Objwnd_BG0_Enable;
+		WINOUT_Objwnd_BG1_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Objwnd_BG1_Enable;
+		WINOUT_Objwnd_BG2_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Objwnd_BG2_Enable;
+		WINOUT_Objwnd_BG3_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Objwnd_BG3_Enable;
+		WINOUT_Objwnd_OBJ_Enable = Regs_Arm9.Sect_display9.A_WINOUT_Objwnd_OBJ_Enable;
+		WINOUT_Objwnd_Special_Effect = Regs_Arm9.Sect_display9.A_WINOUT_Objwnd_Special_Effect;
+		MOSAIC_BG_Mosaic_H_Size = Regs_Arm9.Sect_display9.A_MOSAIC_BG_Mosaic_H_Size;
+		MOSAIC_BG_Mosaic_V_Size = Regs_Arm9.Sect_display9.A_MOSAIC_BG_Mosaic_V_Size;
+		MOSAIC_OBJ_Mosaic_H_Size = Regs_Arm9.Sect_display9.A_MOSAIC_OBJ_Mosaic_H_Size;
+		MOSAIC_OBJ_Mosaic_V_Size = Regs_Arm9.Sect_display9.A_MOSAIC_OBJ_Mosaic_V_Size;
+		BLDCNT = Regs_Arm9.Sect_display9.A_BLDCNT;
+		BLDCNT_BG0_1st_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG0_1st_Target_Pixel;
+		BLDCNT_BG1_1st_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG1_1st_Target_Pixel;
+		BLDCNT_BG2_1st_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG2_1st_Target_Pixel;
+		BLDCNT_BG3_1st_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG3_1st_Target_Pixel;
+		BLDCNT_OBJ_1st_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_OBJ_1st_Target_Pixel;
+		BLDCNT_BD_1st_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BD_1st_Target_Pixel;
+		BLDCNT_Color_Special_Effect = Regs_Arm9.Sect_display9.A_BLDCNT_Color_Special_Effect;
+		BLDCNT_BG0_2nd_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG0_2nd_Target_Pixel;
+		BLDCNT_BG1_2nd_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG1_2nd_Target_Pixel;
+		BLDCNT_BG2_2nd_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG2_2nd_Target_Pixel;
+		BLDCNT_BG3_2nd_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BG3_2nd_Target_Pixel;
+		BLDCNT_OBJ_2nd_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_OBJ_2nd_Target_Pixel;
+		BLDCNT_BD_2nd_Target_Pixel = Regs_Arm9.Sect_display9.A_BLDCNT_BD_2nd_Target_Pixel;
+		BLDALPHA_EVA_Coefficient = Regs_Arm9.Sect_display9.A_BLDALPHA_EVA_Coefficient;
+		BLDALPHA_EVB_Coefficient = Regs_Arm9.Sect_display9.A_BLDALPHA_EVB_Coefficient;
+		BLDY = Regs_Arm9.Sect_display9.A_BLDY;
+	}
+	else
+	{
+		DISPCNT_BG_Mode = Regs_Arm9.Sect_display9.B_DISPCNT_BG_Mode;
+		DISPCNT_BG0_2D_3D = Regs_Arm9.Sect_display9.B_DISPCNT_BG0_2D_3D;
+		DISPCNT_Tile_OBJ_Mapping = Regs_Arm9.Sect_display9.B_DISPCNT_Tile_OBJ_Mapping;
+		DISPCNT_Bitmap_OBJ_2D_Dim = Regs_Arm9.Sect_display9.B_DISPCNT_Bitmap_OBJ_2D_Dim;
+		DISPCNT_Bitmap_OBJ_Mapping = Regs_Arm9.Sect_display9.B_DISPCNT_Bitmap_OBJ_Mapping;
+		DISPCNT_Forced_Blank = Regs_Arm9.Sect_display9.B_DISPCNT_Forced_Blank;
+		DISPCNT_Screen_Display_BG0 = Regs_Arm9.Sect_display9.B_DISPCNT_Screen_Display_BG0;
+		DISPCNT_Screen_Display_BG1 = Regs_Arm9.Sect_display9.B_DISPCNT_Screen_Display_BG1;
+		DISPCNT_Screen_Display_BG2 = Regs_Arm9.Sect_display9.B_DISPCNT_Screen_Display_BG2;
+		DISPCNT_Screen_Display_BG3 = Regs_Arm9.Sect_display9.B_DISPCNT_Screen_Display_BG3;
+		DISPCNT_Screen_Display_OBJ = Regs_Arm9.Sect_display9.B_DISPCNT_Screen_Display_OBJ;
+		DISPCNT_Window_0_Display_Flag = Regs_Arm9.Sect_display9.B_DISPCNT_Window_0_Display_Flag;
+		DISPCNT_Window_1_Display_Flag = Regs_Arm9.Sect_display9.B_DISPCNT_Window_1_Display_Flag;
+		DISPCNT_OBJ_Wnd_Display_Flag = Regs_Arm9.Sect_display9.B_DISPCNT_OBJ_Wnd_Display_Flag;
+		DISPCNT_Display_Mode = Regs_Arm9.Sect_display9.B_DISPCNT_Display_Mode;
+		DISPCNT_VRAM_block = Regs_Arm9.Sect_display9.B_DISPCNT_VRAM_block;
+		DISPCNT_Tile_OBJ_1D_Boundary = Regs_Arm9.Sect_display9.B_DISPCNT_Tile_OBJ_1D_Boundary;
+		DISPCNT_Bitmap_OBJ_1D_Boundary = Regs_Arm9.Sect_display9.B_DISPCNT_Bitmap_OBJ_1D_Boundary;
+		DISPCNT_OBJ_Process_H_Blank = Regs_Arm9.Sect_display9.B_DISPCNT_OBJ_Process_H_Blank;
+		DISPCNT_Character_Base = Regs_Arm9.Sect_display9.B_DISPCNT_Character_Base;
+		DISPCNT_Screen_Base = Regs_Arm9.Sect_display9.B_DISPCNT_Screen_Base;
+		DISPCNT_BG_Extended_Palettes = Regs_Arm9.Sect_display9.B_DISPCNT_BG_Extended_Palettes;
+		DISPCNT_OBJ_Extended_Palettes = Regs_Arm9.Sect_display9.B_DISPCNT_OBJ_Extended_Palettes;
+		BG0CNT_BG_Priority = Regs_Arm9.Sect_display9.B_BG0CNT_BG_Priority;
+		BG0CNT_Character_Base_Block = Regs_Arm9.Sect_display9.B_BG0CNT_Character_Base_Block;
+		BG0CNT_Mosaic = Regs_Arm9.Sect_display9.B_BG0CNT_Mosaic;
+		BG0CNT_Colors_Palettes = Regs_Arm9.Sect_display9.B_BG0CNT_Colors_Palettes;
+		BG0CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.B_BG0CNT_Screen_Base_Block;
+		BG0CNT_Screen_Size = Regs_Arm9.Sect_display9.B_BG0CNT_Screen_Size;
+		BG1CNT_BG_Priority = Regs_Arm9.Sect_display9.B_BG1CNT_BG_Priority;
+		BG1CNT_Character_Base_Block = Regs_Arm9.Sect_display9.B_BG1CNT_Character_Base_Block;
+		BG1CNT_Mosaic = Regs_Arm9.Sect_display9.B_BG1CNT_Mosaic;
+		BG1CNT_Colors_Palettes = Regs_Arm9.Sect_display9.B_BG1CNT_Colors_Palettes;
+		BG1CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.B_BG1CNT_Screen_Base_Block;
+		BG1CNT_Screen_Size = Regs_Arm9.Sect_display9.B_BG1CNT_Screen_Size;
+		BG2CNT_BG_Priority = Regs_Arm9.Sect_display9.B_BG2CNT_BG_Priority;
+		BG2CNT_Character_Base_Block = Regs_Arm9.Sect_display9.B_BG2CNT_Character_Base_Block;
+		BG2CNT_Mosaic = Regs_Arm9.Sect_display9.B_BG2CNT_Mosaic;
+		BG2CNT_Colors_Palettes = Regs_Arm9.Sect_display9.B_BG2CNT_Colors_Palettes;
+		BG2CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.B_BG2CNT_Screen_Base_Block;
+		BG2CNT_Display_Area_Overflow = Regs_Arm9.Sect_display9.B_BG2CNT_Display_Area_Overflow;
+		BG2CNT_Screen_Size = Regs_Arm9.Sect_display9.B_BG2CNT_Screen_Size;
+		BG3CNT_BG_Priority = Regs_Arm9.Sect_display9.B_BG3CNT_BG_Priority;
+		BG3CNT_Character_Base_Block = Regs_Arm9.Sect_display9.B_BG3CNT_Character_Base_Block;
+		BG3CNT_Mosaic = Regs_Arm9.Sect_display9.B_BG3CNT_Mosaic;
+		BG3CNT_Colors_Palettes = Regs_Arm9.Sect_display9.B_BG3CNT_Colors_Palettes;
+		BG3CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.B_BG3CNT_Screen_Base_Block;
+		BG3CNT_Display_Area_Overflow = Regs_Arm9.Sect_display9.B_BG3CNT_Display_Area_Overflow;
+		BG3CNT_Screen_Size = Regs_Arm9.Sect_display9.B_BG3CNT_Screen_Size;
+		BG0HOFS = Regs_Arm9.Sect_display9.B_BG0HOFS;
+		BG0VOFS = Regs_Arm9.Sect_display9.B_BG0VOFS;
+		BG1HOFS = Regs_Arm9.Sect_display9.B_BG1HOFS;
+		BG1VOFS = Regs_Arm9.Sect_display9.B_BG1VOFS;
+		BG2HOFS = Regs_Arm9.Sect_display9.B_BG2HOFS;
+		BG2VOFS = Regs_Arm9.Sect_display9.B_BG2VOFS;
+		BG3HOFS = Regs_Arm9.Sect_display9.B_BG3HOFS;
+		BG3VOFS = Regs_Arm9.Sect_display9.B_BG3VOFS;
+		BG2RotScaleParDX = Regs_Arm9.Sect_display9.B_BG2RotScaleParDX;
+		BG2RotScaleParDMX = Regs_Arm9.Sect_display9.B_BG2RotScaleParDMX;
+		BG2RotScaleParDY = Regs_Arm9.Sect_display9.B_BG2RotScaleParDY;
+		BG2RotScaleParDMY = Regs_Arm9.Sect_display9.B_BG2RotScaleParDMY;
+		BG2RefX = Regs_Arm9.Sect_display9.B_BG2RefX;
+		BG2RefY = Regs_Arm9.Sect_display9.B_BG2RefY;
+		BG3RotScaleParDX = Regs_Arm9.Sect_display9.B_BG3RotScaleParDX;
+		BG3RotScaleParDMX = Regs_Arm9.Sect_display9.B_BG3RotScaleParDMX;
+		BG3RotScaleParDY = Regs_Arm9.Sect_display9.B_BG3RotScaleParDY;
+		BG3RotScaleParDMY = Regs_Arm9.Sect_display9.B_BG3RotScaleParDMY;
+		BG3RefX = Regs_Arm9.Sect_display9.B_BG3RefX;
+		BG3RefY = Regs_Arm9.Sect_display9.B_BG3RefY;
+		WIN0H_X2 = Regs_Arm9.Sect_display9.B_WIN0H_X2;
+		WIN0H_X1 = Regs_Arm9.Sect_display9.B_WIN0H_X1;
+		WIN1H_X2 = Regs_Arm9.Sect_display9.B_WIN1H_X2;
+		WIN1H_X1 = Regs_Arm9.Sect_display9.B_WIN1H_X1;
+		WIN0V_Y2 = Regs_Arm9.Sect_display9.B_WIN0V_Y2;
+		WIN0V_Y1 = Regs_Arm9.Sect_display9.B_WIN0V_Y1;
+		WIN1V_Y2 = Regs_Arm9.Sect_display9.B_WIN1V_Y2;
+		WIN1V_Y1 = Regs_Arm9.Sect_display9.B_WIN1V_Y1;
+		WININ = Regs_Arm9.Sect_display9.B_WININ;
+		WININ_Window_0_BG0_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_0_BG0_Enable;
+		WININ_Window_0_BG1_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_0_BG1_Enable;
+		WININ_Window_0_BG2_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_0_BG2_Enable;
+		WININ_Window_0_BG3_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_0_BG3_Enable;
+		WININ_Window_0_OBJ_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_0_OBJ_Enable;
+		WININ_Window_0_Special_Effect = Regs_Arm9.Sect_display9.B_WININ_Window_0_Special_Effect;
+		WININ_Window_1_BG0_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_1_BG0_Enable;
+		WININ_Window_1_BG1_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_1_BG1_Enable;
+		WININ_Window_1_BG2_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_1_BG2_Enable;
+		WININ_Window_1_BG3_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_1_BG3_Enable;
+		WININ_Window_1_OBJ_Enable = Regs_Arm9.Sect_display9.B_WININ_Window_1_OBJ_Enable;
+		WININ_Window_1_Special_Effect = Regs_Arm9.Sect_display9.B_WININ_Window_1_Special_Effect;
+		WINOUT = Regs_Arm9.Sect_display9.B_WINOUT;
+		WINOUT_Outside_BG0_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Outside_BG0_Enable;
+		WINOUT_Outside_BG1_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Outside_BG1_Enable;
+		WINOUT_Outside_BG2_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Outside_BG2_Enable;
+		WINOUT_Outside_BG3_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Outside_BG3_Enable;
+		WINOUT_Outside_OBJ_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Outside_OBJ_Enable;
+		WINOUT_Outside_Special_Effect = Regs_Arm9.Sect_display9.B_WINOUT_Outside_Special_Effect;
+		WINOUT_Objwnd_BG0_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Objwnd_BG0_Enable;
+		WINOUT_Objwnd_BG1_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Objwnd_BG1_Enable;
+		WINOUT_Objwnd_BG2_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Objwnd_BG2_Enable;
+		WINOUT_Objwnd_BG3_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Objwnd_BG3_Enable;
+		WINOUT_Objwnd_OBJ_Enable = Regs_Arm9.Sect_display9.B_WINOUT_Objwnd_OBJ_Enable;
+		WINOUT_Objwnd_Special_Effect = Regs_Arm9.Sect_display9.B_WINOUT_Objwnd_Special_Effect;
+		MOSAIC_BG_Mosaic_H_Size = Regs_Arm9.Sect_display9.B_MOSAIC_BG_Mosaic_H_Size;
+		MOSAIC_BG_Mosaic_V_Size = Regs_Arm9.Sect_display9.B_MOSAIC_BG_Mosaic_V_Size;
+		MOSAIC_OBJ_Mosaic_H_Size = Regs_Arm9.Sect_display9.B_MOSAIC_OBJ_Mosaic_H_Size;
+		MOSAIC_OBJ_Mosaic_V_Size = Regs_Arm9.Sect_display9.B_MOSAIC_OBJ_Mosaic_V_Size;
+		BLDCNT = Regs_Arm9.Sect_display9.B_BLDCNT;
+		BLDCNT_BG0_1st_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG0_1st_Target_Pixel;
+		BLDCNT_BG1_1st_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG1_1st_Target_Pixel;
+		BLDCNT_BG2_1st_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG2_1st_Target_Pixel;
+		BLDCNT_BG3_1st_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG3_1st_Target_Pixel;
+		BLDCNT_OBJ_1st_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_OBJ_1st_Target_Pixel;
+		BLDCNT_BD_1st_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BD_1st_Target_Pixel;
+		BLDCNT_Color_Special_Effect = Regs_Arm9.Sect_display9.B_BLDCNT_Color_Special_Effect;
+		BLDCNT_BG0_2nd_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG0_2nd_Target_Pixel;
+		BLDCNT_BG1_2nd_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG1_2nd_Target_Pixel;
+		BLDCNT_BG2_2nd_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG2_2nd_Target_Pixel;
+		BLDCNT_BG3_2nd_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BG3_2nd_Target_Pixel;
+		BLDCNT_OBJ_2nd_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_OBJ_2nd_Target_Pixel;
+		BLDCNT_BD_2nd_Target_Pixel = Regs_Arm9.Sect_display9.B_BLDCNT_BD_2nd_Target_Pixel;
+		BLDALPHA_EVA_Coefficient = Regs_Arm9.Sect_display9.B_BLDALPHA_EVA_Coefficient;
+		BLDALPHA_EVB_Coefficient = Regs_Arm9.Sect_display9.B_BLDALPHA_EVB_Coefficient;
+		BLDY = Regs_Arm9.Sect_display9.B_BLDY;
+	}
 }
 
 void Gpu::dispcnt_write()
 {
-	videomode = (byte)Regs_Arm9.Sect_display9.DISPCNT_BG_Mode.read();
-	displaymode = (byte)Regs_Arm9.Sect_display9.DISPCNT_Display_Mode.read();
+	videomode = (byte)DISPCNT_BG_Mode.read();
+	displaymode = (byte)DISPCNT_Display_Mode.read();
 
-	ext_palette_bg = Regs_Arm9.Sect_display9.DISPCNT_BG_Extended_Palettes.on();
-	ext_palette_obj = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Extended_Palettes.on();
+	ext_palette_bg = DISPCNT_BG_Extended_Palettes.on();
+	ext_palette_obj = DISPCNT_OBJ_Extended_Palettes.on();
 
-	bool new_forcedblank = Regs_Arm9.Sect_display9.DISPCNT_Forced_Blank.on();
+	bool new_forcedblank = DISPCNT_Forced_Blank.on();
 	if (forcedblank && !new_forcedblank)
 	{
 		GPU_Timing.restart_line();
@@ -116,24 +374,24 @@ void Gpu::refpoint_update_all()
 
 void Gpu::refpoint_update_2x()
 {
-	ref2_x = (Int32)Regs_Arm9.Sect_display9.BG2RefX.read();
+	ref2_x = (Int32)BG2RefX.read();
 	if (((ref2_x >> 27) & 1) == 1) { ref2_x = (Int32)(ref2_x | 0xF0000000); }
 	ref2_x_new = false;
 }
 void Gpu::refpoint_update_2y()
 {
-	ref2_y = (Int32)Regs_Arm9.Sect_display9.BG2RefY.read();
+	ref2_y = (Int32)BG2RefY.read();
 	if (((ref2_y >> 27) & 1) == 1) { ref2_y = (Int32)(ref2_y | 0xF0000000); }
 	ref2_y_new = false;
 }
 void Gpu::refpoint_update_3x()
 {
-	ref3_x = (Int32)Regs_Arm9.Sect_display9.BG3RefX.read();
+	ref3_x = (Int32)BG3RefX.read();
 	if (((ref3_x >> 27) & 1) == 1) { ref3_x = (Int32)(ref3_x | 0xF0000000); }
 }
 void Gpu::refpoint_update_3y()
 {
-	ref3_y = (Int32)Regs_Arm9.Sect_display9.BG3RefY.read();
+	ref3_y = (Int32)BG3RefY.read();
 	if (((ref3_y >> 27) & 1) == 1) { ref3_y = (Int32)(ref3_y | 0xF0000000); }
 }
 
@@ -141,7 +399,7 @@ void Gpu::refpoint_update_2x_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref2_x_next = (Int32)Regs_Arm9.Sect_display9.BG2RefX.read();
+		ref2_x_next = (Int32)BG2RefX.read();
 		if (((ref2_x_next >> 27) & 1) == 1) { ref2_x_next = (Int32)(ref2_x_next | 0xF0000000); }
 		ref2_x_new = true;
 	}
@@ -154,7 +412,7 @@ void Gpu::refpoint_update_2y_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref2_y_next = (Int32)Regs_Arm9.Sect_display9.BG2RefY.read();
+		ref2_y_next = (Int32)BG2RefY.read();
 		if (((ref2_y_next >> 27) & 1) == 1) { ref2_y_next = (Int32)(ref2_y_next | 0xF0000000); }
 		ref2_y_new = true;
 	}
@@ -167,7 +425,7 @@ void Gpu::refpoint_update_3x_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref3_x_next = (Int32)Regs_Arm9.Sect_display9.BG3RefX.read();
+		ref3_x_next = (Int32)BG3RefX.read();
 		if (((ref3_x_next >> 27) & 1) == 1) { ref3_x_next = (Int32)(ref3_x_next | 0xF0000000); }
 		ref3_x_new = true;
 	}
@@ -180,7 +438,7 @@ void Gpu::refpoint_update_3y_new()
 {
 	if (GPU_Timing.gpustate == GPUState::VISIBLE)
 	{
-		ref3_y_next = (Int32)Regs_Arm9.Sect_display9.BG3RefY.read();
+		ref3_y_next = (Int32)BG3RefY.read();
 		if (((ref3_y_next >> 27) & 1) == 1) { ref3_y_next = (Int32)(ref3_y_next | 0xF0000000); }
 		ref3_y_new = true;
 	}
@@ -192,25 +450,25 @@ void Gpu::refpoint_update_3y_new()
 
 void Gpu::once_per_hblank()
 {
-	bool DISPCNT_Screen_Display_BG0 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG0.on();
-	on_delay_bg0[2] = on_delay_bg0[1] && DISPCNT_Screen_Display_BG0;
-	on_delay_bg0[1] = on_delay_bg0[0] && DISPCNT_Screen_Display_BG0;
-	on_delay_bg0[0] = DISPCNT_Screen_Display_BG0;
-
-	bool DISPCNT_Screen_Display_BG1 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG1.on();
-	on_delay_bg1[2] = on_delay_bg1[1] && DISPCNT_Screen_Display_BG1;
-	on_delay_bg1[1] = on_delay_bg1[0] && DISPCNT_Screen_Display_BG1;
-	on_delay_bg1[0] = DISPCNT_Screen_Display_BG1;
-
-	bool DISPCNT_Screen_Display_BG2 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG2.on();
-	on_delay_bg2[2] = on_delay_bg2[1] && DISPCNT_Screen_Display_BG2;
-	on_delay_bg2[1] = on_delay_bg2[0] && DISPCNT_Screen_Display_BG2;
-	on_delay_bg2[0] = DISPCNT_Screen_Display_BG2;
-
-	bool DISPCNT_Screen_Display_BG3 = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG3.on();
-	on_delay_bg3[2] = on_delay_bg3[1] && DISPCNT_Screen_Display_BG3;
-	on_delay_bg3[1] = on_delay_bg3[0] && DISPCNT_Screen_Display_BG3;
-	on_delay_bg3[0] = DISPCNT_Screen_Display_BG3;
+	bool Screen_Display_BG0_on = DISPCNT_Screen_Display_BG0.on();
+	on_delay_bg0[2] = on_delay_bg0[1] && Screen_Display_BG0_on;
+	on_delay_bg0[1] = on_delay_bg0[0] && Screen_Display_BG0_on;
+	on_delay_bg0[0] = Screen_Display_BG0_on;
+	
+	bool Screen_Display_BG1_on = DISPCNT_Screen_Display_BG1.on();
+	on_delay_bg1[2] = on_delay_bg1[1] && Screen_Display_BG1_on;
+	on_delay_bg1[1] = on_delay_bg1[0] && Screen_Display_BG1_on;
+	on_delay_bg1[0] = Screen_Display_BG1_on;
+	
+	bool Screen_Display_BG2_on = DISPCNT_Screen_Display_BG2.on();
+	on_delay_bg2[2] = on_delay_bg2[1] && Screen_Display_BG2_on;
+	on_delay_bg2[1] = on_delay_bg2[0] && Screen_Display_BG2_on;
+	on_delay_bg2[0] = Screen_Display_BG2_on;
+	
+	bool Screen_Display_BG3_on = DISPCNT_Screen_Display_BG3.on();
+	on_delay_bg3[2] = on_delay_bg3[1] && Screen_Display_BG3_on;
+	on_delay_bg3[1] = on_delay_bg3[0] && Screen_Display_BG3_on;
+	on_delay_bg3[0] = Screen_Display_BG3_on;
 }
 
 void Gpu::next_line(byte line)
@@ -227,10 +485,10 @@ void Gpu::next_line(byte line)
 	draw_line(line);
 	if (line == 191)
 	{
-		GPU.frameskip_counter++;
-		if (GPU.frameskip_counter > GPU.frameskip)
+		frameskip_counter++;
+		if (frameskip_counter > frameskip)
 		{
-			GPU.frameskip_counter = 0;
+			frameskip_counter = 0;
 		}
 		Uint64 currentTime;
 		double micros = 0;
@@ -256,7 +514,7 @@ void Gpu::next_line(byte line)
 
 		if (videomode > 3)
 		{
-			bool framebuffer_select_new = false;// Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on();
+			bool framebuffer_select_new = false;// DISPCNT_Display_Frame_Select.on();
 			if (framebuffer_select_new != framebuffer_select)
 			{
 				framebuffer_select = framebuffer_select_new;
@@ -269,18 +527,18 @@ void Gpu::next_line(byte line)
 		}
 	}
 
-	if ((videomode > 0 && Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG2.on()))
+	if ((videomode > 0 && DISPCNT_Screen_Display_BG2.on()))
 	{
-		Int16 BG2_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
-		Int16 BG2_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
+		Int16 BG2_DMX = (Int16)BG2RotScaleParDMX.read();
+		Int16 BG2_DMY = (Int16)BG2RotScaleParDMY.read();
 		ref2_x += BG2_DMX;
 		ref2_y += BG2_DMY;
 	}
 
-	if (videomode >= 2 && Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_BG3.on())
+	if (videomode >= 2 && DISPCNT_Screen_Display_BG3.on())
 	{
-		Int16 BG3_DMX = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMX.read();
-		Int16 BG3_DMY = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMY.read();
+		Int16 BG3_DMX = (Int16)BG3RotScaleParDMX.read();
+		Int16 BG3_DMY = (Int16)BG3RotScaleParDMY.read();
 		ref3_x += BG3_DMX;
 		ref3_y += BG3_DMY;
 	}
@@ -291,6 +549,11 @@ void Gpu::draw_line(byte y_in)
 	if (frameskip_counter < frameskip)
 	{
 		while (!mainmemfifo.empty()) mainmemfifo.pop();
+		return;
+	}
+
+	if (disabled)
+	{
 		return;
 	}
 
@@ -316,13 +579,13 @@ void Gpu::draw_line(byte y_in)
 		UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[0];
 		pixelbackdrop.update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 
-		byte prio_bg0 = (byte)Regs_Arm9.Sect_display9.BG0CNT_BG_Priority.read();
-		byte prio_bg1 = (byte)Regs_Arm9.Sect_display9.BG1CNT_BG_Priority.read();
-		byte prio_bg2 = (byte)Regs_Arm9.Sect_display9.BG2CNT_BG_Priority.read();
-		byte prio_bg3 = (byte)Regs_Arm9.Sect_display9.BG3CNT_BG_Priority.read();
+		byte prio_bg0 = (byte)BG0CNT_BG_Priority.read();
+		byte prio_bg1 = (byte)BG1CNT_BG_Priority.read();
+		byte prio_bg2 = (byte)BG2CNT_BG_Priority.read();
+		byte prio_bg3 = (byte)BG3CNT_BG_Priority.read();
 
-		byte mosaic_bg_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_BG_Mosaic_H_Size.read();
-		byte mosaic_bg_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_BG_Mosaic_V_Size.read();
+		byte mosaic_bg_h = (byte)MOSAIC_BG_Mosaic_H_Size.read();
+		byte mosaic_bg_v = (byte)MOSAIC_BG_Mosaic_V_Size.read();
 
 		int pixelcount = 256;
 		if (doubleres)
@@ -334,7 +597,7 @@ void Gpu::draw_line(byte y_in)
 		{
 			if (on_delay_bg0[2])
 			{
-				bool mosaic_on = Regs_Arm9.Sect_display9.BG0CNT_Mosaic.on();
+				bool mosaic_on = BG0CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg0_vcnt == 0)
 				{
 					for (int x = 0; x < 256; x++)
@@ -346,12 +609,12 @@ void Gpu::draw_line(byte y_in)
 					{
 						draw_bg_mode0(pixels_bg0,
 							y,
-							Regs_Arm9.Sect_display9.BG0CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG0CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-							Regs_Arm9.Sect_display9.BG0CNT_Colors_Palettes.on(),
-							(byte)Regs_Arm9.Sect_display9.BG0CNT_Screen_Size.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG0HOFS.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG0VOFS.read());
+							BG0CNT_Screen_Base_Block.read(),
+							BG0CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG0CNT_Colors_Palettes.on(),
+							(byte)BG0CNT_Screen_Size.read(),
+							(UInt16)BG0HOFS.read(),
+							(UInt16)BG0VOFS.read());
 					}
 					if (mosaic_on)
 					{
@@ -380,7 +643,7 @@ void Gpu::draw_line(byte y_in)
 
 			if (on_delay_bg1[2])
 			{
-				bool mosaic_on = Regs_Arm9.Sect_display9.BG1CNT_Mosaic.on();
+				bool mosaic_on = BG1CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg1_vcnt == 0)
 				{
 					for (int x = 0; x < 256; x++)
@@ -392,12 +655,12 @@ void Gpu::draw_line(byte y_in)
 					{
 						draw_bg_mode0(pixels_bg1,
 							y,
-							Regs_Arm9.Sect_display9.BG1CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG1CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-							Regs_Arm9.Sect_display9.BG1CNT_Colors_Palettes.on(),
-							(byte)Regs_Arm9.Sect_display9.BG1CNT_Screen_Size.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG1HOFS.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG1VOFS.read());
+							BG1CNT_Screen_Base_Block.read(),
+							BG1CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG1CNT_Colors_Palettes.on(),
+							(byte)BG1CNT_Screen_Size.read(),
+							(UInt16)BG1HOFS.read(),
+							(UInt16)BG1VOFS.read());
 					}
 					if (mosaic_on)
 					{
@@ -426,7 +689,7 @@ void Gpu::draw_line(byte y_in)
 
 			if (on_delay_bg2[2])
 			{
-				bool mosaic_on = Regs_Arm9.Sect_display9.BG2CNT_Mosaic.on();
+				bool mosaic_on = BG2CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg2_vcnt == 0)
 				{
 					for (int x = 0; x < pixelcount; x++)
@@ -446,63 +709,63 @@ void Gpu::draw_line(byte y_in)
 					case 3:
 						draw_bg_mode0(pixels_bg2_1,
 							y,
-							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-							Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.on(),
-							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG2HOFS.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG2VOFS.read());
+							BG2CNT_Screen_Base_Block.read(),
+							BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG2CNT_Colors_Palettes.on(),
+							(byte)BG2CNT_Screen_Size.read(),
+							(UInt16)BG2HOFS.read(),
+							(UInt16)BG2VOFS.read());
 						break;
 					case 2:
 					case 4:
 						draw_bg_mode2(pixels_bg2_1,
 							2,
 							false,
-							Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-							Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
-							(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+							BG2CNT_Screen_Base_Block.read(),
+							BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG2CNT_Display_Area_Overflow.on(),
+							(byte)BG2CNT_Screen_Size.read(),
 							ref2_x,
 							ref2_y,
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-							(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
+							(Int16)BG2RotScaleParDX.read(),
+							(Int16)BG2RotScaleParDY.read(),
 							doubleres,
 							true);
 						if (doubleres)
 						{
-							Int16 BG2_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
-							Int16 BG2_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
+							Int16 BG2_DMX = (Int16)BG2RotScaleParDMX.read();
+							Int16 BG2_DMY = (Int16)BG2RotScaleParDMY.read();
 							draw_bg_mode2(pixels_bg2_2,
 								2,
 								false,
-								Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-								Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
-								(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+								BG2CNT_Screen_Base_Block.read(),
+								BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+								BG2CNT_Display_Area_Overflow.on(),
+								(byte)BG2CNT_Screen_Size.read(),
 								ref2_x + BG2_DMX / 2,
 								ref2_y + BG2_DMY / 2,
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
+								(Int16)BG2RotScaleParDX.read(),
+								(Int16)BG2RotScaleParDY.read(),
 								doubleres,
 								true);
 						}
 						break;
 					case 5:
-						switch ((Regs_Arm9.Sect_display9.BG2CNT_Colors_Palettes.read() * 2) + (Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() & 1))
+						switch ((BG2CNT_Colors_Palettes.read() * 2) + (BG2CNT_Character_Base_Block.read() & 1))
 						{
 						case 0: //rot / scal with 16bit bgmap entries(Text + Affine mixup)
 						case 1:
 							draw_bg_mode2(pixels_bg2,
 								3,
 								true,
-								Regs_Arm9.Sect_display9.BG2CNT_Screen_Base_Block.read(),
-								Regs_Arm9.Sect_display9.BG2CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
-								(byte)Regs_Arm9.Sect_display9.BG2CNT_Screen_Size.read(),
+								BG2CNT_Screen_Base_Block.read(),
+								BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+								BG2CNT_Display_Area_Overflow.on(),
+								(byte)BG2CNT_Screen_Size.read(),
 								ref2_x,
 								ref2_y,
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read(),
+								(Int16)BG2RotScaleParDX.read(),
+								(Int16)BG2RotScaleParDY.read(),
 								false,
 								false);
 							break;
@@ -510,21 +773,21 @@ void Gpu::draw_line(byte y_in)
 						case 2: // rot/scal 256 color bitmap
 							draw_bg_mode4(
 								pixels_bg2,
-								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+								BG2CNT_Display_Area_Overflow.on(),
 								ref2_x,
 								ref2_y,
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+								(Int16)BG2RotScaleParDX.read(),
+								(Int16)BG2RotScaleParDY.read());
 							break;
 
 						case 3: // rot/scal direct color bitmap
 							draw_bg_mode5(
 								pixels_bg2,
-								Regs_Arm9.Sect_display9.BG2CNT_Display_Area_Overflow.on(),
+								BG2CNT_Display_Area_Overflow.on(),
 								ref2_x,
 								ref2_y,
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDY.read());
+								(Int16)BG2RotScaleParDX.read(),
+								(Int16)BG2RotScaleParDY.read());
 							break;
 						}
 						break;
@@ -562,7 +825,7 @@ void Gpu::draw_line(byte y_in)
 
 			if (on_delay_bg3[2])
 			{
-				bool mosaic_on = Regs_Arm9.Sect_display9.BG3CNT_Mosaic.on();
+				bool mosaic_on = BG3CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg3_vcnt == 0)
 				{
 					for (int x = 0; x < 256; x++)
@@ -575,47 +838,47 @@ void Gpu::draw_line(byte y_in)
 					case 0:
 						draw_bg_mode0(pixels_bg3,
 							y,
-							Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-							Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.on(),
-							(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG3HOFS.read(),
-							(UInt16)Regs_Arm9.Sect_display9.BG3VOFS.read());
+							BG3CNT_Screen_Base_Block.read(),
+							BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG3CNT_Colors_Palettes.on(),
+							(byte)BG3CNT_Screen_Size.read(),
+							(UInt16)BG3HOFS.read(),
+							(UInt16)BG3VOFS.read());
 						break;
 					case 1:
 					case 2:
 						draw_bg_mode2(pixels_bg3,
 							3,
 							false,
-							Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-							Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-							Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
-							(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
+							BG3CNT_Screen_Base_Block.read(),
+							BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG3CNT_Display_Area_Overflow.on(),
+							(byte)BG3CNT_Screen_Size.read(),
 							ref3_x,
 							ref3_y,
-							(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
-							(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read(),
+							(Int16)BG3RotScaleParDX.read(),
+							(Int16)BG3RotScaleParDY.read(),
 							false,
 							false);
 						break;
 					case 3:
 					case 4:
 					case 5:
-						switch ((Regs_Arm9.Sect_display9.BG3CNT_Colors_Palettes.read() * 2) + (Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() & 1))
+						switch ((BG3CNT_Colors_Palettes.read() * 2) + (BG3CNT_Character_Base_Block.read() & 1))
 						{
 						case 0: //rot / scal with 16bit bgmap entries(Text + Affine mixup)
 						case 1:
 							draw_bg_mode2(pixels_bg3,
 								3,
 								true,
-								Regs_Arm9.Sect_display9.BG3CNT_Screen_Base_Block.read(),
-								Regs_Arm9.Sect_display9.BG3CNT_Character_Base_Block.read() + (Regs_Arm9.Sect_display9.DISPCNT_Character_Base.read() * 4),
-								Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
-								(byte)Regs_Arm9.Sect_display9.BG3CNT_Screen_Size.read(),
+								BG3CNT_Screen_Base_Block.read(),
+								BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+								BG3CNT_Display_Area_Overflow.on(),
+								(byte)BG3CNT_Screen_Size.read(),
 								ref3_x,
 								ref3_y,
-								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read(),
+								(Int16)BG3RotScaleParDX.read(),
+								(Int16)BG3RotScaleParDY.read(),
 								false,
 								false);
 							break;
@@ -623,21 +886,21 @@ void Gpu::draw_line(byte y_in)
 						case 2: // rot/scal 256 color bitmap
 							draw_bg_mode4(
 								pixels_bg3,
-								Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
+								BG3CNT_Display_Area_Overflow.on(),
 								ref3_x,
 								ref3_y,
-								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read());
+								(Int16)BG3RotScaleParDX.read(),
+								(Int16)BG3RotScaleParDY.read());
 							break;
 
 						case 3: // rot/scal direct color bitmap
 							draw_bg_mode5(
 								pixels_bg3,
-								Regs_Arm9.Sect_display9.BG3CNT_Display_Area_Overflow.on(),
+								BG3CNT_Display_Area_Overflow.on(),
 								ref3_x,
 								ref3_y,
-								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDX.read(),
-								(Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDY.read());
+								(Int16)BG3RotScaleParDX.read(),
+								(Int16)BG3RotScaleParDY.read());
 							break;
 						}
 					}
@@ -671,7 +934,7 @@ void Gpu::draw_line(byte y_in)
 			if (ref3_x_new == true) { ref3_x = ref3_x_next; ref3_x_new = false; }
 			if (ref3_y_new == true) { ref3_y = ref3_y_next; ref3_y_new = false; }
 
-			bool spriteon = Regs_Arm9.Sect_display9.DISPCNT_Screen_Display_OBJ.on();
+			bool spriteon = DISPCNT_Screen_Display_OBJ.on();
 			for (int x = 0; x < 256; x++)
 			{
 				pixels_obj[x].transparent = true;
@@ -692,55 +955,55 @@ void Gpu::draw_line(byte y_in)
 			bool inwin_0y = false;
 			UInt32 win0_X1 = 0;
 			UInt32 win0_X2 = 0;
-			if (Regs_Arm9.Sect_display9.DISPCNT_Window_0_Display_Flag.on())
+			if (DISPCNT_Window_0_Display_Flag.on())
 			{
 				anywindow = true;
-				UInt32 Y1 = Regs_Arm9.Sect_display9.WIN0V_Y1.read();
-				UInt32 Y2 = Regs_Arm9.Sect_display9.WIN0V_Y2.read();
+				UInt32 Y1 = WIN0V_Y1.read();
+				UInt32 Y2 = WIN0V_Y2.read();
 				if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
 				{
 					inwin_0y = true;
-					win0_X1 = Regs_Arm9.Sect_display9.WIN0H_X1.read();
-					win0_X2 = Regs_Arm9.Sect_display9.WIN0H_X2.read();
+					win0_X1 = WIN0H_X1.read();
+					win0_X2 = WIN0H_X2.read();
 				}
 			}
 
 			bool inwin_1y = false;
 			UInt32 win1_X1 = 0;
 			UInt32 win1_X2 = 0;
-			if (Regs_Arm9.Sect_display9.DISPCNT_Window_1_Display_Flag.on())
+			if (DISPCNT_Window_1_Display_Flag.on())
 			{
 				anywindow = true;
-				UInt32 Y1 = Regs_Arm9.Sect_display9.WIN1V_Y1.read();
-				UInt32 Y2 = Regs_Arm9.Sect_display9.WIN1V_Y2.read();
+				UInt32 Y1 = WIN1V_Y1.read();
+				UInt32 Y2 = WIN1V_Y2.read();
 				if ((Y1 <= Y2 && y >= Y1 && y < Y2) || (Y1 > Y2 && (y >= Y1 || y < Y2)))
 				{
 					inwin_1y = true;
 
-					win1_X1 = Regs_Arm9.Sect_display9.WIN1H_X1.read();
-					win1_X2 = Regs_Arm9.Sect_display9.WIN1H_X2.read();
+					win1_X1 = WIN1H_X1.read();
+					win1_X2 = WIN1H_X2.read();
 				}
 			}
 
-			bool objwindow_on = Regs_Arm9.Sect_display9.DISPCNT_OBJ_Wnd_Display_Flag.on() && spriteon;
+			bool objwindow_on = DISPCNT_OBJ_Wnd_Display_Flag.on() && spriteon;
 			anywindow |= objwindow_on;
 
-			byte enables_wnd0 = (byte)(Regs_Arm9.Sect_display9.WININ.read() & 0x1F);
-			byte enables_wnd1 = (byte)((Regs_Arm9.Sect_display9.WININ.read() >> 8) & 0x1F);
-			byte enables_out = (byte)(Regs_Arm9.Sect_display9.WINOUT.read() & 0x1F);
-			byte enables_obj = (byte)((Regs_Arm9.Sect_display9.WINOUT.read() >> 8) & 0x1F);
+			byte enables_wnd0 = (byte)(WININ.read() & 0x1F);
+			byte enables_wnd1 = (byte)((WININ.read() >> 8) & 0x1F);
+			byte enables_out = (byte)(WINOUT.read() & 0x1F);
+			byte enables_obj = (byte)((WINOUT.read() >> 8) & 0x1F);
 
-			bool inwin_0_special = Regs_Arm9.Sect_display9.WININ_Window_0_Special_Effect.on();
-			bool inwin_1_special = Regs_Arm9.Sect_display9.WININ_Window_1_Special_Effect.on();
-			bool obj_special = Regs_Arm9.Sect_display9.WINOUT_Objwnd_Special_Effect.on();
-			bool outside_special = Regs_Arm9.Sect_display9.WINOUT_Outside_Special_Effect.on();
+			bool inwin_0_special = WININ_Window_0_Special_Effect.on();
+			bool inwin_1_special = WININ_Window_1_Special_Effect.on();
+			bool obj_special = WINOUT_Objwnd_Special_Effect.on();
+			bool outside_special = WINOUT_Outside_Special_Effect.on();
 
-			byte special_effect_base = (byte)Regs_Arm9.Sect_display9.BLDCNT_Color_Special_Effect.read();
-			byte first_target = (byte)(Regs_Arm9.Sect_display9.BLDCNT.read() & 0x3F);
-			byte second_target = (byte)((Regs_Arm9.Sect_display9.BLDCNT.read() >> 8) & 0x3F);
-			byte bldy = (byte)Regs_Arm9.Sect_display9.BLDY.read();
-			byte eva = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVA_Coefficient.read();
-			byte evb = (byte)Regs_Arm9.Sect_display9.BLDALPHA_EVB_Coefficient.read();
+			byte special_effect_base = (byte)BLDCNT_Color_Special_Effect.read();
+			byte first_target = (byte)(BLDCNT.read() & 0x3F);
+			byte second_target = (byte)((BLDCNT.read() >> 8) & 0x3F);
+			byte bldy = (byte)BLDY.read();
+			byte eva = (byte)BLDALPHA_EVA_Coefficient.read();
+			byte evb = (byte)BLDALPHA_EVB_Coefficient.read();
 
 			if (bldy > 16) { bldy = 16; }
 			if (eva > 16) { eva = 16; }
@@ -965,7 +1228,7 @@ void Gpu::draw_line(byte y_in)
 		}
 		else if (displaymode == 2)
 		{
-			uint block = Regs_Arm9.Sect_display9.DISPCNT_VRAM_block.read();
+			uint block = DISPCNT_VRAM_block.read();
 			for (int x = 0; x < 256; x++)
 			{
 				UInt16 color = *(UInt16*)&Memory.VRAM[block * 131072 + y * 512 + x * 2];
@@ -996,15 +1259,24 @@ void Gpu::draw_line(byte y_in)
 
 uint Gpu::get_mapped_bg_address(uint address_in)
 {
-	for (int i = 0; i < 7; i++) // A..G
+	if (isGPUA)
 	{
-		if (Memory.vrammux[i].MST == 1)
+		for (int i = 0; i < 7; i++) // A..G
 		{
-			if (address_in >= Memory.vrammux[i].gpustart && address_in <= Memory.vrammux[i].gpuend)
+			if (Memory.vrammux[i].MST == 1)
 			{
-				return Memory.vrammux[i].vramoffset + (address_in - Memory.vrammux[i].gpustart);
+				if (address_in >= Memory.vrammux[i].gpustart && address_in <= Memory.vrammux[i].gpuend)
+				{
+					return Memory.vrammux[i].vramoffset + (address_in - Memory.vrammux[i].gpustart);
+				}
 			}
 		}
+	}
+	else
+	{
+		if (Memory.vrammux[VRAMBANK::C].MST == 4 && address_in >= Memory.vrammux[VRAMBANK::C].gpustart && address_in <= Memory.vrammux[VRAMBANK::C].gpuend) return Memory.vrammux[VRAMBANK::C].vramoffset + (address_in - Memory.vrammux[VRAMBANK::C].gpustart);
+		if (Memory.vrammux[VRAMBANK::H].MST == 1 && address_in >= Memory.vrammux[VRAMBANK::H].gpustart && address_in <= Memory.vrammux[VRAMBANK::H].gpuend) return Memory.vrammux[VRAMBANK::H].vramoffset + (address_in - Memory.vrammux[VRAMBANK::H].gpustart);
+		if (Memory.vrammux[VRAMBANK::I].MST == 1 && address_in >= Memory.vrammux[VRAMBANK::I].gpustart && address_in <= Memory.vrammux[VRAMBANK::I].gpuend) return Memory.vrammux[VRAMBANK::I].vramoffset + (address_in - Memory.vrammux[VRAMBANK::I].gpustart);
 	}
 }
 
@@ -1190,7 +1462,7 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			{
 				tileindex <<= 1;
 				int addr = max(0, min(0x17FFF, mapbaseaddr + tileindex));
-			    tileinfo = *(UInt16*)&Memory.VRAM[addr]; // 10 bit tilenumber + h/v flip + 4 bit palette
+			    tileinfo = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(addr)]; // 10 bit tilenumber + h/v flip + 4 bit palette
 				horflip = ((tileinfo >> 10) & 1) == 1;
 				verflip = ((tileinfo >> 11) & 1) == 1;
 				palette = (byte)(tileinfo >> 12);
@@ -1199,7 +1471,7 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			else
 			{
 				int addr = max(0, min(0x17FFF, mapbaseaddr + tileindex));
-			    tileinfo = Memory.VRAM[addr]; 
+			    tileinfo = Memory.VRAM[get_mapped_bg_address(addr)];
 				horflip = false;
 				verflip = false;
 				palette = 0;
@@ -1227,7 +1499,7 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			tileY &= 7;
 
 			int pixeladdr = (tileinfo << 6) + (tileY * 8) + tileX;
-			byte colordata = Memory.VRAM[tilebaseaddr + pixeladdr];
+			byte colordata = Memory.VRAM[get_mapped_bg_address(tilebaseaddr + pixeladdr)];
 
 			UInt16 colorall = 0;
 			if (ext_palette_bg)
@@ -1266,13 +1538,13 @@ void Gpu::draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tileb
 	Int16 BG_DMY;
 	if (is_bg2)
 	{
-		BG_DMX = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMX.read();
-		BG_DMY = (Int16)Regs_Arm9.Sect_display9.BG2RotScaleParDMY.read();
+		BG_DMX = (Int16)BG2RotScaleParDMX.read();
+		BG_DMY = (Int16)BG2RotScaleParDMY.read();
 	}
 	else
 	{
-		BG_DMX = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMX.read();
-		BG_DMY = (Int16)Regs_Arm9.Sect_display9.BG3RotScaleParDMY.read();
+		BG_DMX = (Int16)BG3RotScaleParDMX.read();
+		BG_DMY = (Int16)BG3RotScaleParDMY.read();
 	}
 
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
@@ -1396,7 +1668,7 @@ void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 		if (wrap || xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 256)
 		{
 			int address = yyy * 256 + xxx;
-			//if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
+			//if (DISPCNT_Display_Frame_Select.on())
 			//{
 			//	address += 0xA000;
 			//}
@@ -1424,7 +1696,7 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 		if (wrap || xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 256)
 		{
 			int address = yyy * 512 + (xxx * 2);
-			//if (Regs_Arm9.Sect_display9.DISPCNT_Display_Frame_Select.on())
+			//if (DISPCNT_Display_Frame_Select.on())
 			//{
 			//	address += 0xA000;
 			//}
@@ -1439,17 +1711,33 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 	}
 }
 
+uint Gpu::get_mapped_obj_address(uint address_in)
+{
+	if (isGPUA)
+	{
+		if (Memory.vrammux[VRAMBANK::A].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::A].gpustart && address_in <= Memory.vrammux[VRAMBANK::A].gpuend) return Memory.vrammux[VRAMBANK::A].vramoffset + (address_in - Memory.vrammux[VRAMBANK::A].gpustart);
+		if (Memory.vrammux[VRAMBANK::B].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::B].gpustart && address_in <= Memory.vrammux[VRAMBANK::B].gpuend) return Memory.vrammux[VRAMBANK::B].vramoffset + (address_in - Memory.vrammux[VRAMBANK::B].gpustart);
+		if (Memory.vrammux[VRAMBANK::E].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::E].gpustart && address_in <= Memory.vrammux[VRAMBANK::E].gpuend) return Memory.vrammux[VRAMBANK::E].vramoffset + (address_in - Memory.vrammux[VRAMBANK::E].gpustart);
+		if (Memory.vrammux[VRAMBANK::F].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::F].gpustart && address_in <= Memory.vrammux[VRAMBANK::F].gpuend) return Memory.vrammux[VRAMBANK::F].vramoffset + (address_in - Memory.vrammux[VRAMBANK::F].gpustart);
+		if (Memory.vrammux[VRAMBANK::G].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::G].gpustart && address_in <= Memory.vrammux[VRAMBANK::G].gpuend) return Memory.vrammux[VRAMBANK::G].vramoffset + (address_in - Memory.vrammux[VRAMBANK::G].gpustart);
+	}
+	else
+	{
+		if (Memory.vrammux[VRAMBANK::D].MST == 4 && address_in >= Memory.vrammux[VRAMBANK::D].gpustart && address_in <= Memory.vrammux[VRAMBANK::D].gpuend) return Memory.vrammux[VRAMBANK::D].vramoffset + (address_in - Memory.vrammux[VRAMBANK::D].gpustart);
+		if (Memory.vrammux[VRAMBANK::I].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::I].gpustart && address_in <= Memory.vrammux[VRAMBANK::I].gpuend) return Memory.vrammux[VRAMBANK::I].vramoffset + (address_in - Memory.vrammux[VRAMBANK::I].gpustart);
+	}
+}
+
 uint Gpu::get_mapped_obj_extpalette_address(uint address_in)
 {
-	for (int i = 5; i < 7; i++) // F..G
+	if (isGPUA)
 	{
-		if (Memory.vrammux[i].MST == 5)
-		{
-			if (address_in >= Memory.vrammux[i].gpustart && address_in <= Memory.vrammux[i].gpuend)
-			{
-				return Memory.vrammux[i].vramoffset + (address_in - Memory.vrammux[i].gpustart);
-			}
-		}
+		if (Memory.vrammux[VRAMBANK::F].MST == 5 && address_in >= Memory.vrammux[VRAMBANK::F].gpustart && address_in <= Memory.vrammux[VRAMBANK::F].gpuend) return Memory.vrammux[VRAMBANK::F].vramoffset + (address_in - Memory.vrammux[VRAMBANK::F].gpustart);
+		if (Memory.vrammux[VRAMBANK::G].MST == 5 && address_in >= Memory.vrammux[VRAMBANK::G].gpustart && address_in <= Memory.vrammux[VRAMBANK::G].gpuend) return Memory.vrammux[VRAMBANK::G].vramoffset + (address_in - Memory.vrammux[VRAMBANK::G].gpustart);
+	}
+	else
+	{
+		if (Memory.vrammux[VRAMBANK::I].MST == 3 && address_in >= Memory.vrammux[VRAMBANK::I].gpustart && address_in <= Memory.vrammux[VRAMBANK::I].gpuend) return Memory.vrammux[VRAMBANK::I].vramoffset + (address_in - Memory.vrammux[VRAMBANK::I].gpustart);
 	}
 }
 
@@ -1462,14 +1750,14 @@ void Gpu::draw_obj(int y, int baseaddr)
 		pixels_obj[x].alpha = false;
 	}
 
-	bool one_dim_mapping = Regs_Arm9.Sect_display9.DISPCNT_Tile_OBJ_Mapping.on();
+	bool one_dim_mapping = DISPCNT_Tile_OBJ_Mapping.on();
 
-	byte mosaic_h = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_H_Size.read();
-	byte mosaic_v = (byte)Regs_Arm9.Sect_display9.MOSAIC_OBJ_Mosaic_V_Size.read();
+	byte mosaic_h = (byte)MOSAIC_OBJ_Mosaic_H_Size.read();
+	byte mosaic_v = (byte)MOSAIC_OBJ_Mosaic_V_Size.read();
 
 	int cycles = 0;
 	int pixellimit = 1210;
-	//if (Regs_Arm9.Sect_display9.DISPCNT_H_Blank_IntervalFree.on())
+	//if (DISPCNT_H_Blank_IntervalFree.on())
 	//{
 	//	pixellimit = 954;
 	//}
@@ -1688,7 +1976,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 							if (pixeladdr_X >= 0)
 							{
-								byte colordata = Memory.VRAM[pixeladdr_X];
+								byte colordata = Memory.VRAM[get_mapped_obj_address(pixeladdr_X)];
 
 								if (!hicolor)
 								{
@@ -1777,7 +2065,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 }
 
-void Gpu::draw_game()
+void Gpu::draw_game(uint* framebuffer_raw)
 {
 	//if (SDL_LockMutex(drawlock) == 0)
 	{
@@ -1798,12 +2086,18 @@ void Gpu::draw_game()
 		//}
 		//else
 		{
+			int addr = 0;
+			if (!isGPUA)
+			{
+				addr = 192 * 256;
+			}
 			for (int y = 0; y < 192; y++)
 			{
 				for (int x = 0; x < 256; x++)
 				{
 					unsigned int color = (pixels[x][y].color_red << 16) | (pixels[x][y].color_green << 8) | pixels[x][y].color_blue;
-					buffer[y * 256 + x] = color;
+					framebuffer_raw[addr] = color;
+					addr++;
 				}
 			}
 		}
