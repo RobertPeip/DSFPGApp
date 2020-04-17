@@ -33,6 +33,9 @@ public:
 
 	UInt64 next_event_time;
 
+	bool vcount_irp_next9;
+	bool vcount_irp_next7;
+
 	void reset();
 	void dispstat_write();
 	void work();

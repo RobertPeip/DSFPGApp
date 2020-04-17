@@ -788,6 +788,26 @@ public:
     /// </summary>
     DSReg SPIDATA;
     /// <summary>
+    /// 0-1 Power Down Mode Select
+    /// </summary>
+    DSReg SPIDATA_Power_Down_Mode;
+    /// <summary>
+    /// 2 Reference Select (0=Differential, 1=Single-Ended)
+    /// </summary>
+    DSReg SPIDATA_Reference_Select;
+    /// <summary>
+    /// 3 Conversion Mode (0=12bit, max CLK=2MHz, 1=8bit, max CLK=3MHz)
+    /// </summary>
+    DSReg SPIDATA_Conversion_Mode;
+    /// <summary>
+    /// 4-6 Channel Select (0-7, see below)
+    /// </summary>
+    DSReg SPIDATA_Channel_Select;
+    /// <summary>
+    /// 7 Start Bit (Must be set to access Control Byte)
+    /// </summary>
+    DSReg SPIDATA_Start_Bit;
+    /// <summary>
     /// External Memory Status (R/W..R)
     /// </summary>
     DSReg EXMEMSTAT;
@@ -1092,8 +1112,8 @@ public:
 
     byte data[4208];
     byte rwmask[4208];
-    const int allregcount = 257;
-    DSReg allregs[257];
+    const int allregcount = 262;
+    DSReg allregs[262];
 
     void reset();
 };

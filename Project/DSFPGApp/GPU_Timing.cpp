@@ -15,6 +15,8 @@ void GPUTiming::reset()
 	line = 0;
 	gpustate = GPUState::HSTART;
 	old_dispstat = 0;
+	vcount_irp_next9 = false;
+	vcount_irp_next7 = false;
 }
 
 void GPUTiming::dispstat_write()
@@ -43,6 +45,16 @@ void GPUTiming::work()
 				localticks += 12;
 				next_event_time = localticks + 84;
 				gpustate = GPUState::HIRQ;
+				if (vcount_irp_next9)
+				{
+					vcount_irp_next9 = false;
+					IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match);
+				}
+				if (vcount_irp_next7)
+				{
+					vcount_irp_next7 = false;
+					IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match);
+				}
 			}
 			break;
 
@@ -196,6 +208,7 @@ void GPUTiming::nextline()
 	Regs_Arm9.Sect_display9.VCOUNT.write(line);
 	Regs_Arm7.Sect_display7.VCOUNT.write(line);
 
+	// vcount compare arm9
 	UInt16 vcount_compare = Regs_Arm9.Sect_display9.DISPSTAT_V_Count_Setting.read();
 	if (Regs_Arm9.Sect_display9.DISPSTAT_V_Count_Setting8.on())
 	{
@@ -204,14 +217,28 @@ void GPUTiming::nextline()
 
 	if (line == vcount_compare)
 	{
-		if (Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match);
-		if (Regs_Arm7.Sect_display7.DISPSTAT_V_Counter_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match);
+		if (Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_IRQ_Enable.on()) vcount_irp_next9 = true;
 		Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_flag.write(1);
-		Regs_Arm7.Sect_display7.DISPSTAT_V_Counter_flag.write(1);
 	}
 	else
 	{
 		Regs_Arm9.Sect_display9.DISPSTAT_V_Counter_flag.write(0);
+	}
+
+	// vcount compare arm7
+    vcount_compare = Regs_Arm7.Sect_display7.DISPSTAT_V_Count_Setting.read();
+	if (Regs_Arm7.Sect_display7.DISPSTAT_V_Count_Setting8.on())
+	{
+		vcount_compare += 256;
+	}
+
+	if (line == vcount_compare)
+	{
+		if (Regs_Arm7.Sect_display7.DISPSTAT_V_Counter_IRQ_Enable.on()) vcount_irp_next7 = true;
+		Regs_Arm7.Sect_display7.DISPSTAT_V_Counter_flag.write(1);
+	}
+	else
+	{
 		Regs_Arm7.Sect_display7.DISPSTAT_V_Counter_flag.write(0);
 	}
 }

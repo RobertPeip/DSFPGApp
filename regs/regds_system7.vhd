@@ -86,7 +86,11 @@ package pReg_ds_system_7 is
    constant SPICNT_Interrupt_Request               : regmap_type := (16#1C0#,  14,     14,        1,        0,   readwrite); -- 14    Interrupt Request   (0=Disable, 1=Enable)
    constant SPICNT_SPI_Bus_Enable                  : regmap_type := (16#1C0#,  15,     15,        1,        0,   readwrite); -- 15    SPI Bus Enable      (0=Disable, 1=Enable)
    constant SPIDATA                                : regmap_type := (16#1C0#,  23,     16,        1,        0,   readwrite); -- SPI Bus Data/Strobe Register (R/W)           
-   
+   constant SPIDATA_Power_Down_Mode                : regmap_type := (16#1C0#,  17,     16,        1,        0,   readwrite); -- 0-1  Power Down Mode Select
+   constant SPIDATA_Reference_Select               : regmap_type := (16#1C0#,  18,     18,        1,        0,   readwrite); -- 2    Reference Select (0=Differential, 1=Single-Ended)
+   constant SPIDATA_Conversion_Mode                : regmap_type := (16#1C0#,  20,     19,        1,        0,   readwrite); -- 3    Conversion Mode  (0=12bit, max CLK=2MHz, 1=8bit, max CLK=3MHz)
+   constant SPIDATA_Channel_Select                 : regmap_type := (16#1C0#,  22,     20,        1,        0,   readwrite); -- 4-6  Channel Select   (0-7, see below)
+   constant SPIDATA_Start_Bit                      : regmap_type := (16#1C0#,  23,     23,        1,        0,   readwrite); -- 7    Start Bit (Must be set to access Control Byte)
    
    constant EXMEMSTAT                              : regmap_type := (16#204#,  29,      0,        1,        0,   readwrite); -- External Memory Status (R/W..R)
    constant EXMEMSTAT_GBASlot_SRAM_Access_Time     : regmap_type := (16#204#,   1,      0,        1,        0,   readwrite); -- 0-1   32-pin GBA Slot SRAM Access Time    (0-3 = 10, 8, 6, 18 cycles)

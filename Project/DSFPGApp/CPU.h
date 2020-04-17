@@ -140,6 +140,11 @@ private:
 	void QSUB(byte Rn, byte Rd, byte Rm);
 	void QDADD(byte Rn, byte Rd, byte Rm);
 	void QDSUB(byte Rn, byte Rd, byte Rm);
+	void SMUL(byte Rd, byte Rs, byte Rm, bool x, bool y);
+	void SMULW(byte Rd, byte Rs, byte Rm, bool y);
+	void SMLA(byte Rd, byte Rn, byte Rs, byte Rm, bool x, bool y);
+	void SMLAW(byte Rd, byte Rn, byte Rs, byte Rm, bool y);
+	void SMLAL(byte RdHi, byte RdLo, byte Rs, byte Rm, bool x, bool y);
 
 	void coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset);
 	void coprocessor_data_operation(byte opCode, byte opRegn, byte dstReg, byte coNumber, byte coInfo, byte opRegm);

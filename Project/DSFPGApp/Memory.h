@@ -54,6 +54,8 @@ public:
 
 	Byte Bios7[16384];
 	Byte Bios9[4096];
+	Byte Firmware[262144];
+	Byte FirmwareUser[112];
 
 	byte wrammux;
 

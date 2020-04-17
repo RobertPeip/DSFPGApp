@@ -80,7 +80,8 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000304);// (UInt32)SoundDMA.soundDMAs[0].fifo.Count;
+	this->memory02 = CPU.lastAddress;
+	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x027ffce0);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -728,7 +729,7 @@ void Cpu::long_branch_with_link(bool high, UInt16 SOffset11)
 		PC = (UInt32)(regs[14] + (SOffset11 << 1));
 		PC &= 0xFFFFFFFE;
 
-		newticks = 3; // +BusTiming.codeTicksAccessSeq16(isArm9, PC) + BusTiming.codeTicksAccess16(isArm9, PC);
+		newticks = 3;
 
 		PC -= 2;
 		regs[14] = (old_pc + 2) | 1;
@@ -746,7 +747,7 @@ void Cpu::unconditional_branch(UInt16 SOffset11)
 		PC = (UInt32)(regs[15] + (SOffset11 << 1));
 	}
 	PC &= 0xFFFFFFFE;
-	newticks = 3; // +BusTiming.codeTicksAccessSeq16(isArm9, PC) + BusTiming.codeTicksAccess16(isArm9, PC);
+	newticks = 3;
 	PC -= 2;
 }
 
@@ -775,7 +776,7 @@ void Cpu::conditional_branch(byte cond, byte SOffset8)
 	{
 		PC = (UInt32)(regs[15] + ((SByte)SOffset8 << 1)) - 2;
 		PC &= 0xFFFFFFFE;
-		newticks = 3; //+BusTiming.codeTicksAccessSeq16(isArm9, PC + 2) + BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = 3;
 	}
 }
 
@@ -837,43 +838,39 @@ void Cpu::load_address(bool sp, byte Rd, byte word8)
 
 void Cpu::sp_relative_load_store(bool load, byte Rd, byte word8)
 {
-	//if (BusTiming.busPrefetchCount == 0)
-	//{
-	//    BusTiming.busPrefetch = BusTiming.busPrefetchEnable;
-	//}
 	UInt32 address = regs[13] + (UInt32)(word8 << 2);
 	if (load)
 	{
 		regs[Rd] = (*read_dword)(ACCESSTYPE::CPUDATA, address);
-		newticks = 3 + BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
+		if (!isArm9) newticks += 3;
+		if (newticks < 3) newticks = 3;
 	}
 	else
 	{
 		(*write_dword)(ACCESSTYPE::CPUDATA, address, regs[Rd]);
-		newticks = 2 + BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
+		if (!isArm9) newticks += 2;
+		if (newticks < 2) newticks = 2;
 	}
 }
 
 void Cpu::load_store_halfword(bool load, byte Offset5, byte Rb, byte Rd)
 {
-	//if (BusTiming.busPrefetchCount == 0)
-	//{
-	//    BusTiming.busPrefetch = BusTiming.busPrefetchEnable;
-	//}
 	UInt32 address = regs[Rb] + (UInt32)(Offset5 << 1);
 	if (load)
 	{
 		regs[Rd] = (*read_word)(ACCESSTYPE::CPUDATA, address);
-		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
+		if (!isArm9) newticks += 3;
+		if (newticks < 3) newticks = 3;
 	}
 	else
 	{
-		newticks = 2 + BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress); // done before write, so there is time for bustiming change to happen
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress); // done before write, so there is time for bustiming change to happen
 		(*write_word)(ACCESSTYPE::CPUDATA, address, (UInt16)regs[Rd]);
+		if (!isArm9) newticks += 2;
+		if (newticks < 2) newticks = 2;
 	}
 }
 
@@ -885,33 +882,33 @@ void Cpu::load_store_with_immidiate_offset(bool load, bool byteflag, byte Offset
 		{
 			UInt32 address = regs[Rb] + Offset5;
 			regs[Rd] = (*read_byte)(ACCESSTYPE::CPUDATA, address);
-			newticks = 3 + BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 		}
 		else
 		{
 			UInt32 address = regs[Rb] + (UInt32)(Offset5 << 2);
 			regs[Rd] = (*read_dword)(ACCESSTYPE::CPUDATA, address);
-			newticks = 3 + BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
 		}
+		if (!isArm9) newticks += 3;
+		if (newticks < 3) newticks = 3;
 	}
 	else
 	{
 		if (byteflag)
 		{
 			UInt32 address = regs[Rb] + Offset5;
-			newticks = 2 + BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
 			(*write_byte)(ACCESSTYPE::CPUDATA, address, (byte)regs[Rd]);
 		}
 		else
 		{
 			UInt32 address = regs[Rb] + (UInt32)(Offset5 << 2);
-			newticks = 2 + BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
 			(*write_dword)(ACCESSTYPE::CPUDATA, address, regs[Rd]);
 		}
+		if (!isArm9) newticks += 2;
+		if (newticks < 2) newticks = 2;
 	}
 }
 
@@ -921,21 +918,18 @@ void Cpu::load_store_sign_extended_byte_halfword(byte opcode_hs, byte Ro, byte R
 	switch (opcode_hs)
 	{
 	case 0: // Store halfword
-		newticks = 2 + BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess816(isArm9, false, address, false, lastAddress);
 		(*write_word)(ACCESSTYPE::CPUDATA, address, (UInt16)regs[Rd]);
 		break;
 
 	case 1: // Load sign-extended byte
 		regs[Rd] = (UInt32)((Int32)(SByte)(*read_byte)(ACCESSTYPE::CPUDATA, address));
-		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 		break;
 
 	case 2: // Load halfword
 		regs[Rd] = (*read_word)(ACCESSTYPE::CPUDATA, address);
-		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 		break;
 
 	case 3: // Load sign-extended halfword:
@@ -947,10 +941,19 @@ void Cpu::load_store_sign_extended_byte_halfword(byte opcode_hs, byte Ro, byte R
 		{
 			regs[Rd] = (UInt32)((Int32)(SByte)(*read_word)(ACCESSTYPE::CPUDATA, address));
 		}
-
-		newticks = 3 + BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
-		//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+		newticks = BusTiming.dataTicksAccess816(isArm9, false, address, true, lastAddress);
 		break;
+	}
+
+	if (opcode_hs < 1)
+	{
+		if (!isArm9) newticks += 2;
+		if (newticks < 2) newticks = 2;
+	}
+	else
+	{
+		if (!isArm9) newticks += 3;
+		if (newticks < 3) newticks = 3;
 	}
 }
 
@@ -963,30 +966,30 @@ void Cpu::load_store_with_register_offset(bool load, bool byteflag, byte Ro, byt
 		if (byteflag)
 		{
 			regs[Rd] = (*read_byte)(ACCESSTYPE::CPUDATA, address);
-			newticks = 3 + BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess816(isArm9, true, address, true, lastAddress);
 		}
 		else
 		{
 			regs[Rd] = (*read_dword)(ACCESSTYPE::CPUDATA, address);
-			newticks = 3 + BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
 		}
+		if (!isArm9) newticks += 3;
+		if (newticks < 3) newticks = 3;
 	}
 	else
 	{
 		if (byteflag)
 		{
 			(*write_byte)(ACCESSTYPE::CPUDATA, address, (byte)regs[Rd]);
-			newticks = 2 + BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess816(isArm9, true, address, false, lastAddress);
 		}
 		else
 		{
 			(*write_dword)(ACCESSTYPE::CPUDATA, address, regs[Rd]);
-			newticks = 2 + BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
-			//newticks += BusTiming.codeTicksAccess16(isArm9, PC + 2);
+			newticks = BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
 		}
+		if (!isArm9) newticks += 2;
+		if (newticks < 2) newticks = 2;
 	}
 }
 
@@ -995,15 +998,15 @@ void Cpu::pc_relative_load(byte Rd, byte word8)
 	uint addr = regs[15] + (UInt32)(word8 << 2);
 	addr &= 0xFFFFFFFC;
 	regs[Rd] = (*read_dword)(ACCESSTYPE::CPUDATA, addr);
-	newticks = 3 + BusTiming.dataTicksAccess32(isArm9, addr, true, lastAddress);
+	newticks = BusTiming.dataTicksAccess32(isArm9, addr, true, lastAddress);
+	if (!isArm9) newticks += 3;
+	if (newticks < 3) newticks = 3;
 }
 
 void Cpu::thumbbranch_by_R15_write()
 {
 	PC = (regs[15] & 0xFFFFFFFE) - 2;
 	newticks = 3;
-	newticks += BusTiming.codeTicksAccessSeq16(isArm9, PC - 2);
-	newticks += BusTiming.codeTicksAccess16(isArm9, PC - 2);
 }
 
 void Cpu::hi_register_operations_branch_exchange(byte opcode_h1h2, byte RsHs, byte RdHd)
@@ -1302,6 +1305,26 @@ void Cpu::arm_command()
 				{
 					QDSUB((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 12) & 0xF), (Byte)(asmcmd & 0xF));
 				}
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x16) && (opcode_low & 0x9) == 0x8)
+				{
+					SMUL((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 5) & 1) == 1, ((asmcmd >> 6) & 1) == 1);
+				}
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && (opcode_low & 0x9) == 0xC)
+				{
+					SMULW((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 6) & 1) == 1);
+				}
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x10) && (opcode_low & 0x9) == 0x8)
+				{
+					SMLA((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 12) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 5) & 1) == 1, ((asmcmd >> 6) & 1) == 1);
+				}
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && (opcode_low & 0x9) == 0x8)
+				{
+					SMLAW((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 12) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 6) & 1) == 1);
+				}
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x14) && (opcode_low & 0x9) == 0x8)
+				{
+					SMLAL((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 12) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 5) & 1) == 1, ((asmcmd >> 6) & 1) == 1);
+				}
 				else
 				{
 					opcode_mid = (Byte)((asmcmd >> 21) & 0xF); // bit 24..21
@@ -1455,6 +1478,7 @@ void Cpu::branch(bool link, UInt32 offset)
 void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 reglist)
 {
 	bool first = true;
+	bool oldmode = thumbmode;
 
 	bool R15set = (reglist & 0x8000) == 0x8000 || reglist == 0;
 	UInt32 address = regs[Rn_op1];
@@ -1667,8 +1691,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 			regs[Rn_op1] = endaddress;
 		}
 	}
-
-	bool oldmode = thumbmode;
 
 	// should only happen in priviledged mode
 	if ((opcode & 2) == 2) // PSR & force user bit
@@ -2805,6 +2827,7 @@ void Cpu::QADD(byte Rn, byte Rd, byte Rm)
 		newticks = 2;
 	}
 }
+
 void Cpu::QSUB(byte Rn, byte Rd, byte Rm)
 {
 	UInt32 op1_val = regs[Rm];
@@ -2833,6 +2856,7 @@ void Cpu::QSUB(byte Rn, byte Rd, byte Rm)
 		newticks = 2;
 	}
 }
+
 void Cpu::QDADD(byte Rn, byte Rd, byte Rm)
 {
 	UInt32 op1_val = regs[Rm];
@@ -2915,6 +2939,184 @@ void Cpu::QDSUB(byte Rn, byte Rd, byte Rm)
 	{
 		newticks = 2;
 	}
+}
+
+void Cpu::SMUL(byte Rd, byte Rs, byte Rm, bool x, bool y)
+{
+	UInt32 op1_val = regs[Rm];
+	UInt32 op2_val = regs[Rs];
+
+	Int16 mul1;
+	Int16 mul2;
+	if (x)
+	{
+		mul1 = (Int16)(op1_val >> 16);
+	}
+	else
+	{
+		mul1 = (Int16)(op1_val & 0xFFFF);
+	}
+	if (y)
+	{
+		mul2 = (Int16)(op2_val >> 16);
+	}
+	else
+	{
+		mul2 = (Int16)(op2_val & 0xFFFF);
+	}
+
+	Int32 result = (Int32)mul1 * (Int32)mul2;
+	regs[Rd] = result;
+
+	if (Rd == 15)
+	{
+		PC = regs[15];
+		newticks = 3;
+		PC &= 0xFFFFFFFC;
+		PC -= 4;
+	}
+	else
+	{
+		newticks = 2;
+	}
+}
+
+void Cpu::SMULW(byte Rd, byte Rs, byte Rm, bool y)
+{
+	Int32 op1_val = (Int32)regs[Rm];
+	UInt32 op2_val = regs[Rs];
+
+	Int16 mul1;
+	Int16 mul2;
+	if (y)
+	{
+		mul2 = (Int16)(op2_val >> 16);
+	}
+	else
+	{
+		mul2 = (Int16)(op2_val & 0xFFFF);
+	}
+
+	Int64 result = (Int64)op1_val * (Int64)mul2;
+	regs[Rd] = (UInt32)(result >> 16);
+
+	if (Rd == 15)
+	{
+		PC = regs[15];
+		newticks = 3;
+		PC &= 0xFFFFFFFC;
+		PC -= 4;
+	}
+	else
+	{
+		newticks = 2;
+	}
+}
+
+void Cpu::SMLA(byte Rd, byte Rn, byte Rs, byte Rm, bool x, bool y)
+{
+	UInt32 op1_val = regs[Rm];
+	UInt32 op2_val = regs[Rs];
+	Int32 op_add = (Int32)regs[Rn];
+
+	Int16 mul1;
+	Int16 mul2;
+	if (x)
+	{
+		mul1 = (Int16)(op1_val >> 16);
+	}
+	else
+	{
+		mul1 = (Int16)(op1_val & 0xFFFF);
+	}
+	if (y)
+	{
+		mul2 = (Int16)(op2_val >> 16);
+	}
+	else
+	{
+		mul2 = (Int16)(op2_val & 0xFFFF);
+	}
+
+	Int32 result = (Int32)mul1 * (Int32)mul2;
+	regs[Rd] = (UInt32)(result + op_add);
+
+	if (Rd == 15)
+	{
+		PC = regs[15];
+		newticks = 3;
+		PC &= 0xFFFFFFFC;
+		PC -= 4;
+	}
+	else
+	{
+		newticks = 2;
+	}
+}
+
+void Cpu::SMLAW(byte Rd, byte Rn, byte Rs, byte Rm, bool y)
+{
+	Int32 op1_val = (Int32)regs[Rm];
+	UInt32 op2_val = regs[Rs];
+	Int32 op_add = (Int32)regs[Rn];
+
+	Int16 mul2;
+	if (y)
+	{
+		mul2 = (Int16)(op2_val >> 16);
+	}
+	else
+	{
+		mul2 = (Int16)(op2_val & 0xFFFF);
+	}
+
+	Int64 result = (Int64)op1_val * (Int64)mul2;
+	regs[Rd] = (UInt32)((result >> 16) + op_add);
+
+	if (Rd == 15)
+	{
+		PC = regs[15];
+		newticks = 3;
+		PC &= 0xFFFFFFFC;
+		PC -= 4;
+	}
+	else
+	{
+		newticks = 2;
+	}
+}
+
+void Cpu::SMLAL(byte RdHi, byte RdLo, byte Rs, byte Rm, bool x, bool y)
+{
+	UInt32 op1_val = regs[Rm];
+	UInt32 op2_val = regs[Rs];
+
+	Int16 mul1;
+	Int16 mul2;
+	if (x)
+	{
+		mul1 = (Int16)(op1_val >> 16);
+	}
+	else
+	{
+		mul1 = (Int16)(op1_val & 0xFFFF);
+	}
+	if (y)
+	{
+		mul2 = (Int16)(op2_val >> 16);
+	}
+	else
+	{
+		mul2 = (Int16)(op2_val & 0xFFFF);
+	}
+
+	Int32 result = (Int32)mul1 * (Int32)mul2;
+	Int64 Rdvalue = (Int64)((((UInt64)regs[RdHi]) << 32) | (UInt64)regs[RdLo]);
+
+	regs[RdHi] = (UInt32)(Rdvalue >> 32);
+	regs[RdLo] = (UInt32)(Rdvalue);
+
+	newticks = 2;
 }
 
 void Cpu::coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset)

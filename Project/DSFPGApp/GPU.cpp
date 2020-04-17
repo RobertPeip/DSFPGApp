@@ -1700,7 +1700,7 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 			//{
 			//	address += 0xA000;
 			//}
-			UInt16 colorall = *(UInt16*)&Memory.VRAM[address & 0x1FFFF];
+			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(address & 0x1FFFF)];
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixelslocal[x].transparent = false;
 		}

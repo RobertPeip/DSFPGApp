@@ -24,6 +24,7 @@ int BUSTiming::dataTicksAccess816(bool isArm9, bool is8Bit, UInt32 address, bool
 	{
 		if ((address & (~0x3FFF)) == Co15.DTCMRegion)
 		{
+			lastAddress = address;
 			return 1;
 		}
 

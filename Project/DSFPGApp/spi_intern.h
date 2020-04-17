@@ -9,8 +9,10 @@ public:
 	byte powerman_control;
 	byte powerman_regs[5];
 
+	bool first;
+	byte lastcommand;
+
 	void reset();
 	void write_data(byte value);
-
 };
 extern SPI_INTERN SPI_Intern;
