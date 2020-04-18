@@ -80,8 +80,8 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = CPU.lastAddress;
-	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x027ffce0);
+	//this->memory02 = CPU.lastAddress;
+	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04001000);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -2619,6 +2619,17 @@ void Cpu::set_CPSR(UInt32 value)
 	FIQ_disable = (value & 0x40) == 0x40;
 	IRQ_disable = (value & 0x80) == 0x80;
 	thumbmode = (value & 0x20) == 0x20;
+	if (!IRQ_disable)
+	{
+		if (isArm9)
+		{
+			IRP9.checknext = true;
+		}
+		else
+		{
+			IRP7.checknext = true;
+		}
+	}
 }
 
 void Cpu::CPUSwitchMode(CPUMODES mode, bool saveState)

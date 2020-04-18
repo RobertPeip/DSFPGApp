@@ -543,9 +543,9 @@ RegSect_system9::RegSect_system9()
     DIV_RESULT_High = DSReg(0x2A4, 31, 0, 1, 0, "readonly", "DIV_RESULT_High", Regs_Arm9.data);
     DIVREM_RESULT_Low = DSReg(0x2A8, 31, 0, 1, 0, "readonly", "DIVREM_RESULT_Low", Regs_Arm9.data);
     DIVREM_RESULT_High = DSReg(0x2AC, 31, 0, 1, 0, "readonly", "DIVREM_RESULT_High", Regs_Arm9.data);
-    SQRTCN = DSReg(0x280, 31, 0, 1, 0, "writeonly", "SQRTCN", Regs_Arm9.data);
-    SQRTCN_Mode = DSReg(0x280, 0, 0, 1, 0, "readwrite", "SQRTCN_Mode", Regs_Arm9.data);
-    SQRTCN_Busy = DSReg(0x280, 15, 15, 1, 0, "readonly", "SQRTCN_Busy", Regs_Arm9.data);
+    SQRTCN = DSReg(0x2B0, 31, 0, 1, 0, "writeonly", "SQRTCN", Regs_Arm9.data);
+    SQRTCN_Mode = DSReg(0x2B0, 0, 0, 1, 0, "readwrite", "SQRTCN_Mode", Regs_Arm9.data);
+    SQRTCN_Busy = DSReg(0x2B0, 15, 15, 1, 0, "readonly", "SQRTCN_Busy", Regs_Arm9.data);
     SQRT_RESULT = DSReg(0x2B4, 31, 0, 1, 0, "readonly", "SQRT_RESULT", Regs_Arm9.data);
     SQRT_PARAM_Low = DSReg(0x2B8, 31, 0, 1, 0, "readwrite", "SQRT_PARAM_Low", Regs_Arm9.data);
     SQRT_PARAM_High = DSReg(0x2BC, 31, 0, 1, 0, "readwrite", "SQRT_PARAM_High", Regs_Arm9.data);
@@ -1506,6 +1506,11 @@ void REGS_Arm9::reset()
     rwmask[685] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[686] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[687] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
+    // SQRTCN at 0x2B0 = 0x8001;
+    rwmask[688] = (byte)(0x8001 & 0xFF);
+    rwmask[689] = (byte)((0x8001 >> 8) & 0xFF);
+    rwmask[690] = (byte)((0x8001 >> 16) & 0xFF);
+    rwmask[691] = (byte)((0x8001 >> 24) & 0xFF);
     // SQRT_RESULT at 0x2B4 = 0xFFFFFFFF;
     rwmask[692] = (byte)(0xFFFFFFFF & 0xFF);
     rwmask[693] = (byte)((0xFFFFFFFF >> 8) & 0xFF);

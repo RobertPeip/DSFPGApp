@@ -39,6 +39,7 @@ class Gpu
 public:
 	bool isGPUA;
 	bool disabled = false;
+	bool swap;
 
 	bool lockSpeed = true;
 	int speedmult = 1;

@@ -94,14 +94,14 @@ void Gameboy::run()
 		//}
 		//Serial.work();
 
-		if (IRP9.checknext) IRP9.check_and_excute_irp();
-		if (IRP7.checknext) IRP7.check_and_excute_irp();
+		if (IRP9.checknext) IRP9.check_and_execute_irp();
+		if (IRP7.checknext) IRP7.check_and_execute_irp();
 
 		UInt64 nexteventtotal = next_event_time();
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 30159)
+		if (tracer.traclist_ptr == 220505)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -123,7 +123,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 1700000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 3700000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 300000;
@@ -139,7 +139,7 @@ void Gameboy::run()
 			if (tracer.runmoretrace == 0)
 			{
 				tracer.runmoretrace = -1;
-				//tracer.vcd_file_last();
+				tracer.vcd_file_last();
 			}
 		}
 		tracer.commands++;

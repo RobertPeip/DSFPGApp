@@ -557,7 +557,10 @@ void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 		}
 		return;
 
-	case 5: Memory.PaletteRAM[address & 0x3FE] = data; Memory.PaletteRAM[(address & 0x3FE) + 1] = data; return;
+	case 5: 
+		Memory.PaletteRAM[address & 0x3FE] = data;
+		Memory.PaletteRAM[(address & 0x3FE) + 1] = data; 
+		return;
 
 	case 6: // byte write not supported
 		return;
@@ -1388,6 +1391,16 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr >= Regs_Arm9.Sect_system9.DIVCNT.address && adr < Regs_Arm9.Sect_system9.DIV_DENOM_High.address + 4) { MathDIV.write(); return; }
 	if (adr >= Regs_Arm9.Sect_system9.SQRTCN.address && adr < Regs_Arm9.Sect_system9.SQRTCN.address + 4) { MathSQRT.write(); return; }
 	if (adr >= Regs_Arm9.Sect_system9.SQRT_PARAM_Low.address && adr < Regs_Arm9.Sect_system9.SQRT_PARAM_High.address + 4) { MathSQRT.write(); return; }
+
+	if (adr >= Regs_Arm9.Sect_system9.POWCNT1.address) 
+	{
+		if (Regs_Arm9.Sect_system9.POWCNT1_Display_Swap.on())
+		{
+			GPU_A.swap = !GPU_A.swap;
+			GPU_B.swap = !GPU_B.swap;
+		}
+		return; 
+	}
 }
 
 void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
@@ -1414,6 +1427,7 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOSEND.address) { IPC7to9.writefifo(value); return; }
 
+	if (adr == Regs_Arm7.Sect_system7.SPICNT.address) { SPI_Intern.check_reset((UInt16)value); return; }
 	if (adr == Regs_Arm7.Sect_system7.SPICNT.address + 2) { SPI_Intern.write_data((byte)value); return; }
 
 	if (adr == Regs_Arm7.Sect_system7.POSTFLG_Flag.address) { CPU7.halt = true; return; }

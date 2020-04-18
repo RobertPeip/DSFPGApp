@@ -68,6 +68,7 @@ void Pixel::blacker(byte change)
 void Gpu::reset(bool isGPUA)
 {
 	this->isGPUA = isGPUA;
+	swap = !isGPUA;
 
 #if DEBUG
 	lockSpeed = false;
@@ -2087,7 +2088,7 @@ void Gpu::draw_game(uint* framebuffer_raw)
 		//else
 		{
 			int addr = 0;
-			if (!isGPUA)
+			if (swap)
 			{
 				addr = 192 * 256;
 			}

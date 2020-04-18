@@ -33,13 +33,13 @@ void Irp::set_irp_bit(UInt32 mask)
 {
 	IRP_Flags |= mask;
 	REG_IF.write(IRP_Flags);
-
 	checknext = true;
 }
 
 void Irp::update_IE()
 {
 	IE = REG_IE.read();
+	checknext = true;
 }
 
 void Irp::clear_irp_bits()
@@ -52,6 +52,7 @@ void Irp::clear_irp_bits()
 void Irp::update_IME(UInt32 value)
 {
 	Master_enable = (value & 1) == 1;
+	checknext = true;
 }
 
 UInt32 Irp::get_IF_with_mask()
@@ -59,7 +60,7 @@ UInt32 Irp::get_IF_with_mask()
 	return IRP_Flags & IE;
 }
 
-void Irp::check_and_excute_irp()
+void Irp::check_and_execute_irp()
 {
 	if (!CPU->IRQ_disable && Master_enable && get_IF_with_mask() > 0)
 	{

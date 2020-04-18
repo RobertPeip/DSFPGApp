@@ -50,7 +50,7 @@ public:
 	void clear_irp_bits();
 	void update_IME(UInt32 value);
 	UInt32 get_IF_with_mask();
-	void check_and_excute_irp();
+	void check_and_execute_irp();
 };
 extern Irp IRP9;
 extern Irp IRP7;

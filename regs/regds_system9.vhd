@@ -172,9 +172,9 @@ package pReg_ds_system_9 is
    constant DIVREM_RESULT_Low                      : regmap_type := (16#2A8#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
    constant DIVREM_RESULT_High                     : regmap_type := (16#2AC#,  31,      0,        1,        0,   readonly ); -- 64bit Remainder (=Numer MOD Denom) (R)
          
-   constant SQRTCN                                 : regmap_type := (16#280#,  31,      0,        1,        0,   writeonly); -- Square Root Control (R/W)      
-   constant SQRTCN_Mode                            : regmap_type := (16#280#,   0,      0,        1,        0,   readwrite); -- 0     Mode (0=32bit input, 1=64bit input)
-   constant SQRTCN_Busy                            : regmap_type := (16#280#,  15,     15,        1,        0,   readonly ); -- 15    Busy (0=Ready, 1=Busy) (Execution time is 13 clks, in either Mode)
+   constant SQRTCN                                 : regmap_type := (16#2B0#,  31,      0,        1,        0,   writeonly); -- Square Root Control (R/W)      
+   constant SQRTCN_Mode                            : regmap_type := (16#2B0#,   0,      0,        1,        0,   readwrite); -- 0     Mode (0=32bit input, 1=64bit input)
+   constant SQRTCN_Busy                            : regmap_type := (16#2B0#,  15,     15,        1,        0,   readonly ); -- 15    Busy (0=Ready, 1=Busy) (Execution time is 13 clks, in either Mode)
    constant SQRT_RESULT                            : regmap_type := (16#2B4#,  31,      0,        1,        0,   readonly ); -- Square Root Result (R)       
    constant SQRT_PARAM_Low                         : regmap_type := (16#2B8#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)          
    constant SQRT_PARAM_High                        : regmap_type := (16#2BC#,  31,      0,        1,        0,   readwrite); -- Square Root Parameter Input (R/W)    
