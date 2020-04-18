@@ -609,6 +609,7 @@ void Gpu::draw_line(byte y_in)
 					if (videomode < 6)
 					{
 						draw_bg_mode0(pixels_bg0,
+							0,
 							y,
 							BG0CNT_Screen_Base_Block.read(),
 							BG0CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
@@ -655,6 +656,7 @@ void Gpu::draw_line(byte y_in)
 					if (videomode < 6)
 					{
 						draw_bg_mode0(pixels_bg1,
+							1,
 							y,
 							BG1CNT_Screen_Base_Block.read(),
 							BG1CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
@@ -709,6 +711,7 @@ void Gpu::draw_line(byte y_in)
 					case 1:
 					case 3:
 						draw_bg_mode0(pixels_bg2_1,
+							2,
 							y,
 							BG2CNT_Screen_Base_Block.read(),
 							BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
@@ -838,6 +841,7 @@ void Gpu::draw_line(byte y_in)
 					{
 					case 0:
 						draw_bg_mode0(pixels_bg3,
+							3,
 							y,
 							BG3CNT_Screen_Base_Block.read(),
 							BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
@@ -1281,7 +1285,21 @@ uint Gpu::get_mapped_bg_address(uint address_in)
 	}
 }
 
-void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY)
+uint Gpu::get_mapped_bg_extpalette_address(uint address_in)
+{
+	if (isGPUA)
+	{
+		if (Memory.vrammux[VRAMBANK::E].MST == 4 && address_in >= Memory.vrammux[VRAMBANK::E].gpustart && address_in <= Memory.vrammux[VRAMBANK::E].gpuend) return Memory.vrammux[VRAMBANK::E].vramoffset + (address_in - Memory.vrammux[VRAMBANK::E].gpustart);
+		if (Memory.vrammux[VRAMBANK::F].MST == 4 && address_in >= Memory.vrammux[VRAMBANK::F].gpustart && address_in <= Memory.vrammux[VRAMBANK::F].gpuend) return Memory.vrammux[VRAMBANK::F].vramoffset + (address_in - Memory.vrammux[VRAMBANK::F].gpustart);
+		if (Memory.vrammux[VRAMBANK::G].MST == 4 && address_in >= Memory.vrammux[VRAMBANK::G].gpustart && address_in <= Memory.vrammux[VRAMBANK::G].gpuend) return Memory.vrammux[VRAMBANK::G].vramoffset + (address_in - Memory.vrammux[VRAMBANK::G].gpustart);
+	}
+	else
+	{
+		if (Memory.vrammux[VRAMBANK::H].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::H].gpustart && address_in <= Memory.vrammux[VRAMBANK::H].gpuend) return Memory.vrammux[VRAMBANK::H].vramoffset + (address_in - Memory.vrammux[VRAMBANK::H].gpustart);
+	}
+}
+
+void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY)
 {
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
 	Int32 tilebaseaddr = (int)tilebase * 0x4000; // 16kb blocks
@@ -1368,7 +1386,17 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tile
 		}
 		byte colordata = Memory.VRAM[get_mapped_bg_address(pixeladdr)];
 
-		if (!hicolor)
+		if (ext_palette_bg)
+		{
+			byte palette = (byte)(tileinfo >> 12);
+			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
+			pixelslocal[x].transparent = false; // ((colorall >> 15) & 1) == 0;
+			if (!pixelslocal[x].transparent)
+			{
+				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
+			}
+		}
+		else if (!hicolor)
 		{
 			if (horflip && (x_scrolled & 1) == 0 || !horflip && (x_scrolled & 1) == 1)
 			{
@@ -1401,12 +1429,6 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], byte y, UInt32 mapbase, UInt32 tile
 
 void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2)
 {
-	if (SSAA4x)
-	{
-		draw_bg_mode2_SSAA4x(pixelslocal, mapbase, tilebase, wrapping, screensize, refX, refY, dx, dy, is_bg2);
-		return;
-	}
-
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
 	Int32 tilebaseaddr = (int)tilebase * 0x4000; // 64kb blocks
 
@@ -1505,20 +1527,16 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			UInt16 colorall = 0;
 			if (ext_palette_bg)
 			{
-				colorall = *(UInt16*)&Memory.VRAM[0x80000 + 0x2000 * engine + palette * 512 + colordata * 2];
+				colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
+				pixelslocal[x].transparent = false; //((colorall >> 15) & 1) == 0;
 			}
 			else
 			{
 				colorall = *(UInt16*)&Memory.PaletteRAM[colordata * 2];
+				pixelslocal[x].transparent = colordata == 0;
 			}
-
-			if (colorall != 0)
-			{
-				int a = 5;
-			}
-
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
-			pixelslocal[x].transparent = colordata == 0;
+			
 		}
 		if (doubleres)
 		{
@@ -1530,125 +1548,6 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			realX += dx;
 			realY += dy;
 		}
-	}
-}
-
-void Gpu::draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool is_bg2)
-{
-	Int16 BG_DMX;
-	Int16 BG_DMY;
-	if (is_bg2)
-	{
-		BG_DMX = (Int16)BG2RotScaleParDMX.read();
-		BG_DMY = (Int16)BG2RotScaleParDMY.read();
-	}
-	else
-	{
-		BG_DMX = (Int16)BG3RotScaleParDMX.read();
-		BG_DMY = (Int16)BG3RotScaleParDMY.read();
-	}
-
-	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
-	Int32 tilebaseaddr = (int)tilebase * 0x4000; // 16kb blocks
-
-	Int32 realX = refX;
-	Int32 realY = refY;
-
-	Int32 scroll_x_mod = 128;
-	Int32 scroll_y_mod = 128;
-	switch (screensize)
-	{
-	case 1: scroll_x_mod = 256; scroll_y_mod = 256; break;
-	case 2: scroll_x_mod = 512; scroll_y_mod = 512; break;
-	case 3: scroll_x_mod = 1024; scroll_y_mod = 1024; break;
-	}
-
-	int yshift = screensize + 4;
-
-	Pixel pixels[16];
-
-	for (int x = 0; x < 256; x++)
-	{
-		bool draw = true;
-		int xxx;
-		int yyy;
-		if (wrapping)
-		{
-			xxx = (realX >> 8) % scroll_x_mod;
-			yyy = (realY >> 8) % scroll_y_mod;
-		}
-		else
-		{
-			xxx = (realX >> 8);
-			yyy = (realY >> 8);
-
-			if (xxx < 0 || yyy < 0 || xxx >= scroll_x_mod || yyy >= scroll_y_mod)
-			{
-				pixelslocal[x].transparent = true;
-				draw = false;
-			}
-		}
-
-		if (draw)
-		{
-			for (int yi = 0; yi < 4; yi++)
-			{
-				Int32 refx_mod = refX;
-				Int32 refy_mod = refY;
-
-				refx_mod += (BG_DMX * yi) / 4;
-				refy_mod += (BG_DMY * yi) / 4;
-
-				for (int xi = 0; xi < 4; xi++)
-				{
-
-					realX = refx_mod + (((x * 4 + xi) * dx / 4));
-					realY = refy_mod + (((x * 4 + xi) * dy / 4));
-
-					if (wrapping)
-					{
-						xxx = (realX >> 8) % scroll_x_mod;
-						yyy = (realY >> 8) % scroll_y_mod;
-					}
-					else
-					{
-						xxx = (realX >> 8);
-						yyy = (realY >> 8);
-					}
-
-					int tileindex = (xxx >> 3) + ((yyy >> 3) << yshift);
-					int addr = max(0, min(0x17FFF, mapbaseaddr + tileindex));
-					byte tileinfo = Memory.VRAM[addr];
-
-					int tileX = xxx & 7;
-					int tileY = yyy & 7;
-					int pixeladdr = (tileinfo << 6) + (tileY * 8) + tileX;
-					byte colordata = Memory.VRAM[tilebaseaddr + pixeladdr];
-
-					UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[colordata * 2];
-					pixelslocal[x].transparent = colorall == 0;
-					pixels[yi * 4 + xi].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
-				}
-			}
-
-			int color_red = 0;
-			int color_green = 0;
-			int color_blue = 0;
-			//for (int i = 0; i < pixels.Length; i++)
-			for (int i = 0; i < 16; i++)
-			{
-				color_red += pixels[i].color_red;
-				color_green += pixels[i].color_green;
-				color_blue += pixels[i].color_blue;
-			}
-
-			pixelslocal[x].color_red = (byte)(color_red / 16); // 16 => pixels.Length
-			pixelslocal[x].color_green = (byte)(color_green / 16);
-			pixelslocal[x].color_blue = (byte)(color_blue / 16);
-		}
-
-		realX += dx;
-		realY += dy;
 	}
 }
 
@@ -1756,8 +1655,12 @@ void Gpu::draw_obj(int y, int baseaddr)
 	byte mosaic_h = (byte)MOSAIC_OBJ_Mosaic_H_Size.read();
 	byte mosaic_v = (byte)MOSAIC_OBJ_Mosaic_V_Size.read();
 
+	bool bitmap_OBJ_2D_Dim = DISPCNT_Bitmap_OBJ_2D_Dim.on();
+	bool bitmap_OBJ_Mapping = DISPCNT_Bitmap_OBJ_Mapping.on();
+	bool bitmap_OBJ_1D_Boundary = DISPCNT_Bitmap_OBJ_1D_Boundary.on();
+
 	int cycles = 0;
-	int pixellimit = 1210;
+	int pixellimit = 2130;
 	//if (DISPCNT_H_Blank_IntervalFree.on())
 	//{
 	//	pixellimit = 954;
@@ -1875,6 +1778,33 @@ void Gpu::draw_obj(int y, int baseaddr)
 				Int16 dmy;
 				int realX = 0;
 				int realY = 0;
+				bool bitmap_mode = ((Atr0 >> 10) & 3) == 3;
+				if (bitmap_mode)
+				{
+					if (bitmap_OBJ_Mapping)
+					{
+						if (bitmap_OBJ_1D_Boundary)
+						{
+							pixeladdr = tileindex * 256;
+						}
+						else
+						{
+							pixeladdr = tileindex * 128;
+						}
+					}
+					else
+					{
+						if (bitmap_OBJ_2D_Dim)
+						{
+							pixeladdr = (tileindex & 0x3E0) * 128 + (tileindex & 0x01F) * 8;
+						}
+						else
+						{
+							pixeladdr = (tileindex & 0x3F0) * 128 + (tileindex & 0x00F) * 8;
+						}
+					}
+				}
+
 				if (affine)
 				{
 					cycles += 10;
@@ -1888,7 +1818,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 					realX = ((sizeX) << 7) - (fieldX >> 1)* dx - (fieldY >> 1)* dmx + ty * dmx;
 					realY = ((sizeY) << 7) - (fieldX >> 1)* dy - (fieldY >> 1)* dmy + ty * dmy;
 				}
-				else
+				else if (!bitmap_mode)
 				{
 					if (verflip)
 					{
@@ -1938,7 +1868,42 @@ void Gpu::draw_obj(int y, int baseaddr)
 						else
 						{
 							int pixeladdr_X = -1;
-							if (affine)
+							if (bitmap_mode)
+							{
+								int xxx; 
+								int yyy; 
+								if (affine)
+								{
+									xxx = realX >> 8;
+									yyy = realY >> 8;
+								}
+								else
+								{
+									xxx = x;
+									yyy = ty;
+								}
+								if (xxx >= 0 && xxx < sizeX && yyy >= 0 && yyy < sizeY)
+								{
+									pixeladdr_X = pixeladdr;
+									if (bitmap_OBJ_2D_Dim)
+									{
+										if (bitmap_OBJ_2D_Dim)
+										{
+											pixeladdr_X += yyy * 512;
+										}
+										else
+										{
+											pixeladdr_X += yyy * 256;
+										}
+										pixeladdr_X += xxx * 2;
+									}
+									else
+									{
+										pixeladdr_X += (yyy * sizeX + xxx) * 2;
+									}
+								}
+							}
+							else if (affine)
 							{
 								int xxx = realX >> 8;
 								int yyy = realY >> 8;
@@ -1977,36 +1942,47 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 							if (pixeladdr_X >= 0)
 							{
-								byte colordata = Memory.VRAM[get_mapped_obj_address(pixeladdr_X)];
-
-								if (!hicolor)
+								bool transparent;
+								byte colordata;
+								UInt16 colorall;
+								if (bitmap_mode)
 								{
-									if (affine)
+									colorall = *(UInt16*)&Memory.VRAM[get_mapped_obj_address(pixeladdr_X)];
+									transparent = false; // ((colorall >> 15) & 1) == 0;
+								}
+								else
+								{
+								    colordata = Memory.VRAM[get_mapped_obj_address(pixeladdr_X)];
+									if (!hicolor)
 									{
-										if (second_pix)
+										if (affine)
 										{
-											colordata = (byte)(colordata >> 4);
+											if (second_pix)
+											{
+												colordata = (byte)(colordata >> 4);
+											}
+											else
+											{
+												colordata = (byte)(colordata & 0xF);
+											}
 										}
 										else
 										{
-											colordata = (byte)(colordata & 0xF);
+											if (horflip && (x & 1) == 0 || !horflip && (x & 1) == 1)
+											{
+												colordata = (byte)(colordata >> 4);
+											}
+											else
+											{
+												colordata = (byte)(colordata & 0xF);
+											}
 										}
 									}
-									else
-									{
-										if (horflip && (x & 1) == 0 || !horflip && (x & 1) == 1)
-										{
-											colordata = (byte)(colordata >> 4);
-										}
-										else
-										{
-											colordata = (byte)(colordata & 0xF);
-										}
-									}
+
+									transparent = colordata == 0;
 								}
 
 								bool objwnd = ((Atr0 >> 10) & 3) == 2;
-								bool transparent = colordata == 0;
 								if (!transparent)
 								{
 									pixels_obj[target].objwnd |= objwnd;
@@ -2015,20 +1991,23 @@ void Gpu::draw_obj(int y, int baseaddr)
 								{
 									if (pixels_obj[target].undrawn || pixels_obj[target].transparent || prio < pixels_obj[target].prio)
 									{
-										UInt16 colorall;
-										if (ext_palette_obj)
+										
+										if (!bitmap_mode)
 										{
-											byte palette = (byte)(Atr2 >> 12);
-											colorall = *(UInt16*)&Memory.VRAM[get_mapped_obj_extpalette_address(palette * 512 + colordata * 2)];
-										}
-										else if (!hicolor)
-										{
-											byte palette = (byte)(Atr2 >> 12);
-											colorall = *(UInt16*)&Memory.PaletteRAM[512 + palette * 32 + colordata * 2];
-										}
-										else
-										{
-											colorall = *(UInt16*)&Memory.PaletteRAM[512 + colordata * 2];
+											if (ext_palette_obj)
+											{
+												byte palette = (byte)(Atr2 >> 12);
+												colorall = *(UInt16*)&Memory.VRAM[get_mapped_obj_extpalette_address(palette * 512 + colordata * 2)];
+											}
+											else if (!hicolor)
+											{
+												byte palette = (byte)(Atr2 >> 12);
+												colorall = *(UInt16*)&Memory.PaletteRAM[512 + palette * 32 + colordata * 2];
+											}
+											else
+											{
+												colorall = *(UInt16*)&Memory.PaletteRAM[512 + colordata * 2];
+											}
 										}
 
 										if (!transparent)

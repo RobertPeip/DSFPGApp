@@ -14,11 +14,13 @@ using namespace std;
 #include "FileIO.h"
 #include "Memory.h"
 #include "OSD.h"
+#include "spi_intern.h"
 
 const int WIDTH = 256;
 const int HEIGHT = 192;
 
 uint framebuffer_raw[256 * 192 * 2];
+int screensizemult = 3;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -126,6 +128,7 @@ void set_displaysize(int mult, bool fullscreen)
 		OSD.displaysize = mult;
 		SDL_SetWindowFullscreen(window, 0);
 		SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult * 2);
+		screensizemult = mult;
 	}
 }
 
@@ -317,6 +320,18 @@ void drawer()
 			{
 				gameboy.pause = false;
 
+				int mouse_x;
+				int mouse_y;
+				if (SDL_GetMouseState(&mouse_x, &mouse_y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+				{
+					SPI_Intern.updateADCTouchPos(true, (mouse_x / screensizemult) - 1, (mouse_y / screensizemult) - 193);
+				}
+				else
+				{
+					SPI_Intern.updateADCTouchPos(false, 0, 0);
+				}
+				//SPI_Intern.updateADCTouchPos(true, 50, 50);
+
 				Joypad.KeyA = keystate[SDL_SCANCODE_A] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
 				Joypad.KeyB = keystate[SDL_SCANCODE_S] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
 				Joypad.KeyAToggle = keystate[SDL_SCANCODE_F];
@@ -326,7 +341,7 @@ void drawer()
 				Joypad.KeyStart = keystate[SDL_SCANCODE_D] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
 				Joypad.KeySelect = keystate[SDL_SCANCODE_C] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
 				Joypad.KeyX = keystate[SDL_SCANCODE_X] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-				Joypad.KeyY = keystate[SDL_SCANCODE_Y] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+				Joypad.KeyY = keystate[SDL_SCANCODE_Y] | keystate[SDL_SCANCODE_Z] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 				Joypad.KeyLeft = keystate[SDL_SCANCODE_LEFT] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 				Joypad.KeyRight = keystate[SDL_SCANCODE_RIGHT] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 				Joypad.KeyUp = keystate[SDL_SCANCODE_UP] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
@@ -432,7 +447,9 @@ void drawer()
 			std::cout << "(" << GPU.videomode_frames << ")";
 			std::cout << " | AVG Cycles: " << (newcycles / (CPU9.commands - oldcommands)) << "\n";
 #endif
-			SDL_SetWindowTitle(window, std::to_string(100 * newcycles / 67027964).c_str());
+			string title = std::to_string(100 * newcycles / 67027964);
+			if (GPU_A.swap) title += " ScreenSwapped ";
+			SDL_SetWindowTitle(window, title.c_str());
 
 			lastTime_second = SDL_GetPerformanceCounter();
 			frames = 0;
