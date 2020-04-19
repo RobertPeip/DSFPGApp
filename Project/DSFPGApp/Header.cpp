@@ -14,6 +14,10 @@ void HEADER::read()
 	ARM7_CODE_PC   = *(UInt32*)&Memory.GameRom[0x34];
 	ARM7_CODE_DST  = *(UInt32*)&Memory.GameRom[0x38];
 	ARM7_CODE_SIZE = *(UInt32*)&Memory.GameRom[0x3C];
+
+	cardSize =  *(UInt16*)&Memory.GameRom[0x14];
+	chipID = 0xC2;
+	chipID |= ((((128 << cardSize) / 1024) - 1) << 8); // Chip size in megabytes minus 1 (07h = 8MB, 0Fh = 16MB, 1Fh = 32MB, 3Fh = 64MB, 7Fh = 128MB)
 }
 
 //void HEADER::check_flash_size()

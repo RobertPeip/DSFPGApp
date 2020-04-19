@@ -49,26 +49,25 @@ package pReg_ds_display_9 is
      
    constant A_BG0CNT                         : regmap_type := (16#0008#,  15,      0,        1,        0,   writeonly); -- BG0 Control                                   2    R/W
    constant A_BG0CNT_BG_Priority             : regmap_type := (16#0008#,   1,      0,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant A_BG0CNT_Character_Base_Block    : regmap_type := (16#0008#,   3,      2,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant A_BG0CNT_UNUSED_4_5              : regmap_type := (16#0008#,   5,      4,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant A_BG0CNT_Character_Base_Block    : regmap_type := (16#0008#,   5,      2,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant A_BG0CNT_Mosaic                  : regmap_type := (16#0008#,   6,      6,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant A_BG0CNT_Colors_Palettes         : regmap_type := (16#0008#,   7,      7,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant A_BG0CNT_Screen_Base_Block       : regmap_type := (16#0008#,  12,      8,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
+   constant A_BG0CNT_Ext_Palette_Slot        : regmap_type := (16#0008#,  13,     13,        1,        0,   readwrite); -- Ext Palette Slot for BG0/BG1
    constant A_BG0CNT_Screen_Size             : regmap_type := (16#0008#,  15,     14,        1,        0,   readwrite); -- Screen Size (0-3)
                                            
    constant A_BG1CNT                         : regmap_type := (16#0008#,  31,     16,        1,        0,   writeonly); -- BG1 Control                                   2    R/W
    constant A_BG1CNT_BG_Priority             : regmap_type := (16#0008#,  17,     16,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant A_BG1CNT_Character_Base_Block    : regmap_type := (16#0008#,  19,     18,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant A_BG1CNT_UNUSED_4_5              : regmap_type := (16#0008#,  21,     20,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant A_BG1CNT_Character_Base_Block    : regmap_type := (16#0008#,  21,     18,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant A_BG1CNT_Mosaic                  : regmap_type := (16#0008#,  22,     22,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant A_BG1CNT_Colors_Palettes         : regmap_type := (16#0008#,  23,     23,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant A_BG1CNT_Screen_Base_Block       : regmap_type := (16#0008#,  28,     24,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
+   constant A_BG1CNT_Ext_Palette_Slot        : regmap_type := (16#0008#,  29,     29,        1,        0,   readwrite); -- Ext Palette Slot for BG0/BG1
    constant A_BG1CNT_Screen_Size             : regmap_type := (16#0008#,  31,     30,        1,        0,   readwrite); -- Screen Size (0-3)
                                            
    constant A_BG2CNT                         : regmap_type := (16#000C#,  15,      0,        1,        0,   readwrite); -- BG2 Control                                   2    R/W
    constant A_BG2CNT_BG_Priority             : regmap_type := (16#000C#,   1,      0,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant A_BG2CNT_Character_Base_Block    : regmap_type := (16#000C#,   3,      2,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant A_BG2CNT_UNUSED_4_5              : regmap_type := (16#000C#,   5,      4,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant A_BG2CNT_Character_Base_Block    : regmap_type := (16#000C#,   5,      2,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant A_BG2CNT_Mosaic                  : regmap_type := (16#000C#,   6,      6,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant A_BG2CNT_Colors_Palettes         : regmap_type := (16#000C#,   7,      7,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant A_BG2CNT_Screen_Base_Block       : regmap_type := (16#000C#,  12,      8,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
@@ -77,8 +76,7 @@ package pReg_ds_display_9 is
                                            
    constant A_BG3CNT                         : regmap_type := (16#000C#,  31,     16,        1,        0,   readwrite); -- BG3 Control                                   2    R/W
    constant A_BG3CNT_BG_Priority             : regmap_type := (16#000C#,  17,     16,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant A_BG3CNT_Character_Base_Block    : regmap_type := (16#000C#,  19,     18,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant A_BG3CNT_UNUSED_4_5              : regmap_type := (16#000C#,  21,     20,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant A_BG3CNT_Character_Base_Block    : regmap_type := (16#000C#,  21,     18,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant A_BG3CNT_Mosaic                  : regmap_type := (16#000C#,  22,     22,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant A_BG3CNT_Colors_Palettes         : regmap_type := (16#000C#,  23,     23,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant A_BG3CNT_Screen_Base_Block       : regmap_type := (16#000C#,  28,     24,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
@@ -178,9 +176,21 @@ package pReg_ds_display_9 is
    constant A_BLDALPHA_EVB_Coefficient       : regmap_type := (16#0050#,  28,     24,        1,        0,   readwrite); -- 8-12  (2nd Target) (0..16 = 0/16..16/16, 17..31=16/16)
                                            
    constant A_BLDY                           : regmap_type := (16#0054#,   4,      0,        1,        0,   writeonly); -- Brightness (Fade-In/Out) Coefficient  0-4   EVY Coefficient (Brightness) (0..16 = 0/16..16/16, 17..31=16/16 
-                         
-   -- DISP3DCNT 0x60 missing
-                         
+   
+   constant DISP3DCNT                        : regmap_type := (16#0060#,  14,      0,        1,        0,   readwrite); -- 3D Display Control Register (R/W)
+   constant DISP3DCNT_Texture_Mapping        : regmap_type := (16#0060#,   0,      0,        1,        0,   readwrite); -- 0     Texture Mapping      (0=Disable, 1=Enable)
+   constant DISP3DCNT_PolygonAttr_Shading    : regmap_type := (16#0060#,   1,      1,        1,        0,   readwrite); -- 1     PolygonAttr Shading  (0=Toon Shading, 1=Highlight Shading)
+   constant DISP3DCNT_Alpha_Test             : regmap_type := (16#0060#,   2,      2,        1,        0,   readwrite); -- 2     Alpha-Test           (0=Disable, 1=Enable) (see ALPHA_TEST_REF)
+   constant DISP3DCNT_Alpha_Blending         : regmap_type := (16#0060#,   3,      3,        1,        0,   readwrite); -- 3     Alpha-Blending       (0=Disable, 1=Enable) (see various Alpha values)
+   constant DISP3DCNT_Anti_Aliasing          : regmap_type := (16#0060#,   4,      4,        1,        0,   readwrite); -- 4     Anti-Aliasing        (0=Disable, 1=Enable)
+   constant DISP3DCNT_Edge_Marking           : regmap_type := (16#0060#,   5,      5,        1,        0,   readwrite); -- 5     Edge-Marking         (0=Disable, 1=Enable) (see EDGE_COLOR)
+   constant DISP3DCNT_Fog_Color_Alpha Mode   : regmap_type := (16#0060#,   6,      6,        1,        0,   readwrite); -- 6     Fog Color/Alpha Mode (0=Alpha and Color, 1=Only Alpha) (see FOG_COLOR)
+   constant DISP3DCNT_Fog_Master_Enable      : regmap_type := (16#0060#,   7,      7,        1,        0,   readwrite); -- 7     Fog Master Enable    (0=Disable, 1=Enable)
+   constant DISP3DCNT_Fog_Depth_Shift        : regmap_type := (16#0060#,  11,      8,        1,        0,   readwrite); -- 8-11  Fog Depth Shift      (FOG_STEP=400h shr FOG_SHIFT) (see FOG_OFFSET)
+   constant DISP3DCNT_RDLINES_Underflow      : regmap_type := (16#0060#,  12,     12,        1,        0,   readwrite); -- 12    Color Buffer RDLINES Underflow (0=None, 1=Underflow/Acknowledge)
+   constant DISP3DCNT_RAM_Overflow           : regmap_type := (16#0060#,  13,     13,        1,        0,   readwrite); -- 13    Polygon/Vertex RAM Overflow    (0=None, 1=Overflow/Acknowledge)
+   constant DISP3DCNT_Rear_Plane_Mode        : regmap_type := (16#0060#,  14,     14,        1,        0,   readwrite); -- 14    Rear-Plane Mode                (0=Blank, 1=Bitmap)
+                  
    constant DISPCAPCNT                       : regmap_type := (16#0064#,  31,      0,        1,        0,   writeonly); -- Alpha Blending Coefficients                   2    W  
    constant DISPCAPCNT_EVA                   : regmap_type := (16#0064#,   4,      0,        1,        0,   writeonly); -- 0-4   EVA               (0..16 = Blending Factor for Source A)
    constant DISPCAPCNT_EVB                   : regmap_type := (16#0064#,  12,      8,        1,        0,   writeonly); -- 8-12  EVB               (0..16 = Blending Factor for Source B)

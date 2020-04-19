@@ -53,7 +53,7 @@ package pReg_ds_system_9 is
    constant ROMCTRL_KEY1_Gap_CLKs                  : regmap_type := (16#1A4#,  28,     28,        1,        0,   readwrite); --  28    KEY1 Gap CLKs (0=Hold CLK High during gaps, 1=Output Dummy CLK Pulses)
    constant ROMCTRL_RESB_Release_Reset             : regmap_type := (16#1A4#,  29,     29,        1,        0,   readwrite); --  29    RESB Release Reset (0=Reset, 1=Release) (cannot be cleared once set)
    constant ROMCTRL_WR                             : regmap_type := (16#1A4#,  30,     30,        1,        0,   readwrite); --  30    WR   Unknown, maybe data-write? (usually 0) (read/write-able)
-   constant ROMCTRL_Block_Start_Status             : regmap_type := (16#1A4#,  21,     21,        1,        0,   readwrite); --  31    Block Start/Status (0=Ready, 1=Start/Busy) (IRQ See 40001A0h/Bit14)
+   constant ROMCTRL_Block_Start_Status             : regmap_type := (16#1A4#,  31,     31,        1,        0,   readwrite); --  31    Block Start/Status (0=Ready, 1=Start/Busy) (IRQ See 40001A0h/Bit14)
   
    constant Gamecard_bus_Command_1                 : regmap_type := (16#1A8#,  31,      0,        1,        0,   writeonly); -- Gamecard bus 8-byte Command Out
    constant Gamecard_bus_Command_2                 : regmap_type := (16#1AC#,  31,      0,        1,        0,   writeonly); -- Gamecard bus 8-byte Command Out

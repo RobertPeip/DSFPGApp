@@ -14,6 +14,9 @@ public:
 	uint ARM7_CODE_DST;	 // 038h    4     ARM7 ram_address(2000000h..23BFE00h, or 37F8000h..3807E00h)
 	uint ARM7_CODE_SIZE; // 03Ch    4     ARM7 size(max 3BFE00h, or FE00h) (3839.5KB, 63.5KB)
 
+	uint cardSize;
+	uint chipID;
+
 	void read();
 	//void check_flash_size();
 	bool FindArray(byte* array, unsigned int arraylength, byte* pattern, int patternlength);

@@ -260,6 +260,7 @@ analyze_file("regds_dma9.vhd")
 analyze_file("regds_timer9.vhd")
 analyze_file("regds_keypad9.vhd")
 analyze_file("regds_system9.vhd")
+analyze_file("regds_3D9.vhd")
 
 max_addr = max_addr + 4
 

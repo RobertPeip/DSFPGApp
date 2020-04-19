@@ -153,13 +153,9 @@ public:
     /// </summary>
     DSReg A_BG0CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg A_BG0CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg A_BG0CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -173,6 +169,10 @@ public:
     /// </summary>
     DSReg A_BG0CNT_Screen_Base_Block;
     /// <summary>
+    /// Ext Palette Slot for BG0/BG1
+    /// </summary>
+    DSReg A_BG0CNT_Ext_Palette_Slot;
+    /// <summary>
     /// Screen Size (0-3)
     /// </summary>
     DSReg A_BG0CNT_Screen_Size;
@@ -185,13 +185,9 @@ public:
     /// </summary>
     DSReg A_BG1CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg A_BG1CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg A_BG1CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -205,6 +201,10 @@ public:
     /// </summary>
     DSReg A_BG1CNT_Screen_Base_Block;
     /// <summary>
+    /// Ext Palette Slot for BG0/BG1
+    /// </summary>
+    DSReg A_BG1CNT_Ext_Palette_Slot;
+    /// <summary>
     /// Screen Size (0-3)
     /// </summary>
     DSReg A_BG1CNT_Screen_Size;
@@ -217,13 +217,9 @@ public:
     /// </summary>
     DSReg A_BG2CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg A_BG2CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg A_BG2CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -253,13 +249,9 @@ public:
     /// </summary>
     DSReg A_BG3CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg A_BG3CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg A_BG3CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -604,6 +596,58 @@ public:
     /// Brightness (Fade-In/Out) Coefficient 0-4 EVY Coefficient (Brightness) (0..16 = 0/16..16/16, 17..31=16/16
     /// </summary>
     DSReg A_BLDY;
+    /// <summary>
+    /// 3D Display Control Register (R/W)
+    /// </summary>
+    DSReg DISP3DCNT;
+    /// <summary>
+    /// 0 Texture Mapping (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg DISP3DCNT_Texture_Mapping;
+    /// <summary>
+    /// 1 PolygonAttr Shading (0=Toon Shading, 1=Highlight Shading)
+    /// </summary>
+    DSReg DISP3DCNT_PolygonAttr_Shading;
+    /// <summary>
+    /// 2 Alpha-Test (0=Disable, 1=Enable) (see ALPHA_TEST_REF)
+    /// </summary>
+    DSReg DISP3DCNT_Alpha_Test;
+    /// <summary>
+    /// 3 Alpha-Blending (0=Disable, 1=Enable) (see various Alpha values)
+    /// </summary>
+    DSReg DISP3DCNT_Alpha_Blending;
+    /// <summary>
+    /// 4 Anti-Aliasing (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg DISP3DCNT_Anti_Aliasing;
+    /// <summary>
+    /// 5 Edge-Marking (0=Disable, 1=Enable) (see EDGE_COLOR)
+    /// </summary>
+    DSReg DISP3DCNT_Edge_Marking;
+    /// <summary>
+    /// 6 Fog Color/Alpha Mode (0=Alpha and Color, 1=Only Alpha) (see FOG_COLOR)
+    /// </summary>
+    DSReg DISP3DCNT_Fog_Color_Alpha;
+    /// <summary>
+    /// 7 Fog Master Enable (0=Disable, 1=Enable)
+    /// </summary>
+    DSReg DISP3DCNT_Fog_Master_Enable;
+    /// <summary>
+    /// 8-11 Fog Depth Shift (FOG_STEP=400h shr FOG_SHIFT) (see FOG_OFFSET)
+    /// </summary>
+    DSReg DISP3DCNT_Fog_Depth_Shift;
+    /// <summary>
+    /// 12 Color Buffer RDLINES Underflow (0=None, 1=Underflow/Acknowledge)
+    /// </summary>
+    DSReg DISP3DCNT_RDLINES_Underflow;
+    /// <summary>
+    /// 13 Polygon/Vertex RAM Overflow (0=None, 1=Overflow/Acknowledge)
+    /// </summary>
+    DSReg DISP3DCNT_RAM_Overflow;
+    /// <summary>
+    /// 14 Rear-Plane Mode (0=Blank, 1=Bitmap)
+    /// </summary>
+    DSReg DISP3DCNT_Rear_Plane_Mode;
     /// <summary>
     /// Alpha Blending Coefficients 2 W
     /// </summary>
@@ -2192,6 +2236,65 @@ public:
     RegSect_system9();
 };
 
+class RegSect_3D9
+{
+public:
+    /// <summary>
+    /// Geometry Command FIFO (mirrored up to 400043Fh?)
+    /// </summary>
+    DSReg GXFIFO;
+    /// <summary>
+    /// Geometry Engine Status Register (R and R/W)
+    /// </summary>
+    DSReg GXSTAT;
+    /// <summary>
+    /// 0 BoxTest,PositionTest,VectorTest Busy (0=Ready, 1=Busy)
+    /// </summary>
+    DSReg GXSTAT_TestBusy;
+    /// <summary>
+    /// 1 BoxTest Result (0=All Outside View, 1=Parts or Fully Inside View)
+    /// </summary>
+    DSReg GXSTAT_BoxTest_Result;
+    /// <summary>
+    /// 8-12 Position & Vector Matrix Stack Level (0..31) (lower 5bit of 6bit value)
+    /// </summary>
+    DSReg GXSTAT_PosVect_Matrix_Stack_Level;
+    /// <summary>
+    /// 13 Projection Matrix Stack Level (0..1)
+    /// </summary>
+    DSReg GXSTAT_Proj_Matrix_Stack_Level;
+    /// <summary>
+    /// 14 Matrix Stack Busy (0=No, 1=Yes; Currently executing a Push/Pop command)
+    /// </summary>
+    DSReg GXSTAT_Matrix_Stack_Busy;
+    /// <summary>
+    /// 15 Matrix Stack Overflow/Underflow Error (0=No, 1=Error/Acknowledge/Reset)
+    /// </summary>
+    DSReg GXSTAT_Matrix_Stack_Error;
+    /// <summary>
+    /// 16-24 Number of 40bit-entries in Command FIFO (0..256) (24) Command FIFO Full (MSB of above) (0=No, 1=Yes; Full)
+    /// </summary>
+    DSReg GXSTAT_Command_FIFO_Entries;
+    /// <summary>
+    /// 25 Command FIFO Less Than Half Full (0=No, 1=Yes; Less than Half-full)
+    /// </summary>
+    DSReg GXSTAT_Command_FIFO_Less_Half;
+    /// <summary>
+    /// 26 Command FIFO Empty (0=No, 1=Yes; Empty)
+    /// </summary>
+    DSReg GXSTAT_Command_FIFO_Empty;
+    /// <summary>
+    /// 27 Geometry Engine Busy (0=No, 1=Yes; Busy; Commands are executing)
+    /// </summary>
+    DSReg GXSTAT_Geometry_Engine_Busy;
+    /// <summary>
+    /// 30-31 Command FIFO IRQ (0=Never, 1=Less than half full, 2=Empty, 3=Reserved)
+    /// </summary>
+    DSReg GXSTAT_Command_FIFO_IRQ;
+
+    RegSect_3D9();
+};
+
 class REGS_Arm9
 {
 public:
@@ -2200,11 +2303,12 @@ public:
     RegSect_timer9 Sect_timer9;
     RegSect_keypad9 Sect_keypad9;
     RegSect_system9 Sect_system9;
+    RegSect_3D9 Sect_3D9;
 
     byte data[4208];
     byte rwmask[4208];
-    const int allregcount = 538;
-    DSReg allregs[538];
+    const int allregcount = 562;
+    DSReg allregs[562];
 
     void reset();
 };

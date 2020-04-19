@@ -252,13 +252,13 @@ public:
 	UInt64 cyclenr;
 	bool tracenext;
 
-	const int Tracelist_Length = 2000000;
-	cpustate Tracelist[2000000][2];
+	const int Tracelist_Length = 600000;
+	cpustate Tracelist[600000][2];
 
 	int traclist_ptr;
 	int runmoretrace;
 
-	UInt32 debug_outdivcnt;
+	int debug_outdivcnt;
 
 	void trace_file_last();
 	void vcd_file_last();

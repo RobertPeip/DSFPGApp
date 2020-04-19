@@ -1359,11 +1359,6 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 
 		UInt16 tileinfo = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(mapbaseaddr + (tileindex * 2))];
 
-		if (tileinfo != 0)
-		{
-			int a = 5;
-		}
-
 		UInt16 tilenr = (UInt16)(tileinfo & 0x3FF);
 		bool horflip = ((tileinfo >> 10) & 1) == 1;
 		bool verflip = ((tileinfo >> 11) & 1) == 1;

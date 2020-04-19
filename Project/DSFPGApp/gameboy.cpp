@@ -22,6 +22,7 @@
 #include "IPC.h"
 #include "MathDIV.h"
 #include "MathSQRT.h"
+#include "Gamecard.h"
 
 Gameboy gameboy;
 
@@ -60,6 +61,8 @@ void Gameboy::reset()
 	SPI_Intern.reset();
 	IPC9to7.reset(true);
 	IPC7to9.reset(false);
+	Gamecard9.reset(true);
+	Gamecard7.reset(false);
 
 	loading_state = false;
 	coldreset = false;
@@ -84,9 +87,12 @@ void Gameboy::run()
 		GPU_Timing.work();
 		DMA.work();
 		Timer.work();
-		
+
 		if (MathDIV.calculating) { MathDIV.finish(); }
 		if (MathSQRT.calculating) { MathSQRT.finish(); }
+		if (Gamecard9.active) { Gamecard9.finish(); }
+		if (Gamecard7.active) { Gamecard7.finish(); }
+
 		//Sound.work();
 		//if (GPU.lockSpeed)
 		//{
@@ -101,7 +107,7 @@ void Gameboy::run()
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 220505)
+		if (tracer.traclist_ptr == 962)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -123,26 +129,29 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 3700000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 22100000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 300000;
+			tracer.runmoretrace = 100000;
 		}
 
-		if (tracer.runmoretrace > 0 && tracer.debug_outdivcnt == 0)
+		if (tracer.runmoretrace > 0)
 		{
 			tracer.Tracelist[tracer.traclist_ptr][0].update(true);
 			tracer.Tracelist[tracer.traclist_ptr][1].update(false);
-			tracer.traclist_ptr = (tracer.traclist_ptr + 1) % tracer.Tracelist_Length;
-			tracer.runmoretrace = tracer.runmoretrace - 1;
-			//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % tracer.debug_outdiv;
+			if (tracer.debug_outdivcnt == 0)
+			{
+				tracer.traclist_ptr++;
+				tracer.runmoretrace = tracer.runmoretrace - 1;
+			}
 			if (tracer.runmoretrace == 0)
 			{
 				tracer.runmoretrace = -1;
-				tracer.vcd_file_last();
+				//tracer.vcd_file_last();
 			}
 		}
 		tracer.commands++;
+		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 250;
 #endif
 
 		checkcount++;
@@ -184,6 +193,8 @@ UInt64 Gameboy::next_event_time()
 
 	if (MathDIV.calculating) nexttime = min(nexttime, MathDIV.next_event_time);
 	if (MathSQRT.calculating) nexttime = min(nexttime, MathSQRT.next_event_time);
+	if (Gamecard9.active) nexttime = min(nexttime, Gamecard9.next_event_time);
+	if (Gamecard7.active) nexttime = min(nexttime, Gamecard7.next_event_time);
 
 	if (DMA.dma_active)
 	{

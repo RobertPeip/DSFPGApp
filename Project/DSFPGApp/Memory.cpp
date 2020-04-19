@@ -22,6 +22,7 @@
 #include "IPC.h"
 #include "MathDIV.h"
 #include "MathSQRT.h"
+#include "Gamecard.h"
 
 MEMORY Memory;
 
@@ -64,9 +65,9 @@ void MEMORY::reset(string filename)
 	// init further memory
 	write_dword_7(ACCESSTYPE::CPUDATA, 0x02FFFC40, 0x1);
 
-	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF800, 0x0000ffc2); // gameInfo.chipID
-	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF804, 0x0000ffc2); // gameInfo.chipID
-	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FFC00, 0x0000ffc2); // gameInfo.chipID
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF800, Header.chipID);
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF804, Header.chipID);
+	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FFC00, Header.chipID);
 
 	write_dword_7(ACCESSTYPE::CPUDATA, 0x027FF808, 0x6ee6); //  header checksum crc16
 
@@ -472,6 +473,10 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 			else if (address == 0x04100000)
 			{
 				value = IPC7to9.readfifo();
+			}
+			else if (address == 0x04100010)
+			{
+				value = Gamecard9.readData();
 			}
 			else
 			{
@@ -1030,6 +1035,10 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 		{
 			value = IPC9to7.readfifo();
 		}
+		else if (address == 0x04100010)
+		{
+			value = Gamecard7.readData();
+		}
 		else
 		{
 			value = Memory.read_unreadable_dword();
@@ -1338,6 +1347,31 @@ void MEMORY::prepare_read_DSReg7(UInt32 adr)
 
 void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 {
+	// 3D first
+	if (adr == Regs_Arm9.Sect_3D9.GXFIFO.address)
+	{
+		int a = 5;
+	}
+	if (adr == Regs_Arm9.Sect_3D9.GXSTAT.address)
+	{
+		Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Less_Half.write(1);
+		Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Empty.write(1);
+
+		if (Regs_Arm9.Sect_3D9.GXSTAT_Matrix_Stack_Error.on()) { Regs_Arm9.Sect_3D9.GXSTAT_Matrix_Stack_Error.write(0); }
+
+		if (Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_IRQ.read() > 0) 
+		{ 
+			IRP9.set_irp_bit(IRP9.IRPMASK_Geometry_Command_FIFO);
+		}
+	}
+
+	if (adr == Regs_Arm9.Sect_display9.DISP3DCNT.address)
+	{
+		if (Regs_Arm9.Sect_display9.DISP3DCNT_RDLINES_Underflow.on()) { Regs_Arm9.Sect_display9.DISP3DCNT_RDLINES_Underflow.write(0); }
+		if (Regs_Arm9.Sect_display9.DISP3DCNT_RAM_Overflow.on()) { Regs_Arm9.Sect_display9.DISP3DCNT_RAM_Overflow.write(0); }
+	}
+	// end of 3D
+
 	if (adr == Regs_Arm9.Sect_display9.A_DISPCNT.address) { GPU_A.dispcnt_write(); return; }
 	if (adr == Regs_Arm9.Sect_display9.B_DISPCNT.address) { GPU_B.dispcnt_write(); return; }
 
@@ -1373,6 +1407,8 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	else if (adr == Regs_Arm9.Sect_system9.IME.address) { IRP9.update_IME(value); Regs_Arm9.Sect_system9.IME.write(value & 1); }
 	else if (adr == Regs_Arm9.Sect_system9.IE.address) { IRP9.update_IE(); }
 	else if (adr == Regs_Arm9.Sect_system9.IF.address + 2) { IRP9.clear_irp_bits(); }
+
+	if (adr == Regs_Arm9.Sect_system9.ROMCTRL.address) { Gamecard9.writeControl(); return; }
 
 	if (adr == Regs_Arm9.Sect_system9.IPCSYNC.address) { IPC9to7.write_sync(); return; }
 	if (adr == Regs_Arm9.Sect_system9.IPCFIFOCNT.address) { IPC9to7.write_control(); return; }
@@ -1422,6 +1458,8 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_system7.IME.address) { IRP7.update_IME(value); Regs_Arm7.Sect_system7.IME.write(value & 1); return; }
 	if (adr == Regs_Arm7.Sect_system7.IE.address) { IRP7.update_IE(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IF.address + 2) { IRP7.clear_irp_bits(); return; }
+
+	if (adr == Regs_Arm7.Sect_system7.ROMCTRL.address) { Gamecard7.writeControl(); return; }
 
 	if (adr == Regs_Arm7.Sect_system7.IPCSYNC.address) { IPC7to9.write_sync(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }

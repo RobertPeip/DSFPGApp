@@ -197,7 +197,7 @@ RegSect_system7::RegSect_system7()
     ROMCTRL_KEY1_Gap_CLKs = DSReg(0x1A4, 28, 28, 1, 0, "readwrite", "ROMCTRL_KEY1_Gap_CLKs", Regs_Arm7.data);
     ROMCTRL_RESB_Release_Reset = DSReg(0x1A4, 29, 29, 1, 0, "readwrite", "ROMCTRL_RESB_Release_Reset", Regs_Arm7.data);
     ROMCTRL_WR = DSReg(0x1A4, 30, 30, 1, 0, "readwrite", "ROMCTRL_WR", Regs_Arm7.data);
-    ROMCTRL_Block_Start_Status = DSReg(0x1A4, 21, 21, 1, 0, "readwrite", "ROMCTRL_Block_Start_Status", Regs_Arm7.data);
+    ROMCTRL_Block_Start_Status = DSReg(0x1A4, 31, 31, 1, 0, "readwrite", "ROMCTRL_Block_Start_Status", Regs_Arm7.data);
     Gamecard_bus_Command_1 = DSReg(0x1A8, 31, 0, 1, 0, "writeonly", "Gamecard_bus_Command_1", Regs_Arm7.data);
     Gamecard_bus_Command_2 = DSReg(0x1AC, 31, 0, 1, 0, "writeonly", "Gamecard_bus_Command_2", Regs_Arm7.data);
     Gamecard_bus_DataIn = DSReg(0xFFF, 31, 0, 1, 0, "readonly", "Gamecard_bus_DataIn", Regs_Arm7.data);
@@ -743,11 +743,11 @@ void REGS_Arm7::reset()
     rwmask[417] = (byte)((0xFFE0C3 >> 8) & 0xFF);
     rwmask[418] = (byte)((0xFFE0C3 >> 16) & 0xFF);
     rwmask[419] = (byte)((0xFFE0C3 >> 24) & 0xFF);
-    // ROMCTRL at 0x1A4 = 0x7FFFFFFF;
-    rwmask[420] = (byte)(0x7FFFFFFF & 0xFF);
-    rwmask[421] = (byte)((0x7FFFFFFF >> 8) & 0xFF);
-    rwmask[422] = (byte)((0x7FFFFFFF >> 16) & 0xFF);
-    rwmask[423] = (byte)((0x7FFFFFFF >> 24) & 0xFF);
+    // ROMCTRL at 0x1A4 = 0xFFFFFFFF;
+    rwmask[420] = (byte)(0xFFFFFFFF & 0xFF);
+    rwmask[421] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
+    rwmask[422] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
+    rwmask[423] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
     // Gamecard_bus_Command_1 at 0x1A8 = 0x0;
     rwmask[424] = (byte)(0x0 & 0xFF);
     rwmask[425] = (byte)((0x0 >> 8) & 0xFF);

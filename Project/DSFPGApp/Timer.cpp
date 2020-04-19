@@ -149,6 +149,5 @@ void TIMER::updatereg(int index)
 		}
 	}
 
-	Regs_Arm7.data[adr] = (byte)(Timer.timers[index].retval & 0xFF);
-	Regs_Arm7.data[adr + 1] = (byte)((Timer.timers[index].retval >> 8) & 0xFF);
+	Timer.timers[index].CNT_L.write(Timer.timers[index].retval);
 }

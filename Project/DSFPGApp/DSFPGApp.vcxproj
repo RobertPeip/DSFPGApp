@@ -29,6 +29,7 @@
     <ClCompile Include="Flash.cpp" />
     <ClCompile Include="DSFPGApp.cpp" />
     <ClCompile Include="gameboy.cpp" />
+    <ClCompile Include="Gamecard.cpp" />
     <ClCompile Include="gpio.cpp" />
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GPU_Timing.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="Flash.h" />
     <ClInclude Include="gameboy.h" />
+    <ClInclude Include="Gamecard.h" />
     <ClInclude Include="gpio.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GPU_Timing.h" />

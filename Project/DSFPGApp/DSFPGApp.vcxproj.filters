@@ -101,6 +101,9 @@
     <ClCompile Include="MathSQRT.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Gamecard.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameboy.h">
@@ -191,6 +194,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="MathSQRT.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamecard.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
