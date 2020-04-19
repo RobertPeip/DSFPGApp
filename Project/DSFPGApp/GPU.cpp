@@ -1384,10 +1384,17 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 		if (ext_palette_bg)
 		{
 			byte palette = (byte)(tileinfo >> 12);
-			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
-			pixelslocal[x].transparent = false; // ((colorall >> 15) & 1) == 0;
+			if (hicolor)
+			{ 
+				pixelslocal[x].transparent = (colordata & 0xFF) == 0;
+			}
+			else
+			{
+				pixelslocal[x].transparent = (colordata & 0xF) == 0;
+			}
 			if (!pixelslocal[x].transparent)
 			{
+				UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
 				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
 		}
@@ -1520,17 +1527,19 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			byte colordata = Memory.VRAM[get_mapped_bg_address(tilebaseaddr + pixeladdr)];
 
 			UInt16 colorall = 0;
-			if (ext_palette_bg)
+			pixelslocal[x].transparent = colordata == 0;
+			if (!pixelslocal[x].transparent)
 			{
-				colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
-				pixelslocal[x].transparent = false; //((colorall >> 15) & 1) == 0;
+				if (ext_palette_bg)
+				{
+					colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
+				}
+				else
+				{
+					colorall = *(UInt16*)&Memory.PaletteRAM[colordata * 2];
+				}
+				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
-			else
-			{
-				colorall = *(UInt16*)&Memory.PaletteRAM[colordata * 2];
-				pixelslocal[x].transparent = colordata == 0;
-			}
-			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			
 		}
 		if (doubleres)
