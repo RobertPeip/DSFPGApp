@@ -41,7 +41,7 @@ public:
 	Byte VRAM[671744];
 	Byte OAMRAM[2048];
 	Byte PaletteRAM[2048];
-	Byte GameRom[33554432]; // 32mbyte max for now
+	Byte GameRom[134217728]; // 128mbyte max for now
 
 	Byte ITCM[32768];
 	Byte DTCM[16384];

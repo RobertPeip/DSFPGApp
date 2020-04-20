@@ -5,6 +5,7 @@
 #include "DMA.h"
 #include "Memory.h"
 #include "Header.h"
+#include "DMA.h"
 
 GAMECARD Gamecard9;
 GAMECARD Gamecard7;
@@ -115,7 +116,7 @@ void GAMECARD::finish()
 		active = false;
 		ROMCTRL_Data_Word_Status.write(1);
 
-		//triggerDma(EDMAMode_Card);
+		DMA.request_cardtransfer(transfercount / 4);
 	}
 }
 

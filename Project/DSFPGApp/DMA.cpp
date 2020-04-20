@@ -406,3 +406,18 @@ void Dma::request_audio(uint audioindex)
 		}
 	}
 }
+
+void Dma::request_cardtransfer(uint length)
+{
+	for (int i = 0; i < 8; i++) // maybe only check right arm9/7?
+	{
+		if (DMAs[i].dMA_Enable && DMAs[i].waiting && DMAs[i].dMA_Start_Timing == 5)
+		{
+			DMAs[i].running = true;
+			DMAs[i].first = true;
+			DMAs[i].fullcount = length;
+			DMAs[i].count = length;
+			DMAs[i].skipdebugout = true;
+		}
+	}
+}

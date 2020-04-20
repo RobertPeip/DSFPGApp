@@ -813,13 +813,9 @@ public:
     /// </summary>
     DSReg B_BG0CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg B_BG0CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg B_BG0CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -833,6 +829,10 @@ public:
     /// </summary>
     DSReg B_BG0CNT_Screen_Base_Block;
     /// <summary>
+    /// Ext Palette Slot for BG0/BG1
+    /// </summary>
+    DSReg B_BG0CNT_Ext_Palette_Slot;
+    /// <summary>
     /// Screen Size (0-3)
     /// </summary>
     DSReg B_BG0CNT_Screen_Size;
@@ -845,13 +845,9 @@ public:
     /// </summary>
     DSReg B_BG1CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg B_BG1CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg B_BG1CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -865,6 +861,10 @@ public:
     /// </summary>
     DSReg B_BG1CNT_Screen_Base_Block;
     /// <summary>
+    /// Ext Palette Slot for BG0/BG1
+    /// </summary>
+    DSReg B_BG1CNT_Ext_Palette_Slot;
+    /// <summary>
     /// Screen Size (0-3)
     /// </summary>
     DSReg B_BG1CNT_Screen_Size;
@@ -877,13 +877,9 @@ public:
     /// </summary>
     DSReg B_BG2CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg B_BG2CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg B_BG2CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -913,13 +909,9 @@ public:
     /// </summary>
     DSReg B_BG3CNT_BG_Priority;
     /// <summary>
-    /// Character Base Block (0-3, in units of 16 KBytes) (=BG Tile Data)
+    /// Character Base Block (0-15, in units of 16 KBytes) (=BG Tile Data)
     /// </summary>
     DSReg B_BG3CNT_Character_Base_Block;
-    /// <summary>
-    /// 4-5 Not used (must be zero)
-    /// </summary>
-    DSReg B_BG3CNT_UNUSED_4_5;
     /// <summary>
     /// Mosaic (0=Disable, 1=Enable)
     /// </summary>
@@ -2307,8 +2299,8 @@ public:
 
     byte data[4208];
     byte rwmask[4208];
-    const int allregcount = 562;
-    DSReg allregs[562];
+    const int allregcount = 560;
+    DSReg allregs[560];
 
     void reset();
 };

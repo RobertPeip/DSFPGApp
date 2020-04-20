@@ -1381,24 +1381,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 		}
 		byte colordata = Memory.VRAM[get_mapped_bg_address(pixeladdr)];
 
-		if (ext_palette_bg)
-		{
-			byte palette = (byte)(tileinfo >> 12);
-			if (hicolor)
-			{ 
-				pixelslocal[x].transparent = (colordata & 0xFF) == 0;
-			}
-			else
-			{
-				pixelslocal[x].transparent = (colordata & 0xF) == 0;
-			}
-			if (!pixelslocal[x].transparent)
-			{
-				UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
-				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
-			}
-		}
-		else if (!hicolor)
+		if (!hicolor)
 		{
 			if (horflip && (x_scrolled & 1) == 0 || !horflip && (x_scrolled & 1) == 1)
 			{
@@ -1414,6 +1397,23 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 			{
 				byte palette = (byte)(tileinfo >> 12);
 				UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[palette * 32 + colordata * 2];
+				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
+			}
+		}
+		else if (ext_palette_bg)
+		{
+			byte palette = (byte)(tileinfo >> 12);
+			if (hicolor)
+			{ 
+				pixelslocal[x].transparent = (colordata & 0xFF) == 0;
+			}
+			else
+			{
+				pixelslocal[x].transparent = (colordata & 0xF) == 0;
+			}
+			if (!pixelslocal[x].transparent)
+			{
+				UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
 				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
 		}
@@ -1654,11 +1654,14 @@ void Gpu::draw_obj(int y, int baseaddr)
 		pixels_obj[x].alpha = false;
 	}
 
-	bool one_dim_mapping = DISPCNT_Tile_OBJ_Mapping.on();
+	uint offset_display = 0;
+	if (!isGPUA) offset_display = 0x400;
 
 	byte mosaic_h = (byte)MOSAIC_OBJ_Mosaic_H_Size.read();
 	byte mosaic_v = (byte)MOSAIC_OBJ_Mosaic_V_Size.read();
 
+	bool one_dim_mapping = DISPCNT_Tile_OBJ_Mapping.on();
+	byte Tile_OBJ_1D_Boundary = (byte)DISPCNT_Tile_OBJ_1D_Boundary.read();
 	bool bitmap_OBJ_2D_Dim = DISPCNT_Bitmap_OBJ_2D_Dim.on();
 	bool bitmap_OBJ_Mapping = DISPCNT_Bitmap_OBJ_Mapping.on();
 	bool bitmap_OBJ_1D_Boundary = DISPCNT_Bitmap_OBJ_1D_Boundary.on();
@@ -1672,10 +1675,10 @@ void Gpu::draw_obj(int y, int baseaddr)
 
 	for (int i = 0; i < 128; i++)
 	{
-		UInt16 Atr0 = *(UInt16*)&Memory.OAMRAM[i * 8];
+		UInt16 Atr0 = *(UInt16*)&Memory.OAMRAM[offset_display + i * 8];
 		if (((Atr0 >> 8) & 1) == 1 || ((Atr0 >> 9) & 1) == 0) // rot/scale or disable
 		{
-			UInt16 Atr1 = *(UInt16*)&Memory.OAMRAM[i * 8 + 2];
+			UInt16 Atr1 = *(UInt16*)&Memory.OAMRAM[offset_display + i * 8 + 2];
 			Int16 posY = (Int16)(Atr0 & 0xFF);
 			if (posY > 0xC0) { posY = (Int16)(posY - 0x100); }
 			bool affine = ((Atr0 >> 8) & 1) == 1;
@@ -1738,7 +1741,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 			{
 				Int16 posX = (Int16)(Atr1 & 0x1FF);
 				if (posX > 0x100) { posX = (Int16)(posX - 0x200); }
-				UInt16 Atr2 = *(UInt16*)&Memory.OAMRAM[i * 8 + 4];
+				UInt16 Atr2 = *(UInt16*)&Memory.OAMRAM[offset_display + i * 8 + 4];
 
 				int tileindex = Atr2 & 0x3FF;
 
@@ -1808,6 +1811,15 @@ void Gpu::draw_obj(int y, int baseaddr)
 						}
 					}
 				}
+				else if (one_dim_mapping && Tile_OBJ_1D_Boundary > 0)
+				{
+					switch (Tile_OBJ_1D_Boundary)
+					{
+					case 1: pixeladdr = tileindex * 64; break;
+					case 2: pixeladdr = tileindex * 128; break;
+					case 3: pixeladdr = tileindex * 256; break;
+					}
+				}
 
 				if (affine)
 				{
@@ -1815,10 +1827,10 @@ void Gpu::draw_obj(int y, int baseaddr)
 					horflip = false;
 					verflip = false;
 					byte rotparpos = (byte)((Atr1 >> 9) & 0x1F);
-					dx = *(UInt16*)&Memory.OAMRAM[rotparpos * 32 + 6];
-					dmx = *(UInt16*)&Memory.OAMRAM[rotparpos * 32 + 14];
-					dy = *(UInt16*)&Memory.OAMRAM[rotparpos * 32 + 22];
-					dmy = *(UInt16*)&Memory.OAMRAM[rotparpos * 32 + 30];
+					dx = *(UInt16*)&Memory.OAMRAM[offset_display + rotparpos * 32 + 6];
+					dmx = *(UInt16*)&Memory.OAMRAM[offset_display + rotparpos * 32 + 14];
+					dy = *(UInt16*)&Memory.OAMRAM[offset_display + rotparpos * 32 + 22];
+					dmy = *(UInt16*)&Memory.OAMRAM[offset_display + rotparpos * 32 + 30];
 					realX = ((sizeX) << 7) - (fieldX >> 1)* dx - (fieldY >> 1)* dmx + ty * dmx;
 					realY = ((sizeY) << 7) - (fieldX >> 1)* dy - (fieldY >> 1)* dmy + ty * dmy;
 				}
@@ -1998,15 +2010,15 @@ void Gpu::draw_obj(int y, int baseaddr)
 										
 										if (!bitmap_mode)
 										{
-											if (ext_palette_obj)
-											{
-												byte palette = (byte)(Atr2 >> 12);
-												colorall = *(UInt16*)&Memory.VRAM[get_mapped_obj_extpalette_address(palette * 512 + colordata * 2)];
-											}
-											else if (!hicolor)
+											if (!hicolor)
 											{
 												byte palette = (byte)(Atr2 >> 12);
 												colorall = *(UInt16*)&Memory.PaletteRAM[512 + palette * 32 + colordata * 2];
+											}
+											else if (ext_palette_obj)
+											{
+												byte palette = (byte)(Atr2 >> 12);
+												colorall = *(UInt16*)&Memory.VRAM[get_mapped_obj_extpalette_address(palette * 512 + colordata * 2)];
 											}
 											else
 											{

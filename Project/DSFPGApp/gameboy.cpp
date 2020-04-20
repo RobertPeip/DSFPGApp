@@ -85,13 +85,14 @@ void Gameboy::run()
 	while (on)
 	{
 		GPU_Timing.work();
-		DMA.work();
-		Timer.work();
 
 		if (MathDIV.calculating) { MathDIV.finish(); }
 		if (MathSQRT.calculating) { MathSQRT.finish(); }
 		if (Gamecard9.active) { Gamecard9.finish(); }
 		if (Gamecard7.active) { Gamecard7.finish(); }
+
+		DMA.work();
+		Timer.work();
 
 		//Sound.work();
 		//if (GPU.lockSpeed)
@@ -107,7 +108,7 @@ void Gameboy::run()
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 962)
+		if (tracer.traclist_ptr == 28982)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -129,7 +130,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 22100000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 100000;
@@ -151,7 +152,7 @@ void Gameboy::run()
 			}
 		}
 		tracer.commands++;
-		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 250;
+		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 20;
 #endif
 
 		checkcount++;
@@ -530,16 +531,16 @@ void Gameboy::exportmem()
 	fclose(file);
 
 	// vram
-	file = fopen("R:\\vram_a.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6000000 + i, Memory.VRAM[0x00000 + i]); } fclose(file);
-	file = fopen("R:\\vram_b.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6020000 + i, Memory.VRAM[0x20000 + i]); } fclose(file);
-	file = fopen("R:\\vram_c.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6040000 + i, Memory.VRAM[0x40000 + i]); } fclose(file);
-	file = fopen("R:\\vram_d.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6060000 + i, Memory.VRAM[0x60000 + i]); } fclose(file);
-	file = fopen("R:\\vram_e.csv", "w"); for (int i = 0; i < 0x10000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6080000 + i, Memory.VRAM[0x80000 + i]); } fclose(file);
-	file = fopen("R:\\vram_f.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6090000 + i, Memory.VRAM[0x90000 + i]); } fclose(file);
-	file = fopen("R:\\vram_g.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6094000 + i, Memory.VRAM[0x94000 + i]); } fclose(file);
-	file = fopen("R:\\vram_h.csv", "w"); for (int i = 0; i < 0x08000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x6098000 + i, Memory.VRAM[0x98000 + i]); } fclose(file);
-	file = fopen("R:\\vram_i.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x60A0000 + i, Memory.VRAM[0xA0000 + i]); } fclose(file);
+	file = fopen("R:\\vram_a.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6000000 + i, Memory.VRAM[0x00000 + i]); } fclose(file);
+	file = fopen("R:\\vram_b.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6020000 + i, Memory.VRAM[0x20000 + i]); } fclose(file);
+	file = fopen("R:\\vram_c.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6040000 + i, Memory.VRAM[0x40000 + i]); } fclose(file);
+	file = fopen("R:\\vram_d.csv", "w"); for (int i = 0; i < 0x20000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6060000 + i, Memory.VRAM[0x60000 + i]); } fclose(file);
+	file = fopen("R:\\vram_e.csv", "w"); for (int i = 0; i < 0x10000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6080000 + i, Memory.VRAM[0x80000 + i]); } fclose(file);
+	file = fopen("R:\\vram_f.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6090000 + i, Memory.VRAM[0x90000 + i]); } fclose(file);
+	file = fopen("R:\\vram_g.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6094000 + i, Memory.VRAM[0x94000 + i]); } fclose(file);
+	file = fopen("R:\\vram_h.csv", "w"); for (int i = 0; i < 0x08000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x6098000 + i, Memory.VRAM[0x98000 + i]); } fclose(file);
+	file = fopen("R:\\vram_i.csv", "w"); for (int i = 0; i < 0x04000; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x60A0000 + i, Memory.VRAM[0xA0000 + i]); } fclose(file);
 
-	file = fopen("R:\\palette.csv", "w"); for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x5000000 + i, Memory.PaletteRAM[0x00000 + i]); } fclose(file);
-	file = fopen("R:\\oam.csv", "w");     for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%08x\n", 0x7000000 + i, Memory.OAMRAM[0x00000 + i]); }     fclose(file);
+	file = fopen("R:\\palette.csv", "w"); for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x5000000 + i, Memory.PaletteRAM[0x00000 + i]); } fclose(file);
+	file = fopen("R:\\oam.csv", "w");     for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x7000000 + i, Memory.OAMRAM[0x00000 + i]); }     fclose(file);
 }

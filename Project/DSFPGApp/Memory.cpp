@@ -563,8 +563,8 @@ void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 		return;
 
 	case 5: 
-		Memory.PaletteRAM[address & 0x3FE] = data;
-		Memory.PaletteRAM[(address & 0x3FE) + 1] = data; 
+		Memory.PaletteRAM[address & 0x7FE] = data;
+		Memory.PaletteRAM[(address & 0x7FE) + 1] = data; 
 		return;
 
 	case 6: // byte write not supported
@@ -640,7 +640,7 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 5:
-		adr = address & 0x3FF;
+		adr = address & 0x7FF;
 		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
 		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
@@ -655,7 +655,7 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		return;
 
 	case 7:
-		adr = address & 0x3FF;
+		adr = address & 0x7FF;
 		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
 		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
@@ -744,7 +744,7 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 5:
-		adr = address & 0x3FF;
+		adr = address & 0x7FF;
 		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
 		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		Memory.PaletteRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
@@ -763,7 +763,7 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		return;
 
 	case 7:
-		adr = address & 0x3FF;
+		adr = address & 0x7FF;
 		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
 		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		Memory.OAMRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
@@ -838,8 +838,6 @@ byte read_byte_7(ACCESSTYPE accesstype, UInt32 address)
 			return Memory.read_unreadable_byte(address & 1);
 		}
 
-	case 5: return Memory.PaletteRAM[address & 0x3FF];
-
 	case 6:
 		adr = Memory.get_vram_address(false, address);
 		if (adr != 0xFFFFFFFF)
@@ -847,8 +845,6 @@ byte read_byte_7(ACCESSTYPE accesstype, UInt32 address)
 			return Memory.VRAM[adr];
 		}
 		return 0;
-
-	case 7: return Memory.OAMRAM[address & 0x3FF];
 
 	case 8:
 	case 9:
@@ -943,8 +939,6 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 		}
 		break;
 
-	case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x3FF]; break;
-
 	case 6:
 		adr = Memory.get_vram_address(false, address);
 		if (adr != 0xFFFFFFFF)
@@ -952,8 +946,6 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 			value = *(UInt16*)&Memory.VRAM[adr];
 		}
 		break;
-
-	case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
 
 	case 8:
 	case 9:
@@ -1045,8 +1037,6 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 		}
 		break;
 
-	case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x3FF]; break;
-
 	case 6:
 		adr = Memory.get_vram_address(false, address);
 		if (adr != 0xFFFFFFFF)
@@ -1054,8 +1044,6 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 			value = *(UInt32*)&Memory.VRAM[adr];
 		}
 		break;
-
-	case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
 
 	case 8:
 	case 9:
@@ -1119,13 +1107,6 @@ void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data)
 		}
 		return;
 
-		// Writing 8bit Data to Video Memory
-		// Video Memory(BG, OBJ, OAM, Palette) can be written to in 16bit and 32bit units only.Attempts to write 8bit data(by STRB opcode) won't work:
-		// Writes to OBJ(6010000h - 6017FFFh)(or 6014000h - 6017FFFh in Bitmap mode) and to OAM(7000000h - 70003FFh) are ignored, the memory content remains unchanged.
-		// Writes to BG(6000000h - 600FFFFh)(or 6000000h - 6013FFFh in Bitmap mode) and to Palette(5000000h - 50003FFh) are writing the new 8bit value to BOTH upper and lower 8bits of the addressed halfword, ie. "[addr AND NOT 1]=data*101h".
-
-	case 5: Memory.PaletteRAM[address & 0x3FE] = data; Memory.PaletteRAM[(address & 0x3FE) + 1] = data; return;
-
 	case 6:
 		adr = Memory.get_vram_address(false, address);
 		if (adr != 0xFFFFFFFF)
@@ -1133,8 +1114,6 @@ void write_byte_7(ACCESSTYPE accesstype, UInt32 address, byte data)
 			Memory.VRAM[adr] = (byte)(data & 0xFF);
 		}
 		return;
-
-	case 7: return; // no saving here!
 	}
 }
 
@@ -1198,12 +1177,6 @@ void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 		}
 		return;
 
-	case 5:
-		adr = address & 0x3FF;
-		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
-		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-		return;
-
 	case 6:
 		adr = Memory.get_vram_address(false, address);
 		if (adr != 0xFFFFFFFF)
@@ -1211,12 +1184,6 @@ void write_word_7(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 			Memory.VRAM[adr] = (byte)(data & 0xFF);
 			Memory.VRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		}
-		return;
-
-	case 7:
-		adr = address & 0x3FF;
-		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
-		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
 		return;
 	}
 }
@@ -1298,14 +1265,6 @@ void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 		}
 		return;
 
-	case 5:
-		adr = address & 0x3FF;
-		Memory.PaletteRAM[adr] = (byte)(data & 0xFF);
-		Memory.PaletteRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-		Memory.PaletteRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-		Memory.PaletteRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
-		return;
-
 	case 6:
 		adr = Memory.get_vram_address(false, address);
 		if (adr != 0xFFFFFFFF)
@@ -1316,15 +1275,6 @@ void write_dword_7(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 			Memory.VRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
 		}
 		return;
-
-	case 7:
-		adr = address & 0x3FF;
-		Memory.OAMRAM[adr] = (byte)(data & 0xFF);
-		Memory.OAMRAM[adr + 1] = (byte)((data >> 8) & 0xFF);
-		Memory.OAMRAM[adr + 2] = (byte)((data >> 16) & 0xFF);
-		Memory.OAMRAM[adr + 3] = (byte)((data >> 24) & 0xFF);
-		return;
-
 	}
 }
 

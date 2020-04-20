@@ -240,26 +240,25 @@ package pReg_ds_display_9 is
    
    constant B_BG0CNT                         : regmap_type := (16#1008#,  15,      0,        1,        0,   writeonly); -- BG0 Control                                   2    R/W
    constant B_BG0CNT_BG_Priority             : regmap_type := (16#1008#,   1,      0,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant B_BG0CNT_Character_Base_Block    : regmap_type := (16#1008#,   3,      2,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant B_BG0CNT_UNUSED_4_5              : regmap_type := (16#1008#,   5,      4,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant B_BG0CNT_Character_Base_Block    : regmap_type := (16#1008#,   5,      2,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant B_BG0CNT_Mosaic                  : regmap_type := (16#1008#,   6,      6,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant B_BG0CNT_Colors_Palettes         : regmap_type := (16#1008#,   7,      7,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant B_BG0CNT_Screen_Base_Block       : regmap_type := (16#1008#,  12,      8,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
+   constant B_BG0CNT_Ext_Palette_Slot        : regmap_type := (16#1008#,  13,     13,        1,        0,   readwrite); -- Ext Palette Slot for BG0/BG1
    constant B_BG0CNT_Screen_Size             : regmap_type := (16#1008#,  15,     14,        1,        0,   readwrite); -- Screen Size (0-3)
                                            
    constant B_BG1CNT                         : regmap_type := (16#1008#,  31,     16,        1,        0,   writeonly); -- BG1 Control                                   2    R/W
    constant B_BG1CNT_BG_Priority             : regmap_type := (16#1008#,  17,     16,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant B_BG1CNT_Character_Base_Block    : regmap_type := (16#1008#,  19,     18,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant B_BG1CNT_UNUSED_4_5              : regmap_type := (16#1008#,  21,     20,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant B_BG1CNT_Character_Base_Block    : regmap_type := (16#1008#,  21,     18,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant B_BG1CNT_Mosaic                  : regmap_type := (16#1008#,  22,     22,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant B_BG1CNT_Colors_Palettes         : regmap_type := (16#1008#,  23,     23,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant B_BG1CNT_Screen_Base_Block       : regmap_type := (16#1008#,  28,     24,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
+   constant B_BG1CNT_Ext_Palette_Slot        : regmap_type := (16#1008#,  29,     29,        1,        0,   readwrite); -- Ext Palette Slot for BG0/BG1
    constant B_BG1CNT_Screen_Size             : regmap_type := (16#1008#,  31,     30,        1,        0,   readwrite); -- Screen Size (0-3)
                                            
    constant B_BG2CNT                         : regmap_type := (16#100C#,  15,      0,        1,        0,   readwrite); -- BG2 Control                                   2    R/W
    constant B_BG2CNT_BG_Priority             : regmap_type := (16#100C#,   1,      0,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant B_BG2CNT_Character_Base_Block    : regmap_type := (16#100C#,   3,      2,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant B_BG2CNT_UNUSED_4_5              : regmap_type := (16#100C#,   5,      4,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant B_BG2CNT_Character_Base_Block    : regmap_type := (16#100C#,   5,      2,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant B_BG2CNT_Mosaic                  : regmap_type := (16#100C#,   6,      6,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant B_BG2CNT_Colors_Palettes         : regmap_type := (16#100C#,   7,      7,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant B_BG2CNT_Screen_Base_Block       : regmap_type := (16#100C#,  12,      8,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
@@ -268,8 +267,7 @@ package pReg_ds_display_9 is
                                            
    constant B_BG3CNT                         : regmap_type := (16#100C#,  31,     16,        1,        0,   readwrite); -- BG3 Control                                   2    R/W
    constant B_BG3CNT_BG_Priority             : regmap_type := (16#100C#,  17,     16,        1,        0,   readwrite); -- BG Priority           (0-3, 0=Highest)
-   constant B_BG3CNT_Character_Base_Block    : regmap_type := (16#100C#,  19,     18,        1,        0,   readwrite); -- Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-   constant B_BG3CNT_UNUSED_4_5              : regmap_type := (16#100C#,  21,     20,        1,        0,   readwrite); -- 4-5   Not used (must be zero)
+   constant B_BG3CNT_Character_Base_Block    : regmap_type := (16#100C#,  21,     18,        1,        0,   readwrite); -- Character Base Block  (0-15, in units of 16 KBytes) (=BG Tile Data)
    constant B_BG3CNT_Mosaic                  : regmap_type := (16#100C#,  22,     22,        1,        0,   readwrite); -- Mosaic                (0=Disable, 1=Enable)
    constant B_BG3CNT_Colors_Palettes         : regmap_type := (16#100C#,  23,     23,        1,        0,   readwrite); -- Colors/Palettes       (0=16/16, 1=256/1)
    constant B_BG3CNT_Screen_Base_Block       : regmap_type := (16#100C#,  28,     24,        1,        0,   readwrite); -- Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
