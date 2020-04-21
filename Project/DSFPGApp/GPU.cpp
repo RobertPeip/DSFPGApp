@@ -93,6 +93,8 @@ void Gpu::reset(bool isGPUA)
 	frametimeleft = FRAMETIME;
 	//stopwatch_frame.Start();
 
+	layerenable = 0x1F;
+
 	if (isGPUA)
 	{
 		DISPCNT_BG_Mode = Regs_Arm9.Sect_display9.A_DISPCNT_BG_Mode;
@@ -123,12 +125,14 @@ void Gpu::reset(bool isGPUA)
 		BG0CNT_Mosaic = Regs_Arm9.Sect_display9.A_BG0CNT_Mosaic;
 		BG0CNT_Colors_Palettes = Regs_Arm9.Sect_display9.A_BG0CNT_Colors_Palettes;
 		BG0CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.A_BG0CNT_Screen_Base_Block;
+		BG0CNT_Ext_Palette_Slot = Regs_Arm9.Sect_display9.A_BG0CNT_Ext_Palette_Slot;
 		BG0CNT_Screen_Size = Regs_Arm9.Sect_display9.A_BG0CNT_Screen_Size;
 		BG1CNT_BG_Priority = Regs_Arm9.Sect_display9.A_BG1CNT_BG_Priority;
 		BG1CNT_Character_Base_Block = Regs_Arm9.Sect_display9.A_BG1CNT_Character_Base_Block;
 		BG1CNT_Mosaic = Regs_Arm9.Sect_display9.A_BG1CNT_Mosaic;
 		BG1CNT_Colors_Palettes = Regs_Arm9.Sect_display9.A_BG1CNT_Colors_Palettes;
 		BG1CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.A_BG1CNT_Screen_Base_Block;
+		BG1CNT_Ext_Palette_Slot = Regs_Arm9.Sect_display9.A_BG1CNT_Ext_Palette_Slot;
 		BG1CNT_Screen_Size = Regs_Arm9.Sect_display9.A_BG1CNT_Screen_Size;
 		BG2CNT_BG_Priority = Regs_Arm9.Sect_display9.A_BG2CNT_BG_Priority;
 		BG2CNT_Character_Base_Block = Regs_Arm9.Sect_display9.A_BG2CNT_Character_Base_Block;
@@ -250,12 +254,14 @@ void Gpu::reset(bool isGPUA)
 		BG0CNT_Mosaic = Regs_Arm9.Sect_display9.B_BG0CNT_Mosaic;
 		BG0CNT_Colors_Palettes = Regs_Arm9.Sect_display9.B_BG0CNT_Colors_Palettes;
 		BG0CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.B_BG0CNT_Screen_Base_Block;
+		BG0CNT_Ext_Palette_Slot = Regs_Arm9.Sect_display9.B_BG0CNT_Ext_Palette_Slot;
 		BG0CNT_Screen_Size = Regs_Arm9.Sect_display9.B_BG0CNT_Screen_Size;
 		BG1CNT_BG_Priority = Regs_Arm9.Sect_display9.B_BG1CNT_BG_Priority;
 		BG1CNT_Character_Base_Block = Regs_Arm9.Sect_display9.B_BG1CNT_Character_Base_Block;
 		BG1CNT_Mosaic = Regs_Arm9.Sect_display9.B_BG1CNT_Mosaic;
 		BG1CNT_Colors_Palettes = Regs_Arm9.Sect_display9.B_BG1CNT_Colors_Palettes;
 		BG1CNT_Screen_Base_Block = Regs_Arm9.Sect_display9.B_BG1CNT_Screen_Base_Block;
+		BG1CNT_Ext_Palette_Slot = Regs_Arm9.Sect_display9.B_BG1CNT_Ext_Palette_Slot;
 		BG1CNT_Screen_Size = Regs_Arm9.Sect_display9.B_BG1CNT_Screen_Size;
 		BG2CNT_BG_Priority = Regs_Arm9.Sect_display9.B_BG2CNT_BG_Priority;
 		BG2CNT_Character_Base_Block = Regs_Arm9.Sect_display9.B_BG2CNT_Character_Base_Block;
@@ -356,6 +362,9 @@ void Gpu::dispcnt_write()
 
 	ext_palette_bg = DISPCNT_BG_Extended_Palettes.on();
 	ext_palette_obj = DISPCNT_OBJ_Extended_Palettes.on();
+
+	screenbase = DISPCNT_Screen_Base.read() * 32;
+	charbase = DISPCNT_Character_Base.read() * 4;
 
 	bool new_forcedblank = DISPCNT_Forced_Blank.on();
 	if (forcedblank && !new_forcedblank)
@@ -596,7 +605,7 @@ void Gpu::draw_line(byte y_in)
 
 		if (displaymode == 1)
 		{
-			if (on_delay_bg0[2])
+			if (((layerenable & 1) > 0) && on_delay_bg0[2])
 			{
 				bool mosaic_on = BG0CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg0_vcnt == 0)
@@ -611,8 +620,9 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode0(pixels_bg0,
 							0,
 							y,
-							BG0CNT_Screen_Base_Block.read(),
-							BG0CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG0CNT_Screen_Base_Block.read() + screenbase,
+							BG0CNT_Character_Base_Block.read() + charbase,
+							BG0CNT_Ext_Palette_Slot.read(),
 							BG0CNT_Colors_Palettes.on(),
 							(byte)BG0CNT_Screen_Size.read(),
 							(UInt16)BG0HOFS.read(),
@@ -643,7 +653,7 @@ void Gpu::draw_line(byte y_in)
 				}
 			}
 
-			if (on_delay_bg1[2])
+			if (((layerenable & 2) > 0) && on_delay_bg1[2])
 			{
 				bool mosaic_on = BG1CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg1_vcnt == 0)
@@ -658,8 +668,9 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode0(pixels_bg1,
 							1,
 							y,
-							BG1CNT_Screen_Base_Block.read(),
-							BG1CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG1CNT_Screen_Base_Block.read() + screenbase,
+							BG1CNT_Character_Base_Block.read() + charbase,
+							BG1CNT_Ext_Palette_Slot.read(),
 							BG1CNT_Colors_Palettes.on(),
 							(byte)BG1CNT_Screen_Size.read(),
 							(UInt16)BG1HOFS.read(),
@@ -690,7 +701,7 @@ void Gpu::draw_line(byte y_in)
 				}
 			}
 
-			if (on_delay_bg2[2])
+			if (((layerenable & 4) > 0) && on_delay_bg2[2])
 			{
 				bool mosaic_on = BG2CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg2_vcnt == 0)
@@ -713,8 +724,9 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode0(pixels_bg2_1,
 							2,
 							y,
-							BG2CNT_Screen_Base_Block.read(),
-							BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG2CNT_Screen_Base_Block.read() + screenbase,
+							BG2CNT_Character_Base_Block.read() + charbase,
+							0,
 							BG2CNT_Colors_Palettes.on(),
 							(byte)BG2CNT_Screen_Size.read(),
 							(UInt16)BG2HOFS.read(),
@@ -725,8 +737,9 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode2(pixels_bg2_1,
 							2,
 							false,
-							BG2CNT_Screen_Base_Block.read(),
-							BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG2CNT_Screen_Base_Block.read() + screenbase,
+							BG2CNT_Character_Base_Block.read() + charbase,
+							0,
 							BG2CNT_Display_Area_Overflow.on(),
 							(byte)BG2CNT_Screen_Size.read(),
 							ref2_x,
@@ -742,8 +755,9 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode2(pixels_bg2_2,
 								2,
 								false,
-								BG2CNT_Screen_Base_Block.read(),
-								BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+								BG2CNT_Screen_Base_Block.read() + screenbase,
+								BG2CNT_Character_Base_Block.read() + charbase,
+								0,
 								BG2CNT_Display_Area_Overflow.on(),
 								(byte)BG2CNT_Screen_Size.read(),
 								ref2_x + BG2_DMX / 2,
@@ -762,8 +776,9 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode2(pixels_bg2,
 								3,
 								true,
-								BG2CNT_Screen_Base_Block.read(),
-								BG2CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+								BG2CNT_Screen_Base_Block.read() + screenbase,
+								BG2CNT_Character_Base_Block.read() + charbase,
+								0,
 								BG2CNT_Display_Area_Overflow.on(),
 								(byte)BG2CNT_Screen_Size.read(),
 								ref2_x,
@@ -827,7 +842,7 @@ void Gpu::draw_line(byte y_in)
 				}
 			}
 
-			if (on_delay_bg3[2])
+			if (((layerenable & 8) > 0) && on_delay_bg3[2])
 			{
 				bool mosaic_on = BG3CNT_Mosaic.on();
 				if (!mosaic_on || mosaik_bg3_vcnt == 0)
@@ -843,8 +858,9 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode0(pixels_bg3,
 							3,
 							y,
-							BG3CNT_Screen_Base_Block.read(),
-							BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG3CNT_Screen_Base_Block.read() + screenbase,
+							BG3CNT_Character_Base_Block.read() + charbase,
+							0,
 							BG3CNT_Colors_Palettes.on(),
 							(byte)BG3CNT_Screen_Size.read(),
 							(UInt16)BG3HOFS.read(),
@@ -855,8 +871,9 @@ void Gpu::draw_line(byte y_in)
 						draw_bg_mode2(pixels_bg3,
 							3,
 							false,
-							BG3CNT_Screen_Base_Block.read(),
-							BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+							BG3CNT_Screen_Base_Block.read() + screenbase,
+							BG3CNT_Character_Base_Block.read() + charbase,
+							0,
 							BG3CNT_Display_Area_Overflow.on(),
 							(byte)BG3CNT_Screen_Size.read(),
 							ref3_x,
@@ -876,8 +893,9 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode2(pixels_bg3,
 								3,
 								true,
-								BG3CNT_Screen_Base_Block.read(),
-								BG3CNT_Character_Base_Block.read() + (DISPCNT_Character_Base.read() * 4),
+								BG3CNT_Screen_Base_Block.read() + screenbase,
+								BG3CNT_Character_Base_Block.read() + charbase,
+								0,
 								BG3CNT_Display_Area_Overflow.on(),
 								(byte)BG3CNT_Screen_Size.read(),
 								ref3_x,
@@ -939,7 +957,7 @@ void Gpu::draw_line(byte y_in)
 			if (ref3_x_new == true) { ref3_x = ref3_x_next; ref3_x_new = false; }
 			if (ref3_y_new == true) { ref3_y = ref3_y_next; ref3_y_new = false; }
 
-			bool spriteon = DISPCNT_Screen_Display_OBJ.on();
+			bool spriteon = ((layerenable & 0x10) > 0) && DISPCNT_Screen_Display_OBJ.on();
 			for (int x = 0; x < 256; x++)
 			{
 				pixels_obj[x].transparent = true;
@@ -1283,6 +1301,7 @@ uint Gpu::get_mapped_bg_address(uint address_in)
 		if (Memory.vrammux[VRAMBANK::H].MST == 1 && address_in >= Memory.vrammux[VRAMBANK::H].gpustart && address_in <= Memory.vrammux[VRAMBANK::H].gpuend) return Memory.vrammux[VRAMBANK::H].vramoffset + (address_in - Memory.vrammux[VRAMBANK::H].gpustart);
 		if (Memory.vrammux[VRAMBANK::I].MST == 1 && address_in >= Memory.vrammux[VRAMBANK::I].gpustart && address_in <= Memory.vrammux[VRAMBANK::I].gpuend) return Memory.vrammux[VRAMBANK::I].vramoffset + (address_in - Memory.vrammux[VRAMBANK::I].gpustart);
 	}
+	return 0;
 }
 
 uint Gpu::get_mapped_bg_extpalette_address(uint address_in)
@@ -1297,12 +1316,16 @@ uint Gpu::get_mapped_bg_extpalette_address(uint address_in)
 	{
 		if (Memory.vrammux[VRAMBANK::H].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::H].gpustart && address_in <= Memory.vrammux[VRAMBANK::H].gpuend) return Memory.vrammux[VRAMBANK::H].vramoffset + (address_in - Memory.vrammux[VRAMBANK::H].gpustart);
 	}
+	return 0;
 }
 
-void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY)
+void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase, UInt32 tilebase, UInt32 Paletteoffset, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY)
 {
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
 	Int32 tilebaseaddr = (int)tilebase * 0x4000; // 16kb blocks
+
+	uint offset_display = 0;
+	if (!isGPUA) offset_display = 0x400;
 
 	scrollX = (UInt16)(scrollX & 0x1FF);
 	scrollY = (UInt16)(scrollY & 0x1FF);
@@ -1396,7 +1419,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 			if (!pixelslocal[x].transparent)
 			{
 				byte palette = (byte)(tileinfo >> 12);
-				UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[palette * 32 + colordata * 2];
+				UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[offset_display + palette * 32 + colordata * 2];
 				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
 		}
@@ -1413,7 +1436,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 			}
 			if (!pixelslocal[x].transparent)
 			{
-				UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
+				UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * (engine + Paletteoffset * 2) + palette * 512 + colordata * 2)];
 				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
 		}
@@ -1422,14 +1445,14 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 			pixelslocal[x].transparent = colordata == 0;
 			if (!pixelslocal[x].transparent)
 			{
-				UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[colordata * 2];
+				UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[offset_display + colordata * 2];
 				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
 		}
 	}
 }
 
-void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2)
+void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 mapbase, UInt32 tilebase, UInt32 Paletteoffset, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2)
 {
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
 	Int32 tilebaseaddr = (int)tilebase * 0x4000; // 64kb blocks
@@ -1532,7 +1555,7 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 			{
 				if (ext_palette_bg)
 				{
-					colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * engine + palette * 512 + colordata * 2)];
+					colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * (engine + Paletteoffset * 2) + palette * 512 + colordata * 2)];
 				}
 				else
 				{
@@ -1576,7 +1599,7 @@ void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 			//{
 			//	address += 0xA000;
 			//}
-			byte colorptr = Memory.VRAM[address & 0xFFFF];
+			byte colorptr = Memory.VRAM[get_mapped_bg_address(address)];
 			UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[colorptr * 2];
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixelslocal[x].transparent = colorptr == 0;
@@ -1604,7 +1627,7 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 			//{
 			//	address += 0xA000;
 			//}
-			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(address & 0x1FFFF)];
+			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(address)];
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixelslocal[x].transparent = false;
 		}
@@ -1630,6 +1653,7 @@ uint Gpu::get_mapped_obj_address(uint address_in)
 		if (Memory.vrammux[VRAMBANK::D].MST == 4 && address_in >= Memory.vrammux[VRAMBANK::D].gpustart && address_in <= Memory.vrammux[VRAMBANK::D].gpuend) return Memory.vrammux[VRAMBANK::D].vramoffset + (address_in - Memory.vrammux[VRAMBANK::D].gpustart);
 		if (Memory.vrammux[VRAMBANK::I].MST == 2 && address_in >= Memory.vrammux[VRAMBANK::I].gpustart && address_in <= Memory.vrammux[VRAMBANK::I].gpuend) return Memory.vrammux[VRAMBANK::I].vramoffset + (address_in - Memory.vrammux[VRAMBANK::I].gpustart);
 	}
+	return 0;
 }
 
 uint Gpu::get_mapped_obj_extpalette_address(uint address_in)
@@ -1643,6 +1667,7 @@ uint Gpu::get_mapped_obj_extpalette_address(uint address_in)
 	{
 		if (Memory.vrammux[VRAMBANK::I].MST == 3 && address_in >= Memory.vrammux[VRAMBANK::I].gpustart && address_in <= Memory.vrammux[VRAMBANK::I].gpuend) return Memory.vrammux[VRAMBANK::I].vramoffset + (address_in - Memory.vrammux[VRAMBANK::I].gpustart);
 	}
+	return 0;
 }
 
 void Gpu::draw_obj(int y, int baseaddr)
@@ -2007,13 +2032,12 @@ void Gpu::draw_obj(int y, int baseaddr)
 								{
 									if (pixels_obj[target].undrawn || pixels_obj[target].transparent || prio < pixels_obj[target].prio)
 									{
-										
 										if (!bitmap_mode)
 										{
 											if (!hicolor)
 											{
 												byte palette = (byte)(Atr2 >> 12);
-												colorall = *(UInt16*)&Memory.PaletteRAM[512 + palette * 32 + colordata * 2];
+												colorall = *(UInt16*)&Memory.PaletteRAM[offset_display + 512 + palette * 32 + colordata * 2];
 											}
 											else if (ext_palette_obj)
 											{
@@ -2022,7 +2046,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 											}
 											else
 											{
-												colorall = *(UInt16*)&Memory.PaletteRAM[512 + colordata * 2];
+												colorall = *(UInt16*)&Memory.PaletteRAM[offset_display + 512 + colordata * 2];
 											}
 										}
 
@@ -2083,10 +2107,6 @@ void Gpu::draw_game(uint* framebuffer_raw)
 		//else
 		{
 			int addr = 0;
-			if (swap)
-			{
-				addr = 192 * 256;
-			}
 			for (int y = 0; y < 192; y++)
 			{
 				for (int x = 0; x < 256; x++)

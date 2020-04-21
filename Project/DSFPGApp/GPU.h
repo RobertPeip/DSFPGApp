@@ -40,6 +40,7 @@ public:
 	bool isGPUA;
 	bool disabled = false;
 	bool swap;
+	byte layerenable;
 
 	bool lockSpeed = true;
 	int speedmult = 1;
@@ -62,6 +63,8 @@ public:
 	bool forcedblank;
 	bool ext_palette_bg;
 	bool ext_palette_obj;
+	uint screenbase;
+	uint charbase;
 
 	// static array, so less allocate
 	Pixel pixels[512][384];
@@ -144,6 +147,7 @@ public:
 	DSReg BG0CNT_Mosaic;
 	DSReg BG0CNT_Colors_Palettes;
 	DSReg BG0CNT_Screen_Base_Block;
+	DSReg BG0CNT_Ext_Palette_Slot;
 	DSReg BG0CNT_Screen_Size;
 
 	DSReg BG1CNT_BG_Priority;
@@ -151,6 +155,7 @@ public:
 	DSReg BG1CNT_Mosaic;
 	DSReg BG1CNT_Colors_Palettes;
 	DSReg BG1CNT_Screen_Base_Block;
+	DSReg BG1CNT_Ext_Palette_Slot;
 	DSReg BG1CNT_Screen_Size;
 
 	DSReg BG2CNT_BG_Priority;
@@ -273,9 +278,8 @@ public:
 	void draw_line(byte y_in);
 	uint get_mapped_bg_address(uint address_in);
 	uint get_mapped_bg_extpalette_address(uint address_in);
-	void draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY);
-	void draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2);
-	void draw_bg_mode2_SSAA4x(Pixel pixelslocal[], UInt32 mapbase, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool is_bg2);
+	void draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase, UInt32 Paletteoffset, UInt32 tilebase, bool hicolor, byte screensize, UInt16 scrollX, UInt16 scrollY);
+	void draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 mapbase, UInt32 Paletteoffset, UInt32 tilebase, bool wrapping, byte screensize, Int32 refX, Int32 refY, Int16 dx, Int16 dy, bool doubleres, bool is_bg2);
 	void draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy);
 	void draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy);
 	uint get_mapped_obj_address(uint address_in);

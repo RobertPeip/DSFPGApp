@@ -15,6 +15,17 @@ void GAMECARD::reset(bool isArm9)
 	this->isArm9 = isArm9;
 	active = false;
 	operation = 0;
+	spi_oldcnt = 0;
+	csOld = false;
+	auxspi_reset = false;
+	cmd = AUXSPICMD::IDLE;
+	write_enable = false;
+	write_protect = 0;
+	addr_size = 0;
+	addr_counter = 0;
+	addr = 0;
+	autodetect = true;
+	autodetectsize = 0;
 	if (isArm9)
 	{
 		IRP = &IRP9;
@@ -34,7 +45,14 @@ void GAMECARD::reset(bool isArm9)
 		Gamecard_bus_Command_1	     = Regs_Arm9.Sect_system9.Gamecard_bus_Command_1	  ;
 		Gamecard_bus_Command_2	     = Regs_Arm9.Sect_system9.Gamecard_bus_Command_2	  ;
 		Gamecard_bus_DataIn		     = Regs_Arm9.Sect_system9.Gamecard_bus_DataIn		  ;
-		AUXSPICNT_Transfer_Ready_IRQ = Regs_Arm9.Sect_system9.AUXSPICNT_Transfer_Ready_IRQ;
+
+		AUXSPICNT_SPI_Baudrate        = Regs_Arm9.Sect_system9.AUXSPICNT_SPI_Baudrate;
+		AUXSPICNT_SPI_Hold_Chipselect = Regs_Arm9.Sect_system9.AUXSPICNT_SPI_Hold_Chipselect;
+		AUXSPICNT_SPI_Busy            = Regs_Arm9.Sect_system9.AUXSPICNT_SPI_Busy;
+		AUXSPICNT_NDS_Slot_Mode       = Regs_Arm9.Sect_system9.AUXSPICNT_NDS_Slot_Mode;
+		AUXSPICNT_Transfer_Ready_IRQ  = Regs_Arm9.Sect_system9.AUXSPICNT_Transfer_Ready_IRQ;
+	    AUXSPICNT_NDS_Slot_Enable     = Regs_Arm9.Sect_system9.AUXSPICNT_NDS_Slot_Enable;
+		AUXSPIDATA                    = Regs_Arm9.Sect_system9.AUXSPIDATA;
 	}
 	else
 	{
@@ -55,7 +73,14 @@ void GAMECARD::reset(bool isArm9)
 		Gamecard_bus_Command_1	     = Regs_Arm7.Sect_system7.Gamecard_bus_Command_1	  ;
 		Gamecard_bus_Command_2	     = Regs_Arm7.Sect_system7.Gamecard_bus_Command_2	  ;
 		Gamecard_bus_DataIn		     = Regs_Arm7.Sect_system7.Gamecard_bus_DataIn		  ;
-		AUXSPICNT_Transfer_Ready_IRQ = Regs_Arm7.Sect_system7.AUXSPICNT_Transfer_Ready_IRQ;
+
+		AUXSPICNT_SPI_Baudrate        = Regs_Arm7.Sect_system7.AUXSPICNT_SPI_Baudrate;
+		AUXSPICNT_SPI_Hold_Chipselect = Regs_Arm7.Sect_system7.AUXSPICNT_SPI_Hold_Chipselect;
+		AUXSPICNT_SPI_Busy            = Regs_Arm7.Sect_system7.AUXSPICNT_SPI_Busy;
+		AUXSPICNT_NDS_Slot_Mode       = Regs_Arm7.Sect_system7.AUXSPICNT_NDS_Slot_Mode;
+		AUXSPICNT_Transfer_Ready_IRQ  = Regs_Arm7.Sect_system7.AUXSPICNT_Transfer_Ready_IRQ;
+	    AUXSPICNT_NDS_Slot_Enable     = Regs_Arm7.Sect_system7.AUXSPICNT_NDS_Slot_Enable;
+		AUXSPIDATA                    = Regs_Arm7.Sect_system7.AUXSPIDATA;
 	}
 }
 
@@ -153,4 +178,130 @@ UInt32 GAMECARD::readData()
 	}
 
 	return retval;
+}
+
+void GAMECARD::write_spi_cnt(UInt16 value)
+{
+	bool cs = AUXSPICNT_SPI_Hold_Chipselect.on();
+	if ((!cs && csOld) || (AUXSPICNT_NDS_Slot_Mode.on() && (spi_oldcnt == 0) && !cs))
+	{
+		auxspi_reset = true;
+	}
+
+	csOld = AUXSPICNT_SPI_Hold_Chipselect.on();
+	spi_oldcnt = value;
+}
+
+void GAMECARD::write_spi_dat(byte value)
+{
+	switch (cmd)
+	{
+	case AUXSPICMD::WRITESTATUS: write_protect = value & 0xFC; break;
+
+	case AUXSPICMD::WRITELOW:
+	case AUXSPICMD::READLOW:
+		if (autodetect)
+		{
+			autodetectsize++;
+			value = 0xFF;
+			if (auxspi_reset)
+			{
+				switch (autodetectsize)
+				{
+				case 0:
+				case 1:
+					addr_size = 1;
+					break;
+
+				case 2: addr_size = 1; break;
+				case 3: addr_size = 2; break;
+				case 4: addr_size = 3; break;
+
+				default: addr_size = autodetectsize & 3; break;
+				}
+				autodetect = false;
+				autodetectsize = 0;
+			}
+		}
+		else
+		{
+			if (addr_counter < addr_size)
+			{
+				addr <<= 8;
+				addr |= value;
+				addr_counter++;
+				value = 0xFF;
+			}
+			else
+			{
+				//why does tomb raider underworld access 0x180 and go clear through to 0x280?
+				//should this wrap around at 0 or at 0x100?
+				//TODO - dont other backup memory types have similar wraparound issues?
+				if (addr_size == 1)
+				{
+					addr &= 0x1FF;
+				}
+
+				if (cmd == AUXSPICMD::READLOW)
+				{
+					value = Memory.SaveRam[addr];
+				}
+				else
+				{
+					if (write_enable)
+					{
+						Memory.SaveRam[addr] = value;
+					}
+				}
+				addr++;
+			}
+		}
+		break;
+
+	case AUXSPICMD::READSTATUS:
+		value = write_protect;
+		if (write_enable) value |= 2;
+		break;
+
+	case AUXSPICMD::IRDA: value = 0xAA; break;
+
+	default:
+		if (cmd != AUXSPICMD::IDLE) break; // emergency exit
+		cmd = (AUXSPICMD)value;
+		value = 0xFF;
+		switch (cmd)
+		{
+		case AUXSPICMD::IRDA: value = 0xAA; break;
+		case AUXSPICMD::WRITEDISABLE: write_enable = false; break;
+		case AUXSPICMD::WRITEENABLE: write_enable = true; break;
+
+		case AUXSPICMD::WRITELOW:
+		case AUXSPICMD::READLOW:
+			addr_counter = 0;
+			addr = 0;
+			break;
+
+		case AUXSPICMD::WRITEHIGH:
+		case AUXSPICMD::READHIGH:
+			if (cmd == AUXSPICMD::WRITEHIGH) cmd = AUXSPICMD::WRITELOW;
+			if (cmd == AUXSPICMD::READHIGH) cmd = AUXSPICMD::READLOW;
+			addr_counter = 0;
+			addr = 0;
+			if (addr_size == 1) addr = 1; // due to 256byte space or bugs in games (e.g. pokemon diamond?)
+			break;
+		}
+		break;
+	}
+
+	if (auxspi_reset)
+	{
+		if (cmd == AUXSPICMD::WRITELOW || cmd == AUXSPICMD::WRITEHIGH)
+		{
+			//flush? -> probably close file -> write ended?
+		}
+		cmd = AUXSPICMD::IDLE;
+		auxspi_reset = false;
+	}
+
+	AUXSPIDATA.write(value);
 }

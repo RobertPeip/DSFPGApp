@@ -33,6 +33,9 @@ void MEMORY::reset(string filename)
 	FileIO.readfile(Firmware, "firmware.bin", false);
 	FileIO.readfile(FirmwareUser, "firmware_user.bin", false);
 
+	// clean saveram
+	for (int i = 0; i < 1048576; i++) SaveRam[i] = 0xFF;
+
 	wrammux = 3;
 	// read in and analyze rom
 	GameRom_max = FileIO.readfile(GameRom, filename, true);
@@ -76,6 +79,11 @@ void MEMORY::reset(string filename)
 		vrammux[i].ena9 = false;
 		vrammux[i].ena7 = false;
 		set_single_vrammode((VRAMBANK)i, 0, 0);
+		vrammux[i].MST = 0;
+		vrammux[i].start = 0;
+		vrammux[i].end = 0;
+		vrammux[i].gpustart = 0;
+		vrammux[i].gpuend = 0;
 	}
 	vrammux[0].vramoffset = 0;
 	vrammux[1].vramoffset = 0x20000;
@@ -466,7 +474,11 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 			break;
 
 		case 4:
-			if (address <= 0x0400106C)
+			if (address == 0x040001A0)
+			{
+				value = (read_word_9(accesstype, address + 2) << 16); // only for desmume wrong aux spi control handling....
+			}
+			else if (address <= 0x0400106C)
 			{
 				value = (UInt16)read_word_9(accesstype, address) | (read_word_9(accesstype, address + 2) << 16);
 			}
@@ -1019,7 +1031,11 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 		break;
 
 	case 4:
-		if (address < 0x04001000)
+		if (address == 0x040001A0)
+		{
+			value = (read_word_7(accesstype, address + 2) << 16); // only for desmume wrong aux spi control handling....
+		}
+		else if (address < 0x04001000)
 		{
 			value = (UInt16)read_word_7(accesstype, address) | (read_word_7(accesstype, address + 2) << 16);
 		}
@@ -1364,6 +1380,9 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm9.Sect_system9.IPCFIFOCNT.address) { IPC9to7.write_control(); return; }
 	if (adr == Regs_Arm9.Sect_system9.IPCFIFOSEND.address) { IPC9to7.writefifo(value); return; }
 
+	if (adr == Regs_Arm9.Sect_system9.AUXSPICNT.address) { Gamecard9.write_spi_cnt((UInt16)value); return; }
+	if (adr == Regs_Arm9.Sect_system9.AUXSPICNT.address + 2) { Gamecard9.write_spi_dat((byte)value); return; }
+
 	if (adr == Regs_Arm9.Sect_system9.EXMEMCNT.address) // first two bytes readable from arm7 side
 	{ 
 		Regs_Arm7.data[0x204] = Regs_Arm7.data[0x204] & 0x7F | Regs_Arm9.data[0x204] & 0x80; // lower 7 bit can be changed on arm7 side, so keep them
@@ -1412,6 +1431,9 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 	if (adr == Regs_Arm7.Sect_system7.IPCSYNC.address) { IPC7to9.write_sync(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOCNT.address) { IPC7to9.write_control(); return; }
 	if (adr == Regs_Arm7.Sect_system7.IPCFIFOSEND.address) { IPC7to9.writefifo(value); return; }
+
+	if (adr == Regs_Arm7.Sect_system7.AUXSPICNT.address) { Gamecard7.write_spi_cnt((UInt16)value); return; }
+	if (adr == Regs_Arm7.Sect_system7.AUXSPICNT.address + 2) { Gamecard7.write_spi_dat((byte)value); return; }
 
 	if (adr == Regs_Arm7.Sect_system7.SPICNT.address) { SPI_Intern.check_reset((UInt16)value); return; }
 	if (adr == Regs_Arm7.Sect_system7.SPICNT.address + 2) { SPI_Intern.write_data((byte)value); return; }

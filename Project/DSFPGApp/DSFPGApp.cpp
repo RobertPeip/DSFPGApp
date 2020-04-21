@@ -19,12 +19,16 @@ using namespace std;
 const int WIDTH = 256;
 const int HEIGHT = 192;
 
-uint framebuffer_raw[256 * 192 * 2];
+uint framebuffer_raw_a[256 * 192];
+uint framebuffer_raw_b[256 * 192];
 int screensizemult = 3;
+
+uint drawmode = 0;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
-SDL_Texture* framebuffer;
+SDL_Texture* framebuffer1;
+SDL_Texture* framebuffer2;
 SDL_mutex* mutex;
 
 SDL_Thread* gbthread;
@@ -122,21 +126,49 @@ void set_displaysize(int mult, bool fullscreen)
 	{
 		OSD.displaysize = 0;
 		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_DisplayMode DM;
+		SDL_GetCurrentDisplayMode(0, &DM);
+		if (drawmode == 0)
+		{
+			screensizemult = min(DM.w / WIDTH, (DM.h / 2) / HEIGHT);
+		}
+		else if (drawmode == 1)
+		{
+			screensizemult = min((DM.w / 2) / WIDTH, DM.h / HEIGHT);
+		}
 	}
 	else
 	{
 		OSD.displaysize = mult;
 		SDL_SetWindowFullscreen(window, 0);
-		SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult * 2);
 		screensizemult = mult;
+		if (drawmode == 0)
+		{
+			SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult * 2);
+		}
+		else if (drawmode == 1)
+		{
+			SDL_SetWindowSize(window, WIDTH * mult * 2, HEIGHT * mult);
+		}
 	}
+
+	if (drawmode == 0)
+	{
+		SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT * 2);
+	}
+	else if (drawmode == 1)
+	{
+		SDL_RenderSetLogicalSize(renderer, WIDTH * 2, HEIGHT);
+	}
+
 }
 
 void drawer()
 {
 	window = SDL_CreateWindow ("DSFPGApp", 200, 200, WIDTH * 3, HEIGHT * 3 * 2, SDL_WINDOW_OPENGL);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-	framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT * 2);
+	framebuffer1 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT * 2);
+	framebuffer2 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH * 2, HEIGHT);
 	SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT * 2);
 	SDL_RenderSetIntegerScale(renderer, SDL_bool::SDL_TRUE);
 	mutex = SDL_CreateMutex();
@@ -195,11 +227,42 @@ void drawer()
 			}
 			else
 			{
-				GPU_A.draw_game(framebuffer_raw);
-				GPU_B.draw_game(framebuffer_raw);
-				SDL_UpdateTexture(framebuffer, NULL, framebuffer_raw, WIDTH * sizeof(uint32_t));
-				SDL_RenderClear(renderer);
-				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+				GPU_A.draw_game(framebuffer_raw_a);
+				GPU_B.draw_game(framebuffer_raw_b);
+				if (drawmode == 0)
+				{
+					SDL_Rect copyrect;
+					uint* framebuffer_raw1 = framebuffer_raw_a;
+					uint * framebuffer_raw2 = framebuffer_raw_b;
+					if (GPU_A.swap)
+					{
+						framebuffer_raw1 = framebuffer_raw_b;
+						framebuffer_raw2 = framebuffer_raw_a;
+					}
+					copyrect.x = 0; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
+					SDL_UpdateTexture(framebuffer1, &copyrect, framebuffer_raw1, WIDTH * sizeof(uint32_t));
+					copyrect.x = 0; copyrect.y = HEIGHT; copyrect.w = WIDTH; copyrect.h = HEIGHT;
+					SDL_UpdateTexture(framebuffer1, &copyrect, framebuffer_raw2, WIDTH * sizeof(uint32_t));
+					SDL_RenderClear(renderer);
+					SDL_RenderCopy(renderer, framebuffer1, NULL, NULL);
+				}
+				else if (drawmode == 1)
+				{
+					SDL_Rect copyrect;
+					uint* framebuffer_raw1 = framebuffer_raw_a;
+					uint* framebuffer_raw2 = framebuffer_raw_b;
+					if (GPU_A.swap)
+					{
+						framebuffer_raw1 = framebuffer_raw_b;
+						framebuffer_raw2 = framebuffer_raw_a;
+					}
+					copyrect.x = 0; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
+					SDL_UpdateTexture(framebuffer2, &copyrect, framebuffer_raw1, WIDTH * sizeof(uint32_t));
+					copyrect.x = WIDTH; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
+					SDL_UpdateTexture(framebuffer2, &copyrect, framebuffer_raw2, WIDTH * sizeof(uint32_t));
+					SDL_RenderClear(renderer);
+					SDL_RenderCopy(renderer, framebuffer2, NULL, NULL);
+				}
 			}
 
 			SDL_RenderPresent(renderer);
@@ -324,7 +387,44 @@ void drawer()
 				int mouse_y;
 				if (SDL_GetMouseState(&mouse_x, &mouse_y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 				{
-					SPI_Intern.updateADCTouchPos(true, (mouse_x / screensizemult) - 1, (mouse_y / screensizemult) - 193);
+					if (OSD.displaysize == 0)
+					{
+						int realwidth;
+						int realheight;
+						if (drawmode == 0)
+						{
+							realwidth = screensizemult * WIDTH;
+							realheight = screensizemult * HEIGHT * 2;
+						}
+						else if (drawmode == 1)
+						{
+							realwidth = screensizemult * WIDTH * 2;
+							realheight = screensizemult * HEIGHT;
+						}
+
+						SDL_DisplayMode DM;
+						SDL_GetCurrentDisplayMode(0, &DM);
+						mouse_x -= (DM.w - realwidth) / 2;
+						mouse_y -= (DM.h - realheight) / 2;
+					}
+
+					int realx = -1;
+					int realy = -1;
+					if (drawmode == 0)
+					{
+						realx = (mouse_x / screensizemult) - 1;
+						realy = (mouse_y / screensizemult) - 193;
+					}
+					else if (drawmode == 1)
+					{
+						realx = (mouse_x / screensizemult) - 257;
+						realy = (mouse_y / screensizemult) - 1;
+					}
+
+					if (realx >= 0 && realx < 256 && realy >= 0 && realy <= 192)
+					{
+						SPI_Intern.updateADCTouchPos(true, realx, realy);
+					}
 				}
 				else
 				{
@@ -384,6 +484,30 @@ void drawer()
 				if (keystate[SDL_SCANCODE_F3])
 				{
 					exportmem();
+				}
+
+				if (keystate[SDL_SCANCODE_F1])
+				{
+					if (GPU_A.layerenable == 0x1F) GPU_A.layerenable = 0;
+					else if (GPU_A.layerenable == 0) GPU_A.layerenable = 1;
+					else if (GPU_A.layerenable == 0x10) GPU_A.layerenable = 0x1F;
+					else GPU_A.layerenable <<= 1;
+					while (keystate[SDL_SCANCODE_F1]) SDL_PumpEvents();
+				}
+				if (keystate[SDL_SCANCODE_F2])
+				{
+					if (GPU_B.layerenable == 0x1F) GPU_B.layerenable = 0;
+					else if (GPU_B.layerenable == 0) GPU_B.layerenable = 1;
+					else if (GPU_B.layerenable == 0x10) GPU_B.layerenable = 0x1F;
+					else GPU_B.layerenable <<= 1;
+					while (keystate[SDL_SCANCODE_F2]) SDL_PumpEvents();
+				}				
+				
+				if (keystate[SDL_SCANCODE_M])
+				{
+					drawmode = (drawmode + 1) % 2;
+					while (keystate[SDL_SCANCODE_M]) SDL_PumpEvents();
+					set_displaysize(OSD.displaysize, OSD.displaysize == 0);
 				}
 
 				if (keystate[SDL_SCANCODE_SPACE] || keystate[SDL_SCANCODE_0] || SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y))
@@ -449,6 +573,8 @@ void drawer()
 #endif
 			string title = std::to_string(100 * newcycles / 67027964);
 			if (GPU_A.swap) title += " ScreenSwapped ";
+			if (GPU_A.layerenable != 0x1F) title += " LayerA " + to_string(GPU_A.layerenable);
+			if (GPU_B.layerenable != 0x1F) title += " LayerB " + to_string(GPU_B.layerenable);
 			SDL_SetWindowTitle(window, title.c_str());
 
 			lastTime_second = SDL_GetPerformanceCounter();
