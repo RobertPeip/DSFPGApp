@@ -41,6 +41,7 @@ void Gameboy::reset()
 		Memory.reset(filename);
 	}
 
+	Co15.reset();
 	CPU9.reset(true);
 	CPU7.reset(false);
 	IRP9.reset(true);
@@ -108,7 +109,7 @@ void Gameboy::run()
 		UInt64 nextevent = nexteventtotal - totalticks;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 28982)
+		if (tracer.traclist_ptr == 150452)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
@@ -130,10 +131,10 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 4200000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 100000;
+			tracer.runmoretrace = 200000;
 		}
 
 		if (tracer.runmoretrace > 0)
@@ -152,7 +153,7 @@ void Gameboy::run()
 			}
 		}
 		tracer.commands++;
-		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 20;
+		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 50;
 #endif
 
 		checkcount++;
@@ -526,7 +527,7 @@ void Gameboy::exportmem()
 	}
 	for (int i = 0; i < Regs_Arm7.allregcount; i++)
 	{
-		fprintf(file, "0x%08x %-40s(0x%08x)\n", Regs_Arm9.allregs[i].read(), Regs_Arm9.allregs[i].name.c_str(), Regs_Arm9.allregs[i].address);
+		fprintf(file, "0x%08x %-40s(0x%08x)\n", Regs_Arm7.allregs[i].read(), Regs_Arm7.allregs[i].name.c_str(), Regs_Arm7.allregs[i].address);
 	}
 	fclose(file);
 

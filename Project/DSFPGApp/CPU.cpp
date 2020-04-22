@@ -705,7 +705,7 @@ void Cpu::thumb_command()
 	case 7:
 		if (((asmcmd >> 12) & 1) == 0)
 		{
-			if (((asmcmd >> 11) & 1) == 0)
+			if (!isArm9 || ((asmcmd >> 11) & 1) == 0)
 			{
 				unconditional_branch((UInt16)(asmcmd & 0x7FF));
 			}
@@ -3435,5 +3435,21 @@ void Cpu::coprocessor_register_transfer_write(byte opMode, byte coSrcDstReg, byt
 UInt32 Cpu::RotateRight(UInt32 x, int n)
 {
 	return (((x) >> (n)) | ((x) << (32 - (n))));
+}
+
+void CO15::reset()
+{
+	ctrl = 0;
+	DCConfig = 0;
+	ICConfig = 0;
+	writeBuffCtrl = 0;
+	DaccessPerm = 0;
+	IaccessPerm = 0;
+	DTCMRegion = 0;
+
+	for (int i = 0; i < 8; i++)
+	{
+		protectBaseSize[8] = 0;
+	}
 }
 

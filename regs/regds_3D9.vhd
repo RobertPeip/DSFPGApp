@@ -9,6 +9,19 @@ package pReg_ds_display_9 is
 
    -- range 0x320..6A3
    --   (                                                         adr      upper    lower    size   default   accesstype)                                                     
+   constant CLEAR_COLOR                         : regmap_type := (16#0350#,  29,      0,        1,        0,   Writeonly); -- Clear Color Attribute Register (W)
+   constant CLEAR_COLOR_Red                     : regmap_type := (16#0350#,   4,      0,        1,        0,   Writeonly); -- 0-4    Clear Color, Red
+   constant CLEAR_COLOR_Green                   : regmap_type := (16#0350#,   9,      5,        1,        0,   Writeonly); -- 5-9    Clear Color, Green
+   constant CLEAR_COLOR_Blue                    : regmap_type := (16#0350#,  14,     10,        1,        0,   Writeonly); -- 10-14  Clear Color, Blue
+   constant CLEAR_COLOR_Fog                     : regmap_type := (16#0350#,  15,     15,        1,        0,   Writeonly); -- 15     Fog (enables Fog to the rear-plane) (doesn't affect Fog of polygons)
+   constant CLEAR_COLOR_Alpha                   : regmap_type := (16#0350#,  20,     16,        1,        0,   Writeonly); -- 16-20  Alpha
+   constant CLEAR_COLOR_Clear_Polygon_ID        : regmap_type := (16#0350#,  29,     24,        1,        0,   Writeonly); -- 24-29  Clear Polygon ID (affects edge-marking, at the screen-edges?)
+  
+   constant CLEAR_DEPTH                         : regmap_type := (16#0354#,  31,      0,        1,        0,   Writeonly); -- Clear Depth Register (W)
+   constant CLEAR_DEPTH_DEPTH                   : regmap_type := (16#0354#,  14,      0,        1,        0,   Writeonly); -- 0-14   Clear Depth (0..7FFFh) (usually 7FFFh = most distant)
+   constant CLEAR_DEPTH_X_Offset                : regmap_type := (16#0354#,  23,     16,        1,        0,   Writeonly); -- Bit16-23  X-Offset (0..255; 0=upper row of bitmap)
+   constant CLEAR_DEPTH_Y_Offset                : regmap_type := (16#0354#,  31,     24,        1,        0,   Writeonly); -- Bit24-30  Y-Offset (0..255; 0=left column of bitmap)
+  
    constant GXFIFO                              : regmap_type := (16#0400#,  31,      0,        1,        0,   Writeonly); -- Geometry Command FIFO (mirrored up to 400043Fh?)
    
    constant GXSTAT                              : regmap_type := (16#0600#,  31,      0,     1, 16#6000000#,   Writeonly); -- Geometry Engine Status Register (R and R/W)   

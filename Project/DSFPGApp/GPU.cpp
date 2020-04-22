@@ -86,6 +86,7 @@ void Gpu::reset(bool isGPUA)
 
 	videomode = 0;
 	displaymode = 0;
+	is3D = false;
 
 	ext_palette_bg = false;
 	ext_palette_obj = false;
@@ -223,6 +224,8 @@ void Gpu::reset(bool isGPUA)
 		BLDALPHA_EVA_Coefficient = Regs_Arm9.Sect_display9.A_BLDALPHA_EVA_Coefficient;
 		BLDALPHA_EVB_Coefficient = Regs_Arm9.Sect_display9.A_BLDALPHA_EVB_Coefficient;
 		BLDY = Regs_Arm9.Sect_display9.A_BLDY;
+		MASTER_BRIGHT_Factor = Regs_Arm9.Sect_display9.A_MASTER_BRIGHT_Factor;
+		MASTER_BRIGHT_Mode = Regs_Arm9.Sect_display9.A_MASTER_BRIGHT_Mode;
 	}
 	else
 	{
@@ -352,6 +355,8 @@ void Gpu::reset(bool isGPUA)
 		BLDALPHA_EVA_Coefficient = Regs_Arm9.Sect_display9.B_BLDALPHA_EVA_Coefficient;
 		BLDALPHA_EVB_Coefficient = Regs_Arm9.Sect_display9.B_BLDALPHA_EVB_Coefficient;
 		BLDY = Regs_Arm9.Sect_display9.B_BLDY;
+		MASTER_BRIGHT_Factor = Regs_Arm9.Sect_display9.B_MASTER_BRIGHT_Factor;
+		MASTER_BRIGHT_Mode = Regs_Arm9.Sect_display9.B_MASTER_BRIGHT_Mode;
 	}
 }
 
@@ -365,6 +370,11 @@ void Gpu::dispcnt_write()
 
 	screenbase = DISPCNT_Screen_Base.read() * 32;
 	charbase = DISPCNT_Character_Base.read() * 4;
+
+	if (isGPUA)
+	{
+		is3D = DISPCNT_BG0_2D_3D.on();
+	}
 
 	bool new_forcedblank = DISPCNT_Forced_Blank.on();
 	if (forcedblank && !new_forcedblank)
@@ -615,7 +625,11 @@ void Gpu::draw_line(byte y_in)
 						pixels_bg0[x].prio = prio_bg0;
 						pixels_bg0[x].transparent = true;
 					}
-					if (videomode < 6)
+					if (is3D)
+					{
+						draw_3D(y);
+					}
+					else if (videomode < 6)
 					{
 						draw_bg_mode0(pixels_bg0,
 							0,
@@ -1028,6 +1042,9 @@ void Gpu::draw_line(byte y_in)
 			byte eva = (byte)BLDALPHA_EVA_Coefficient.read();
 			byte evb = (byte)BLDALPHA_EVB_Coefficient.read();
 
+			byte masterbrightmode = MASTER_BRIGHT_Mode.read();
+			byte masterbrightvalue = MASTER_BRIGHT_Factor.read();
+
 			if (bldy > 16) { bldy = 16; }
 			if (eva > 16) { eva = 16; }
 			if (evb > 16) { evb = 16; }
@@ -1235,6 +1252,17 @@ void Gpu::draw_line(byte y_in)
 					{
 						pixelfinal.copycolor(pixelbackdrop);
 					}
+
+					
+					if (masterbrightmode == 1)
+					{
+						pixelfinal.whiter(masterbrightvalue);
+					}
+					else if (masterbrightmode == 2)
+					{
+						pixelfinal.blacker(masterbrightvalue);
+					}
+					
 
 					// choose
 					if (interlace_blending)
@@ -2083,6 +2111,53 @@ void Gpu::draw_obj(int y, int baseaddr)
 	}
 
 
+}
+
+int Gpu::get_mapped_rearplane_address(uint address_in)
+{
+	if (Memory.vrammux[VRAMBANK::A].MST == 3 && address_in >= Memory.vrammux[VRAMBANK::A].gpustart && address_in <= Memory.vrammux[VRAMBANK::A].gpuend) return Memory.vrammux[VRAMBANK::A].vramoffset + (address_in - Memory.vrammux[VRAMBANK::A].gpustart);
+	if (Memory.vrammux[VRAMBANK::B].MST == 3 && address_in >= Memory.vrammux[VRAMBANK::B].gpustart && address_in <= Memory.vrammux[VRAMBANK::B].gpuend) return Memory.vrammux[VRAMBANK::B].vramoffset + (address_in - Memory.vrammux[VRAMBANK::B].gpustart);
+	if (Memory.vrammux[VRAMBANK::C].MST == 3 && address_in >= Memory.vrammux[VRAMBANK::C].gpustart && address_in <= Memory.vrammux[VRAMBANK::C].gpuend) return Memory.vrammux[VRAMBANK::C].vramoffset + (address_in - Memory.vrammux[VRAMBANK::C].gpustart);
+	if (Memory.vrammux[VRAMBANK::D].MST == 3 && address_in >= Memory.vrammux[VRAMBANK::D].gpustart && address_in <= Memory.vrammux[VRAMBANK::D].gpuend) return Memory.vrammux[VRAMBANK::D].vramoffset + (address_in - Memory.vrammux[VRAMBANK::D].gpustart);
+
+	return -1;
+}
+
+void Gpu::draw_3D(int y)
+{
+	if (Regs_Arm9.Sect_display9.DISP3DCNT_Rear_Plane_Mode.on()) // bitmap
+	{
+		for (int x = 0; x < 256; x++)
+		{
+			int address = get_mapped_rearplane_address(0x40000 + y * 512 + x * 2);
+			UInt16 color;
+			if (address >= 0)
+			{
+				color = *(UInt16*)&Memory.VRAM[address];
+			}
+			else
+			{
+				color = 0;
+			}
+			pixels_bg0[x].color_blue = ((color >> 10) & 0x1F) << 3;
+			pixels_bg0[x].color_green = ((color >> 5) & 0x1F) << 3;
+			pixels_bg0[x].color_red = (color & 0x1F) << 3;
+			pixels_bg0[x].transparent = ((color >> 15) & 1) == 0;
+		}
+	}
+	else // blank color
+	{
+		byte red = Regs_Arm9.Sect_3D9.CLEAR_COLOR_Red.read() * 8;
+		byte green = Regs_Arm9.Sect_3D9.CLEAR_COLOR_Green.read() * 8;
+		byte blue = Regs_Arm9.Sect_3D9.CLEAR_COLOR_Blue.read() * 8;
+		byte alpha = Regs_Arm9.Sect_3D9.CLEAR_COLOR_Alpha.read();
+
+		for (int x = 0; x < 256; x++)
+		{
+			pixels_bg0[x].transparent = alpha == 0;
+			pixels_bg0[x].update(red, green, blue);
+		}
+	}
 }
 
 void Gpu::draw_game(uint* framebuffer_raw)

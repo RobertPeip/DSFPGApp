@@ -65,6 +65,7 @@ public:
 	bool ext_palette_obj;
 	uint screenbase;
 	uint charbase;
+	bool is3D;
 
 	// static array, so less allocate
 	Pixel pixels[512][384];
@@ -262,6 +263,9 @@ public:
 
 	DSReg BLDY;
 
+	DSReg MASTER_BRIGHT_Factor;
+	DSReg MASTER_BRIGHT_Mode;
+
 	void reset(bool isGPUA);
 	void dispcnt_write();
 	void refpoint_update_all();
@@ -285,6 +289,8 @@ public:
 	uint get_mapped_obj_address(uint address_in);
 	uint get_mapped_obj_extpalette_address(uint address_in);
 	void draw_obj(int y, int baseaddr);
+	int get_mapped_rearplane_address(uint address_in);
+	void draw_3D(int y);
 	void draw_game(uint* framebuffer_raw);
 
 	//private:

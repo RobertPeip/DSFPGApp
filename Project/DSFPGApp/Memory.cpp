@@ -1528,8 +1528,8 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			}
 			break;
 		case 3: // Texture/Rear-plane Image todo!
-			// vrammux[i].gpustart = OFS * 0x20000;
-			// vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
+			vrammux[i].gpustart = OFS * 0x20000;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 			break;
 		}
 		break;
@@ -1561,8 +1561,8 @@ void MEMORY::set_single_vrammode(VRAMBANK bank, uint mst, uint OFS)
 			}
 			break;
 		case 3: // Texture/Rear-plane Image todo!
-			// vrammux[i].gpustart = OFS * 0x20000;
-			// vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
+			vrammux[i].gpustart = OFS * 0x20000;
+			vrammux[i].gpuend = vrammux[i].gpustart + 0x1FFFF;
 			break;
 		case 4: // ARM9, 2D Graphics Engine B, BG - VRAM(max 128K) (C) - ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K) (D)
 			vrammux[i].ena9 = true;

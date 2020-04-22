@@ -161,39 +161,41 @@ extern Cpu CPU7;
 class CO15
 {
 public:
-	uint IDCode;
-	uint cacheType;
-	uint TCMSize;
+	//uint IDCode;
+	//uint cacheType;
+	//uint TCMSize;
 	uint ctrl;
 	uint DCConfig;
 	uint ICConfig;
 	uint writeBuffCtrl;
-	uint und;
+	//uint und;
 	uint DaccessPerm;
 	uint IaccessPerm;
 	uint protectBaseSize[8];
-	uint cacheOp;
-	uint DcacheLock;
-	uint IcacheLock;
-	uint ITCMRegion;
+	//uint cacheOp;
+	//uint DcacheLock;
+	//uint IcacheLock;
+	//uint ITCMRegion;
 	uint DTCMRegion;
-	uint processID;
-	uint RAM_TAG;
-	uint testState;
-	uint cacheDbg;
+	//uint processID;
+	//uint RAM_TAG;
+	//uint testState;
+	//uint cacheDbg;
 
-	uint regionWriteMask_USR[8];
-	uint regionWriteMask_SYS[8];
-	uint regionReadMask_USR[8];
-	uint regionReadMask_SYS[8];
-	uint regionExecuteMask_USR[8];
-	uint regionExecuteMask_SYS[8];
-	uint regionWriteSet_USR[8];
-	uint regionWriteSet_SYS[8];
-	uint regionReadSet_USR[8];
-	uint regionReadSet_SYS[8];
-	uint regionExecuteSet_USR[8];
-	uint regionExecuteSet_SYS[8];
+	//uint regionWriteMask_USR[8];
+	//uint regionWriteMask_SYS[8];
+	//uint regionReadMask_USR[8];
+	//uint regionReadMask_SYS[8];
+	//uint regionExecuteMask_USR[8];
+	//uint regionExecuteMask_SYS[8];
+	//uint regionWriteSet_USR[8];
+	//uint regionWriteSet_SYS[8];
+	//uint regionReadSet_USR[8];
+	//uint regionReadSet_SYS[8];
+	//uint regionExecuteSet_USR[8];
+	//uint regionExecuteSet_SYS[8];
+
+	void reset();
 };
 extern CO15 Co15;
 

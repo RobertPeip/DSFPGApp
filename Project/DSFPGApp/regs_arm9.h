@@ -2232,6 +2232,50 @@ class RegSect_3D9
 {
 public:
     /// <summary>
+    /// Clear Color Attribute Register (W)
+    /// </summary>
+    DSReg CLEAR_COLOR;
+    /// <summary>
+    /// 0-4 Clear Color, Red
+    /// </summary>
+    DSReg CLEAR_COLOR_Red;
+    /// <summary>
+    /// 5-9 Clear Color, Green
+    /// </summary>
+    DSReg CLEAR_COLOR_Green;
+    /// <summary>
+    /// 10-14 Clear Color, Blue
+    /// </summary>
+    DSReg CLEAR_COLOR_Blue;
+    /// <summary>
+    /// 15 Fog (enables Fog to the rear-plane) (doesn't affect Fog of polygons)
+    /// </summary>
+    DSReg CLEAR_COLOR_Fog;
+    /// <summary>
+    /// 16-20 Alpha
+    /// </summary>
+    DSReg CLEAR_COLOR_Alpha;
+    /// <summary>
+    /// 24-29 Clear Polygon ID (affects edge-marking, at the screen-edges?)
+    /// </summary>
+    DSReg CLEAR_COLOR_Clear_Polygon_ID;
+    /// <summary>
+    /// Clear Depth Register (W)
+    /// </summary>
+    DSReg CLEAR_DEPTH;
+    /// <summary>
+    /// 0-14 Clear Depth (0..7FFFh) (usually 7FFFh = most distant)
+    /// </summary>
+    DSReg CLEAR_DEPTH_DEPTH;
+    /// <summary>
+    /// Bit16-23 X-Offset (0..255; 0=upper row of bitmap)
+    /// </summary>
+    DSReg CLEAR_DEPTH_X_Offset;
+    /// <summary>
+    /// Bit24-30 Y-Offset (0..255; 0=left column of bitmap)
+    /// </summary>
+    DSReg CLEAR_DEPTH_Y_Offset;
+    /// <summary>
     /// Geometry Command FIFO (mirrored up to 400043Fh?)
     /// </summary>
     DSReg GXFIFO;
@@ -2299,8 +2343,8 @@ public:
 
     byte data[4208];
     byte rwmask[4208];
-    const int allregcount = 560;
-    DSReg allregs[560];
+    const int allregcount = 571;
+    DSReg allregs[571];
 
     void reset();
 };
