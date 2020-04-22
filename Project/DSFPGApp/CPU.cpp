@@ -80,8 +80,8 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	//this->memory02 = CPU.lastAddress;
-	this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04001000);
+	this->memory02 = CPU.lastAddress;
+	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040001A0);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -620,7 +620,14 @@ void Cpu::thumb_command()
 			break;
 
 		case 1:
-			hi_register_operations_branch_exchange((byte)((asmcmd >> 6) & 0xF), (byte)((asmcmd >> 3) & 0x7), (byte)(asmcmd & 0x7));
+			if (isArm9 && (((asmcmd >> 7) & 0x7) == 7))
+			{
+				blx_thumb_2((byte)((asmcmd >> 3) & 0xF));
+			}
+			else
+			{
+				hi_register_operations_branch_exchange((byte)((asmcmd >> 6) & 0xF), (byte)((asmcmd >> 3) & 0x7), (byte)(asmcmd & 0x7));
+			}
 			break;
 
 		case 2:
@@ -698,7 +705,14 @@ void Cpu::thumb_command()
 	case 7:
 		if (((asmcmd >> 12) & 1) == 0)
 		{
-			unconditional_branch((UInt16)(asmcmd & 0x7FF));
+			if (((asmcmd >> 11) & 1) == 0)
+			{
+				unconditional_branch((UInt16)(asmcmd & 0x7FF));
+			}
+			else
+			{
+				blx_thumb_1(asmcmd & 0x7FF);
+			}
 		}
 		else
 		{
@@ -708,6 +722,35 @@ void Cpu::thumb_command()
 	}
 
 	PC += 2;
+}
+
+void Cpu::blx_thumb_1(UInt16 SOffset11)
+{
+	PC = (UInt32)(regs[14] + (SOffset11 << 1));
+	regs[14] = regs[15] - 2;
+	regs[14] |= 1;
+	PC &= 0xFFFFFFFC;
+	thumbmode = false;
+	newticks = 3;
+	PC -= 2;
+}
+
+void Cpu::blx_thumb_2(byte Rm4Bit)
+{
+	PC = regs[Rm4Bit];
+	regs[14] = regs[15] - 2;
+	regs[14] |= 1;
+	if (thumbmode)
+	{
+		PC &= 0xFFFFFFFE;
+	}
+	else
+	{
+		PC &= 0xFFFFFFFC;
+	}
+	thumbmode = (regs[Rm4Bit] & 1) == 1;
+	newticks = 4;
+	PC -= 2;
 }
 
 void Cpu::long_branch_with_link(bool high, UInt16 SOffset11)
@@ -1044,6 +1087,8 @@ void Cpu::hi_register_operations_branch_exchange(byte opcode_h1h2, byte RsHs, by
 	case 0xD:                                                                   // 1101 BX Hs Perform branch(plus optional state change) to address in a register in the range 8 - 15.
 		branch_and_exchange((byte)(RsHs + 8));
 		break;
+
+	//case 0xE:  case 0xF:                                                      // 1110 + 1111 BLX ARMv5 -> handled in decoding
 	}
 }
 
@@ -2775,8 +2820,8 @@ void Cpu::branch_with_Link_and_Exchange_1(bool h_bit, uint immi)
 
 void Cpu::branch_with_Link_and_Exchange_2(byte reg)
 {
-	regs[14] = regs[15] - 4;
 	PC = regs[reg];
+	regs[14] = regs[15] - 4;
 	if ((PC & 1) == 1) // thumb
 	{
 		thumbmode = true;

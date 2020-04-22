@@ -83,6 +83,8 @@ public:
 
 private:
 	void thumb_command();
+	void blx_thumb_1(UInt16 SOffset11);
+	void blx_thumb_2(byte Rm4Bit);
 	void long_branch_with_link(bool high, UInt16 SOffset11);
 	void unconditional_branch(UInt16 SOffset11);
 	void conditional_branch(byte cond, byte SOffset8);
