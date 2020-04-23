@@ -113,6 +113,7 @@ void Dma::set_settings(int index)
 		DMAs[index].running = false;
 		DMAs[index].waiting = false;
 		DMAs[index].finished = false;
+		gameboy.reschedule = true;
 	}
 
 	if (DMAs[index].dMA_Enable && !old_ena)
@@ -170,6 +171,8 @@ void Dma::set_settings(int index)
 		{
 			DMAs[index].count = 128;
 		}
+
+		gameboy.reschedule = true;
 	}
 }
 
@@ -207,6 +210,7 @@ void Dma::check_run(int index)
 		DMAs[index].waiting = false;
 		DMAs[index].first = true;
 		DMAs[index].fullcount = DMAs[index].count;
+		gameboy.reschedule = true;
 	}
 }
 
@@ -316,6 +320,7 @@ void Dma::work()
 				}
 
 				debug_dmatranfers++;
+				gameboy.reschedule = true;
 
 				DMAs[i].count--;
 
@@ -402,6 +407,7 @@ void Dma::request_audio(uint audioindex)
 				DMAs[i].first = true;
 				DMAs[i].fullcount = DMAs[i].count;
 				DMAs[i].skipdebugout = true;
+				gameboy.reschedule = true;
 			}
 		}
 	}
@@ -418,6 +424,7 @@ void Dma::request_cardtransfer(uint length)
 			DMAs[i].fullcount = length;
 			DMAs[i].count = length;
 			DMAs[i].skipdebugout = true;
+			gameboy.reschedule = true;
 		}
 	}
 }

@@ -414,7 +414,7 @@ RegSect_system9::RegSect_system9()
     IPCSYNC = DSReg(0x180, 15, 0, 1, 0, "writeonly", "IPCSYNC", Regs_Arm9.data);
     IPCSYNC_Data_from_IPCSYNC = DSReg(0x180, 3, 0, 1, 0, "readonly", "IPCSYNC_Data_from_IPCSYNC", Regs_Arm9.data);
     IPCSYNC_Data_to_IPCSYNC = DSReg(0x180, 11, 8, 1, 0, "readwrite", "IPCSYNC_Data_to_IPCSYNC", Regs_Arm9.data);
-    IPCSYNC_IRQ = DSReg(0x180, 13, 13, 1, 0, "readonly", "IPCSYNC_IRQ", Regs_Arm9.data);
+    IPCSYNC_IRQ_to_remote_CPU = DSReg(0x180, 13, 13, 1, 0, "readonly", "IPCSYNC_IRQ_to_remote_CPU", Regs_Arm9.data);
     IPCSYNC_Ena_IRQ_from_remote_CPU = DSReg(0x180, 14, 14, 1, 0, "readwrite", "IPCSYNC_Ena_IRQ_from_remote_CPU", Regs_Arm9.data);
     IPCFIFOCNT = DSReg(0x184, 15, 0, 1, 0, "writeonly", "IPCFIFOCNT", Regs_Arm9.data);
     IPCFIFOCNT_Send_Fifo_Empty_Status = DSReg(0x184, 0, 0, 1, 0, "readonly", "IPCFIFOCNT_Send_Fifo_Empty_Status", Regs_Arm9.data);
@@ -993,7 +993,7 @@ void REGS_Arm9::reset()
       allregs[390] = Regs_Arm9.Sect_system9.IPCSYNC;
       allregs[391] = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
       allregs[392] = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
-      allregs[393] = Regs_Arm9.Sect_system9.IPCSYNC_IRQ;
+      allregs[393] = Regs_Arm9.Sect_system9.IPCSYNC_IRQ_to_remote_CPU;
       allregs[394] = Regs_Arm9.Sect_system9.IPCSYNC_Ena_IRQ_from_remote_CPU;
       allregs[395] = Regs_Arm9.Sect_system9.IPCFIFOCNT;
       allregs[396] = Regs_Arm9.Sect_system9.IPCFIFOCNT_Send_Fifo_Empty_Status;

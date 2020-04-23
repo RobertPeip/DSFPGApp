@@ -8,6 +8,8 @@ using namespace std;
 #include "IRP.h"
 #include "CPUCache.h"
 #include "memory.h"
+#include "gameboy.h"
+#include "GXFifo.h"
 
 Cpu CPU9;
 Cpu CPU7;
@@ -80,7 +82,8 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = CPU.lastAddress;
+	//this->memory02 = CPU.lastAddress;
+	this->memory02 = GXFifo.fifo.size();
 	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040001A0);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
@@ -1624,6 +1627,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 					regbanks[0][i] = (*read_dword)(ACCESSTYPE::CPUDATA, address & 0xFFFFFFFC);
 
 					// all below only for desmume, probably wrong!
+					gameboy.reschedule = true; // probably not required
 					if (i < 13)
 					{
 						regs[i] = regbanks[0][i]; 
@@ -1671,6 +1675,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{
 					// for desmume, old implementation below
+					gameboy.reschedule = true; // probably not required
 					if (i >= 13 && i <= 14)
 					{
 						writeval = regbanks[0][i];
@@ -2161,6 +2166,7 @@ void Cpu::data_processing_PSR(UInt32 asmcmd)
 					regs[17] = (regs[17] & 0x00FFFFFF) | (value & 0xFF000000);
 				}
 			}
+			gameboy.reschedule = true; // probably not required
 		}
 		else // should transfer to cpsr
 		{
@@ -2675,6 +2681,8 @@ void Cpu::set_CPSR(UInt32 value)
 			IRP7.checknext = true;
 		}
 	}
+
+	gameboy.reschedule = true;
 }
 
 void Cpu::CPUSwitchMode(CPUMODES mode, bool saveState)

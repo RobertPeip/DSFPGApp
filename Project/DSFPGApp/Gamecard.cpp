@@ -125,6 +125,7 @@ void GAMECARD::writeControl()
 		delay *= 2; // 33->66mhz
 
 		next_event_time = gameboy.totalticks + delay;
+		gameboy.reschedule = true;
 	}
 	else
 	{

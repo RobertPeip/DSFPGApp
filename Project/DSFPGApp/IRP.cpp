@@ -2,6 +2,8 @@
 #include "regs_arm9.h"
 #include "regs_arm7.h"
 #include "CPU.h"
+#include "gameboy.h"
+#include "GXFifo.h"
 
 Irp IRP9;
 Irp IRP7;
@@ -34,12 +36,20 @@ void Irp::set_irp_bit(UInt32 mask)
 	IRP_Flags |= mask;
 	REG_IF.write(IRP_Flags);
 	checknext = true;
+	gameboy.reschedule = true;
+}
+
+void Irp::clear_irp_bit(UInt32 mask)
+{
+	IRP_Flags = (UInt32)(IRP_Flags & (~mask));
+	REG_IF.write(IRP_Flags);
 }
 
 void Irp::update_IE()
 {
 	IE = REG_IE.read();
 	checknext = true;
+	gameboy.reschedule = true;
 }
 
 void Irp::clear_irp_bits()
@@ -47,12 +57,14 @@ void Irp::clear_irp_bits()
 	UInt32 clearvector = (UInt32)REG_IF.read();
 	IRP_Flags = (UInt32)(IRP_Flags & (~clearvector));
 	REG_IF.write(IRP_Flags);
+	gameboy.reschedule = true;
 }
 
 void Irp::update_IME(UInt32 value)
 {
 	Master_enable = (value & 1) == 1;
 	checknext = true;
+	gameboy.reschedule = true;
 }
 
 UInt32 Irp::get_IF_with_mask()
@@ -66,5 +78,21 @@ void Irp::check_and_execute_irp()
 	{
 		checknext = false;
 		CPU->interrupt();
+	}
+}
+
+void Irp::check_gxfifobits()
+{
+	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Less_Half.write(GXFifo.lesshalf);
+	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Empty.write(GXFifo.empty);
+
+	byte irqsource = Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_IRQ.read();
+	if ((irqsource == 1 && GXFifo.lesshalf) || (irqsource == 2 && GXFifo.empty))
+	{
+		IRP9.set_irp_bit(IRP9.IRPMASK_Geometry_Command_FIFO);
+	}
+	else
+	{
+		IRP9.clear_irp_bit(IRP9.IRPMASK_Geometry_Command_FIFO);
 	}
 }

@@ -2,6 +2,7 @@
 #include "regs_arm9.h"
 #include "regs_arm7.h"
 #include "IRP.h"
+#include "gameboy.h"
 
 IPC IPC9to7;
 IPC IPC7to9;
@@ -17,10 +18,12 @@ void IPC::reset(bool isArm9)
 		IRP = &IRP9;
 		IRP_Extern = &IRP7;
 
-		IPCSYNC_Data_from_IPCSYNC    = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
-		IPCSYNC_Data_to_IPCSYNC      = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
-		IPCSYNC_EXTERN_to            = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
-		IPCSYNC_EXTERN_from          = Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_Data_from_IPCSYNC               = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_Data_to_IPCSYNC                 = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_to                       = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_from                     = Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_IRQ_to_remote_CPU				= Regs_Arm9.Sect_system9.IPCSYNC_IRQ_to_remote_CPU;
+		IPCSYNC_Ena_IRQ_from_remote_CPU_Extern	= Regs_Arm7.Sect_system7.IPCSYNC_Ena_IRQ_from_remote_CPU;
 
 		IPCFIFOCNT					 = Regs_Arm9.Sect_system9.IPCFIFOCNT                             ;
 		Send_Fifo_Empty_Status       = Regs_Arm9.Sect_system9.IPCFIFOCNT_Send_Fifo_Empty_Status      ;
@@ -38,10 +41,12 @@ void IPC::reset(bool isArm9)
 		IRP = &IRP7;
 		IRP_Extern = &IRP9;
 
-		IPCSYNC_Data_from_IPCSYNC	 = Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
-		IPCSYNC_Data_to_IPCSYNC		 = Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
-		IPCSYNC_EXTERN_to		     = Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
-		IPCSYNC_EXTERN_from			 = Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_Data_from_IPCSYNC				= Regs_Arm7.Sect_system7.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_Data_to_IPCSYNC					= Regs_Arm7.Sect_system7.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_to						= Regs_Arm9.Sect_system9.IPCSYNC_Data_to_IPCSYNC;
+		IPCSYNC_EXTERN_from						= Regs_Arm9.Sect_system9.IPCSYNC_Data_from_IPCSYNC;
+		IPCSYNC_IRQ_to_remote_CPU				= Regs_Arm7.Sect_system7.IPCSYNC_IRQ_to_remote_CPU;
+		IPCSYNC_Ena_IRQ_from_remote_CPU_Extern	= Regs_Arm9.Sect_system9.IPCSYNC_Ena_IRQ_from_remote_CPU;
 
 		IPCFIFOCNT					 = Regs_Arm7.Sect_system7.IPCFIFOCNT                             ;
 		Send_Fifo_Empty_Status       = Regs_Arm7.Sect_system7.IPCFIFOCNT_Send_Fifo_Empty_Status      ;
@@ -62,6 +67,13 @@ void IPC::write_sync()
 {
 	IPCSYNC_EXTERN_from.write(IPCSYNC_Data_to_IPCSYNC.read());
 	IPCSYNC_Data_from_IPCSYNC.write(IPCSYNC_EXTERN_to.read()); // must refresh, as it may be overwritten by 16 bit write
+
+	if (IPCSYNC_IRQ_to_remote_CPU.on() && IPCSYNC_Ena_IRQ_from_remote_CPU_Extern.on())
+	{
+		IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Sync);
+	}
+
+	gameboy.reschedule = true; // probably not required
 }
 
 void IPC::write_control()
@@ -87,6 +99,8 @@ void IPC::write_control()
 	if (Send_Fifo_Empty_IRQ.on() && Send_Fifo_Empty_Status.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty);
 
 	if (Receive_Fifo_Not_Empty_IRQ.on() && !Receive_Fifo_Empty.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty);
+
+	gameboy.reschedule = true; // probably not required
 }
 
 void IPC::update_status()
@@ -115,10 +129,14 @@ void IPC::writefifo(uint value)
 	{
 		IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Recv_FIFO_Not_Empty);
 	}
+
+	gameboy.reschedule = true; // probably not required
 }
 
 uint IPC::readfifo()
 {
+	gameboy.reschedule = true; // probably not required
+
 	if (fifo.empty())
 	{
 		return 0;

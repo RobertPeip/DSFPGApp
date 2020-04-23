@@ -14,6 +14,7 @@ void MATHSQRT::write()
 	calculating = true;
 	Regs_Arm9.Sect_system9.SQRTCN_Busy.write(1);
 	next_event_time = gameboy.totalticks + 13 * 2;
+	gameboy.reschedule = true;
 }
 
 void MATHSQRT::finish()

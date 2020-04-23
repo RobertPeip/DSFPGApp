@@ -6,6 +6,7 @@
 #include "CPU.h"
 #include "IRP.h"
 #include "gameboy.h"
+#include "GXFifo.h"
 
 GPUTiming GPU_Timing;
 
@@ -17,6 +18,7 @@ void GPUTiming::reset()
 	old_dispstat = 0;
 	vcount_irp_next9 = false;
 	vcount_irp_next7 = false;
+	next_event_time = 12;
 }
 
 void GPUTiming::dispstat_write()
@@ -65,6 +67,7 @@ void GPUTiming::work()
 				localticks += 84;
 				next_event_time = localticks + 3108;
 				gpustate = GPUState::VISIBLE;
+				gameboy.reschedule = true;
 			}
 			break;
 
@@ -113,6 +116,7 @@ void GPUTiming::work()
 					//Cheats.apply_cheats();
 					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(1);
 					Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_flag.write(1);
+					GXFifo.vblank();
 				}
 				old_dispstat = Regs_Arm9.data[4];
 			}
@@ -131,6 +135,10 @@ void GPUTiming::work()
 					if (Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Blank);
 					if (Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Blank);
 				}
+				if (line == 262)
+				{
+					gameboy.reschedule = true;
+				}
 			}
 			break;
 
@@ -141,6 +149,7 @@ void GPUTiming::work()
 				localticks += 84;
 				next_event_time = localticks + 3108;
 				gpustate = GPUState::VBLANK_DRAWIDLE;
+				gameboy.reschedule = true;
 			}
 			break;
 

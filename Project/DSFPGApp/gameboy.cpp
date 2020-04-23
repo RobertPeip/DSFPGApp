@@ -23,6 +23,7 @@
 #include "MathDIV.h"
 #include "MathSQRT.h"
 #include "Gamecard.h"
+#include "GXFifo.h"
 
 Gameboy gameboy;
 
@@ -64,6 +65,7 @@ void Gameboy::reset()
 	IPC7to9.reset(false);
 	Gamecard9.reset(true);
 	Gamecard7.reset(false);
+	GXFifo.reset();
 
 	loading_state = false;
 	coldreset = false;
@@ -89,6 +91,7 @@ void Gameboy::run()
 
 		if (MathDIV.calculating) { MathDIV.finish(); }
 		if (MathSQRT.calculating) { MathSQRT.finish(); }
+		if (GXFifo.active) { GXFifo.work(); }
 		if (Gamecard9.active) { Gamecard9.finish(); }
 		if (Gamecard7.active) { Gamecard7.finish(); }
 
@@ -106,35 +109,52 @@ void Gameboy::run()
 		if (IRP7.checknext) IRP7.check_and_execute_irp();
 
 		UInt64 nexteventtotal = next_event_time();
-		UInt64 nextevent = nexteventtotal - totalticks;
+		reschedule = false;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 150452)
+		if (tracer.traclist_ptr == 11234)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
 		}
+		UInt64 startticks = totalticks;
 #endif
-
-		if (CPU9.totalticks <= totalticks)
+		while (totalticks < nexteventtotal && !reschedule)
 		{
-		   CPU9.nextInstr(nexteventtotal);
-		}
-		if (CPU7.totalticks <= totalticks)
-		{
-			CPU7.nextInstr(nexteventtotal);
-		}
+#if DEBUG
+			UInt64 runticks = totalticks - startticks;
+			//if (totalticks == 0x734896)
+			if (runticks == 0x3)
+			{
+				int stop = 1;
+			}
+#endif
+			if (CPU9.totalticks <= totalticks)
+			{
+				CPU9.nextInstr(nexteventtotal);
+			}
+			if (CPU7.totalticks <= totalticks)
+			{
+				CPU7.nextInstr(nexteventtotal);
+			}
 
-		totalticks = min(CPU9.totalticks, CPU7.totalticks);
+#if DEBUG
+			if (reschedule)
+			{
+				int stop = 1;
+			}
+#endif
+			totalticks = min(CPU9.totalticks, CPU7.totalticks);
+		}
 
 		if (CPU9.halt) { CPU9.totalticks = totalticks; }
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 4200000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 200000;
+			tracer.runmoretrace = 100000;
 		}
 
 		if (tracer.runmoretrace > 0)
@@ -149,11 +169,11 @@ void Gameboy::run()
 			if (tracer.runmoretrace == 0)
 			{
 				tracer.runmoretrace = -1;
-				//tracer.vcd_file_last();
+				tracer.vcd_file_last();
 			}
 		}
 		tracer.commands++;
-		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 50;
+		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 100;
 #endif
 
 		checkcount++;
@@ -195,6 +215,7 @@ UInt64 Gameboy::next_event_time()
 
 	if (MathDIV.calculating) nexttime = min(nexttime, MathDIV.next_event_time);
 	if (MathSQRT.calculating) nexttime = min(nexttime, MathSQRT.next_event_time);
+	if (GXFifo.active) nexttime = min(nexttime, GXFifo.next_event_time);
 	if (Gamecard9.active) nexttime = min(nexttime, Gamecard9.next_event_time);
 	if (Gamecard7.active) nexttime = min(nexttime, Gamecard7.next_event_time);
 

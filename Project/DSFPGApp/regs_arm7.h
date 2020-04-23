@@ -582,7 +582,7 @@ public:
     /// <summary>
     /// 13 W Send IRQ to remote CPU (0=None, 1=Send IRQ)
     /// </summary>
-    DSReg IPCSYNC_IRQ;
+    DSReg IPCSYNC_IRQ_to_remote_CPU;
     /// <summary>
     /// 14 R/W Enable IRQ from remote CPU (0=Disable, 1=Enable)
     /// </summary>

@@ -12,6 +12,7 @@ public:
 	bool coldreset = false;
 
 	UInt64 totalticks;
+	bool reschedule;
 
 	string filename;
 

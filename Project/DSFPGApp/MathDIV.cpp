@@ -21,6 +21,7 @@ void MATHDIV::write()
 	{
 		next_event_time = gameboy.totalticks + 34 * 2;
 	}
+	gameboy.reschedule = true;
 
 	uint numer_low = Regs_Arm9.Sect_system9.DIV_NUMER_Low.read();
 	uint numer_high = Regs_Arm9.Sect_system9.DIV_NUMER_High.read();

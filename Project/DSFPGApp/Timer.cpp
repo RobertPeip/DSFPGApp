@@ -59,6 +59,7 @@ void TIMER::set_settings(int index)
 	else if (timers[index].on && !timers[index].Timer_Start_Stop.on() && !gameboy.loading_state)
 	{
 		timers[index].stopnow = true;
+		updatereg(index);
 	}
 	timers[index].on = timers[index].Timer_Start_Stop.on();
 	if (timers[index].on)
@@ -79,6 +80,7 @@ void TIMER::set_settings(int index)
 			timers[index].next_event_time = gameboy.totalticks + (65536 - timers[index].reload) * timers[index].prescale;
 		}
 	}
+	gameboy.reschedule = true;
 }
 
 void TIMER::work()
@@ -92,7 +94,8 @@ void TIMER::work()
 			timers[i].retval = (UInt16)timers[i].value;
 		}
 		//else if (timers[i].on || timers[i].stopnow)
-		if (timers[i].on || timers[i].stopnow)
+		//if (timers[i].on || timers[i].stopnow)
+		if (timers[i].on)
 		{
 			timers[i].stopnow = false;
 

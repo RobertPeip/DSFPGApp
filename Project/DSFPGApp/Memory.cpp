@@ -23,6 +23,7 @@
 #include "MathDIV.h"
 #include "MathSQRT.h"
 #include "Gamecard.h"
+#include "GXFifo.h"
 
 MEMORY Memory;
 
@@ -1320,21 +1321,21 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	}
 	if (adr == Regs_Arm9.Sect_3D9.GXSTAT.address)
 	{
-		Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Less_Half.write(1);
-		Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Empty.write(1);
-
 		if (Regs_Arm9.Sect_3D9.GXSTAT_Matrix_Stack_Error.on()) { Regs_Arm9.Sect_3D9.GXSTAT_Matrix_Stack_Error.write(0); }
-
-		if (Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_IRQ.read() > 0) 
-		{ 
-			IRP9.set_irp_bit(IRP9.IRPMASK_Geometry_Command_FIFO);
-		}
+		bool oldschedule = gameboy.reschedule; // hack because setting IF bit should usually always set reschedule, but we want to stay compatible for now...
+		IRP9.check_gxfifobits();
+		gameboy.reschedule = oldschedule;
 	}
 
 	if (adr == Regs_Arm9.Sect_display9.DISP3DCNT.address)
 	{
 		if (Regs_Arm9.Sect_display9.DISP3DCNT_RDLINES_Underflow.on()) { Regs_Arm9.Sect_display9.DISP3DCNT_RDLINES_Underflow.write(0); }
 		if (Regs_Arm9.Sect_display9.DISP3DCNT_RAM_Overflow.on()) { Regs_Arm9.Sect_display9.DISP3DCNT_RAM_Overflow.write(0); }
+	}
+
+	if (adr == 0x540) // swap buffers
+	{
+		GXFifo.write(0x50, value);
 	}
 	// end of 3D
 

@@ -1856,11 +1856,11 @@ void Gpu::draw_obj(int y, int baseaddr)
 					{
 						if (bitmap_OBJ_2D_Dim)
 						{
-							pixeladdr = (tileindex & 0x3E0) * 128 + (tileindex & 0x01F) * 8;
+							pixeladdr = (tileindex & 0x3E0) * 128 + (tileindex & 0x01F) * 16;
 						}
 						else
 						{
-							pixeladdr = (tileindex & 0x3F0) * 128 + (tileindex & 0x00F) * 8;
+							pixeladdr = (tileindex & 0x3F0) * 128 + (tileindex & 0x00F) * 16;
 						}
 					}
 				}

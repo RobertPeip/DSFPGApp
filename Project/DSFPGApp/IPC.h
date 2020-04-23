@@ -20,6 +20,8 @@ private:
 	DSReg IPCSYNC_Data_to_IPCSYNC;
 	DSReg IPCSYNC_EXTERN_to;
 	DSReg IPCSYNC_EXTERN_from;
+	DSReg IPCSYNC_IRQ_to_remote_CPU;
+	DSReg IPCSYNC_Ena_IRQ_from_remote_CPU_Extern;
 
 	DSReg IPCFIFOCNT;
 	DSReg Send_Fifo_Empty_Status;

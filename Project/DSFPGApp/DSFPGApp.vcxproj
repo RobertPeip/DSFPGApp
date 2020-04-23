@@ -33,6 +33,7 @@
     <ClCompile Include="gpio.cpp" />
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GPU_Timing.cpp" />
+    <ClCompile Include="GXFifo.cpp" />
     <ClCompile Include="Header.cpp" />
     <ClCompile Include="IPC.cpp" />
     <ClCompile Include="IRP.cpp" />
@@ -65,6 +66,7 @@
     <ClInclude Include="gpio.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GPU_Timing.h" />
+    <ClInclude Include="GXFifo.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="IPC.h" />
     <ClInclude Include="IRP.h" />

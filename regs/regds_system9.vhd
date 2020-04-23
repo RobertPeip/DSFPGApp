@@ -12,7 +12,7 @@ package pReg_ds_system_9 is
    constant IPCSYNC                                : regmap_type := (16#180#,  15,      0,        1,        0,   writeonly); -- IPC Synchronize Register (R/W)            
    constant IPCSYNC_Data_from_IPCSYNC              : regmap_type := (16#180#,   3,      0,        1,        0,   readonly ); -- 0-3   R    Data input from IPCSYNC Bit8-11 of remote CPU (00h..0Fh)
    constant IPCSYNC_Data_to_IPCSYNC                : regmap_type := (16#180#,  11,      8,        1,        0,   readwrite); -- 8-11  R/W  Data output to IPCSYNC Bit0-3 of remote CPU   (00h..0Fh)
-   constant IPCSYNC_IRQ _o_remote_CPU              : regmap_type := (16#180#,  13,     13,        1,        0,   readonly ); -- 13    W    Send IRQ to remote CPU      (0=None, 1=Send IRQ)
+   constant IPCSYNC_IRQ_to_remote_CPU              : regmap_type := (16#180#,  13,     13,        1,        0,   readonly ); -- 13    W    Send IRQ to remote CPU      (0=None, 1=Send IRQ)
    constant IPCSYNC_Ena_IRQ_from_remote_CPU        : regmap_type := (16#180#,  14,     14,        1,        0,   readwrite); -- 14    R/W  Enable IRQ from remote CPU  (0=Disable, 1=Enable)
                                                    
    constant IPCFIFOCNT                             : regmap_type := (16#184#,  15,      0,        1,        0,   writeonly); -- IPC Fifo Control Register (R/W)           
