@@ -125,38 +125,38 @@ package pReg_ds_system_9 is
          
          
    constant MemControl1                            : regmap_type := (16#240#,  31,      0,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_A_MST                 : regmap_type := (16#240#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
-   constant MemControl1_VRAM_A_Offset              : regmap_type := (16#240#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
-   constant MemControl1_VRAM_A_Enable              : regmap_type := (16#240#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
-   constant MemControl1_VRAM_B_MST                 : regmap_type := (16#240#,   9,      8,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_B_Offset              : regmap_type := (16#240#,  12,     11,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_B_Enable              : regmap_type := (16#240#,  15,     15,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_C_MST                 : regmap_type := (16#240#,  18,     16,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_C_Offset              : regmap_type := (16#240#,  20,     19,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_C_Enable              : regmap_type := (16#240#,  23,     23,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_D_MST                 : regmap_type := (16#240#,  26,     24,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_D_Offset              : regmap_type := (16#240#,  28,     27,        1,        0,   writeonly); -- 
-   constant MemControl1_VRAM_D_Enable              : regmap_type := (16#240#,  31,     31,        1,        0,   writeonly); --  
+   constant MemControl1_VRAM_A_MST                 : regmap_type := (16#240#,   1,      0,        1,        0,   readwrite); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl1_VRAM_A_Offset              : regmap_type := (16#240#,   4,      3,        1,        0,   readwrite); -- Offset not used by VRAM-E,H,I
+   constant MemControl1_VRAM_A_Enable              : regmap_type := (16#240#,   7,      7,        1,        0,   readwrite); -- (0=Disable, 1=Enable)
+   constant MemControl1_VRAM_B_MST                 : regmap_type := (16#240#,   9,      8,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_B_Offset              : regmap_type := (16#240#,  12,     11,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_B_Enable              : regmap_type := (16#240#,  15,     15,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_C_MST                 : regmap_type := (16#240#,  18,     16,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_C_Offset              : regmap_type := (16#240#,  20,     19,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_C_Enable              : regmap_type := (16#240#,  23,     23,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_D_MST                 : regmap_type := (16#240#,  26,     24,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_D_Offset              : regmap_type := (16#240#,  28,     27,        1,        0,   readwrite); -- 
+   constant MemControl1_VRAM_D_Enable              : regmap_type := (16#240#,  31,     31,        1,        0,   readwrite); --  
  
    constant MemControl2                            : regmap_type := (16#244#,  25,      0,        1,        0,   writeonly); -- 
-   constant MemControl2_VRAM_E_MST                 : regmap_type := (16#244#,   2,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
-   constant MemControl2_VRAM_E_Offset              : regmap_type := (16#244#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
-   constant MemControl2_VRAM_E_Enable              : regmap_type := (16#244#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
-   constant MemControl2_VRAM_F_MST                 : regmap_type := (16#244#,  10,      8,        1,        0,   writeonly); -- 
-   constant MemControl2_VRAM_F_Offset              : regmap_type := (16#244#,  12,     11,        1,        0,   writeonly); -- 
-   constant MemControl2_VRAM_F_Enable              : regmap_type := (16#244#,  15,     15,        1,        0,   writeonly); -- 
-   constant MemControl2_VRAM_G_MST                 : regmap_type := (16#244#,  18,     16,        1,        0,   writeonly); -- 
-   constant MemControl2_VRAM_G_Offset              : regmap_type := (16#244#,  20,     19,        1,        0,   writeonly); -- 
-   constant MemControl2_VRAM_G_Enable              : regmap_type := (16#244#,  23,     23,        1,        0,   writeonly); -- 
+   constant MemControl2_VRAM_E_MST                 : regmap_type := (16#244#,   2,      0,        1,        0,   readwrite); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl2_VRAM_E_Offset              : regmap_type := (16#244#,   4,      3,        1,        0,   readwrite); -- Offset not used by VRAM-E,H,I
+   constant MemControl2_VRAM_E_Enable              : regmap_type := (16#244#,   7,      7,        1,        0,   readwrite); -- (0=Disable, 1=Enable)
+   constant MemControl2_VRAM_F_MST                 : regmap_type := (16#244#,  10,      8,        1,        0,   readwrite); -- 
+   constant MemControl2_VRAM_F_Offset              : regmap_type := (16#244#,  12,     11,        1,        0,   readwrite); -- 
+   constant MemControl2_VRAM_F_Enable              : regmap_type := (16#244#,  15,     15,        1,        0,   readwrite); -- 
+   constant MemControl2_VRAM_G_MST                 : regmap_type := (16#244#,  18,     16,        1,        0,   readwrite); -- 
+   constant MemControl2_VRAM_G_Offset              : regmap_type := (16#244#,  20,     19,        1,        0,   readwrite); -- 
+   constant MemControl2_VRAM_G_Enable              : regmap_type := (16#244#,  23,     23,        1,        0,   readwrite); -- 
    constant MemControl2_WRAM                       : regmap_type := (16#244#,  25,     24,        1,        3,   readwrite); -- (0-3 = 32K/0K, 2nd 16K/1st 16K, 1st 16K/2nd 16K, 0K/32K)
 
    constant MemControl3                            : regmap_type := (16#248#,  15,      0,        1,        0,   writeonly); -- 
-   constant MemControl3_VRAM_H_MST                 : regmap_type := (16#248#,   1,      0,        1,        0,   writeonly); -- Bit2 not used by VRAM-A,B,H,I
-   constant MemControl3_VRAM_H_Offset              : regmap_type := (16#248#,   4,      3,        1,        0,   writeonly); -- Offset not used by VRAM-E,H,I
-   constant MemControl3_VRAM_H_Enable              : regmap_type := (16#248#,   7,      7,        1,        0,   writeonly); -- (0=Disable, 1=Enable)
-   constant MemControl3_VRAM_I_MST                 : regmap_type := (16#248#,   9,      8,        1,        0,   writeonly); -- 
-   constant MemControl3_VRAM_I_Offset              : regmap_type := (16#248#,  12,     11,        1,        0,   writeonly); -- 
-   constant MemControl3_VRAM_I_Enable              : regmap_type := (16#248#,  15,     15,        1,        0,   writeonly); --  
+   constant MemControl3_VRAM_H_MST                 : regmap_type := (16#248#,   1,      0,        1,        0,   readwrite); -- Bit2 not used by VRAM-A,B,H,I
+   constant MemControl3_VRAM_H_Offset              : regmap_type := (16#248#,   4,      3,        1,        0,   readwrite); -- Offset not used by VRAM-E,H,I
+   constant MemControl3_VRAM_H_Enable              : regmap_type := (16#248#,   7,      7,        1,        0,   readwrite); -- (0=Disable, 1=Enable)
+   constant MemControl3_VRAM_I_MST                 : regmap_type := (16#248#,   9,      8,        1,        0,   readwrite); -- 
+   constant MemControl3_VRAM_I_Offset              : regmap_type := (16#248#,  12,     11,        1,        0,   readwrite); -- 
+   constant MemControl3_VRAM_I_Enable              : regmap_type := (16#248#,  15,     15,        1,        0,   readwrite); --  
 
     
    constant DIVCNT                                 : regmap_type := (16#280#,  31,      0,        1,        0,   writeonly); -- Division Control (R/W)             

@@ -20,7 +20,7 @@ void Osd::gotoMain()
 	OsdType = OSDTYPE::MAIN;
 
 	currentMenu.clear();
-	currentMenu.push_back("FPGBApp Settings:");
+	currentMenu.push_back("DSFPGApp Settings:");
 	currentMenu.push_back("Load Game");
 	currentMenu.push_back("SaveState (F5)");
 	currentMenu.push_back("SaveMemDisk (F7)");
@@ -68,7 +68,7 @@ void Osd::gotoLoadGame()
 			string name = ent->d_name;
 			transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
 		
-			int pos = name.find(".gba");
+			int pos = name.find(".nds");
 			if (pos != 0xFFFFFFFF && name.length() >= 5)
 			{
 				files.push_back(name);
@@ -149,7 +149,7 @@ bool Osd::selectFile()
 {
 	string selectedItem = currentMenu[selected];
 
-	int pos = selectedItem.find(".gba");
+	int pos = selectedItem.find(".nds");
 
 	if (currentPath.length() == 0)
 	{

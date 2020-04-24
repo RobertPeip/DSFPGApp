@@ -2848,7 +2848,7 @@ void Cpu::count_leading_zeros(byte Rd, byte Rm)
 {
 	uint value = regs[Rm];
 	newticks = 2;
-	if (value == 0xFFFFFFFF) // >> 32 is ignored, special case
+	if ((value & 0x80000000) != 0) // >> 32 is ignored, special case
 	{
 		regs[Rd] = 0;
 		return;

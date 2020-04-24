@@ -27,8 +27,10 @@ uint drawmode = 0;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
-SDL_Texture* framebuffer1;
-SDL_Texture* framebuffer2;
+SDL_Texture* framebuffer1; // vertical mode
+SDL_Texture* framebuffer2; // horizontal mode
+SDL_Texture* framebuffer3; /// together as 200/100% mode
+SDL_Texture* framebuffer4; /// together as 200/100% mode
 SDL_mutex* mutex;
 
 SDL_Thread* gbthread;
@@ -128,13 +130,11 @@ void set_displaysize(int mult, bool fullscreen)
 		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		SDL_DisplayMode DM;
 		SDL_GetCurrentDisplayMode(0, &DM);
-		if (drawmode == 0)
+		switch (drawmode)
 		{
-			screensizemult = min(DM.w / WIDTH, (DM.h / 2) / HEIGHT);
-		}
-		else if (drawmode == 1)
-		{
-			screensizemult = min((DM.w / 2) / WIDTH, DM.h / HEIGHT);
+		case 0: screensizemult = min(DM.w / WIDTH, (DM.h / 2) / HEIGHT); break;
+		case 1: screensizemult = min((DM.w / 2) / WIDTH, DM.h / HEIGHT); break;
+		case 2: screensizemult = min((DM.w / 3) / WIDTH, DM.h / HEIGHT); break;
 		}
 	}
 	else
@@ -142,23 +142,19 @@ void set_displaysize(int mult, bool fullscreen)
 		OSD.displaysize = mult;
 		SDL_SetWindowFullscreen(window, 0);
 		screensizemult = mult;
-		if (drawmode == 0)
+		switch (drawmode)
 		{
-			SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult * 2);
-		}
-		else if (drawmode == 1)
-		{
-			SDL_SetWindowSize(window, WIDTH * mult * 2, HEIGHT * mult);
+		case 0: SDL_SetWindowSize(window, WIDTH * mult, HEIGHT * mult * 2); break;
+		case 1: SDL_SetWindowSize(window, WIDTH * mult * 2, HEIGHT * mult); break;
+		case 2: SDL_SetWindowSize(window, WIDTH * mult * 3, HEIGHT * mult * 2); break;
 		}
 	}
 
-	if (drawmode == 0)
+	switch (drawmode)
 	{
-		SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT * 2);
-	}
-	else if (drawmode == 1)
-	{
-		SDL_RenderSetLogicalSize(renderer, WIDTH * 2, HEIGHT);
+	case 0: SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT * 2); break;
+	case 1: SDL_RenderSetLogicalSize(renderer, WIDTH * 2, HEIGHT); break;
+	case 2: SDL_RenderSetLogicalSize(renderer, WIDTH * 3, HEIGHT * 2); break;
 	}
 
 }
@@ -169,6 +165,8 @@ void drawer()
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	framebuffer1 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT * 2);
 	framebuffer2 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH * 2, HEIGHT);
+	framebuffer3 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+	framebuffer4 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 	SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT * 2);
 	SDL_RenderSetIntegerScale(renderer, SDL_bool::SDL_TRUE);
 	mutex = SDL_CreateMutex();
@@ -229,16 +227,16 @@ void drawer()
 			{
 				GPU_A.draw_game(framebuffer_raw_a);
 				GPU_B.draw_game(framebuffer_raw_b);
+				uint* framebuffer_raw1 = framebuffer_raw_a;
+				uint* framebuffer_raw2 = framebuffer_raw_b;
+				if (GPU_A.swap)
+				{
+					framebuffer_raw1 = framebuffer_raw_b;
+					framebuffer_raw2 = framebuffer_raw_a;
+				}
+				SDL_Rect copyrect;
 				if (drawmode == 0)
 				{
-					SDL_Rect copyrect;
-					uint* framebuffer_raw1 = framebuffer_raw_a;
-					uint * framebuffer_raw2 = framebuffer_raw_b;
-					if (GPU_A.swap)
-					{
-						framebuffer_raw1 = framebuffer_raw_b;
-						framebuffer_raw2 = framebuffer_raw_a;
-					}
 					copyrect.x = 0; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
 					SDL_UpdateTexture(framebuffer1, &copyrect, framebuffer_raw1, WIDTH * sizeof(uint32_t));
 					copyrect.x = 0; copyrect.y = HEIGHT; copyrect.w = WIDTH; copyrect.h = HEIGHT;
@@ -248,20 +246,25 @@ void drawer()
 				}
 				else if (drawmode == 1)
 				{
-					SDL_Rect copyrect;
-					uint* framebuffer_raw1 = framebuffer_raw_a;
-					uint* framebuffer_raw2 = framebuffer_raw_b;
-					if (GPU_A.swap)
-					{
-						framebuffer_raw1 = framebuffer_raw_b;
-						framebuffer_raw2 = framebuffer_raw_a;
-					}
 					copyrect.x = 0; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
 					SDL_UpdateTexture(framebuffer2, &copyrect, framebuffer_raw1, WIDTH * sizeof(uint32_t));
 					copyrect.x = WIDTH; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
 					SDL_UpdateTexture(framebuffer2, &copyrect, framebuffer_raw2, WIDTH * sizeof(uint32_t));
 					SDL_RenderClear(renderer);
 					SDL_RenderCopy(renderer, framebuffer2, NULL, NULL);
+				}
+				else if (drawmode == 2)
+				{
+					copyrect.x = 0; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
+					SDL_UpdateTexture(framebuffer3, &copyrect, framebuffer_raw1, WIDTH * sizeof(uint32_t));
+					SDL_UpdateTexture(framebuffer4, &copyrect, framebuffer_raw2, WIDTH * sizeof(uint32_t));
+					SDL_RenderClear(renderer);
+					SDL_Rect framerect_src; framerect_src.x = 0; framerect_src.y = 0; framerect_src.w = WIDTH;     framerect_src.h = HEIGHT;
+					SDL_Rect framerect_dst; framerect_dst.x = 0; framerect_dst.y = 0; framerect_dst.w = WIDTH * 2; framerect_dst.h = HEIGHT * 2;
+					SDL_RenderCopy(renderer, framebuffer3, &framerect_src, &framerect_dst);
+					framerect_src.x = 0;         framerect_src.y = 0; framerect_src.w = WIDTH; framerect_src.h = HEIGHT;
+					framerect_dst.x = WIDTH * 2; framerect_dst.y = HEIGHT / 2; framerect_dst.w = WIDTH; framerect_dst.h = HEIGHT;
+					SDL_RenderCopy(renderer, framebuffer4, &framerect_src, &framerect_dst);
 				}
 			}
 
@@ -391,15 +394,20 @@ void drawer()
 					{
 						int realwidth;
 						int realheight;
-						if (drawmode == 0)
+						switch (drawmode)
 						{
+						case 0:
 							realwidth = screensizemult * WIDTH;
 							realheight = screensizemult * HEIGHT * 2;
-						}
-						else if (drawmode == 1)
-						{
+							break;
+						case 1:
 							realwidth = screensizemult * WIDTH * 2;
 							realheight = screensizemult * HEIGHT;
+							break;
+						case 2:
+							realwidth = screensizemult * WIDTH * 3;
+							realheight = screensizemult * HEIGHT * 2;
+							break;
 						}
 
 						SDL_DisplayMode DM;
@@ -410,15 +418,20 @@ void drawer()
 
 					int realx = -1;
 					int realy = -1;
-					if (drawmode == 0)
+					switch (drawmode)
 					{
+					case 0:
 						realx = (mouse_x / screensizemult) - 1;
 						realy = (mouse_y / screensizemult) - 193;
-					}
-					else if (drawmode == 1)
-					{
+						break;
+					case 1:
 						realx = (mouse_x / screensizemult) - 257;
 						realy = (mouse_y / screensizemult) - 1;
+						break;
+					case 2:
+						realx = (mouse_x / screensizemult) - (WIDTH * 2) - 1;
+						realy = (mouse_y / screensizemult) - (HEIGHT / 2) - 1;
+						break;
 					}
 
 					if (realx >= 0 && realx < 256 && realy >= 0 && realy <= 192)
@@ -439,15 +452,15 @@ void drawer()
 				Joypad.KeyL = keystate[SDL_SCANCODE_Q] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
 				Joypad.KeyR = keystate[SDL_SCANCODE_W] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
 				Joypad.KeyStart = keystate[SDL_SCANCODE_D] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
-				Joypad.KeySelect = keystate[SDL_SCANCODE_C] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
-				Joypad.KeyX = keystate[SDL_SCANCODE_X] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-				Joypad.KeyY = keystate[SDL_SCANCODE_Y] | keystate[SDL_SCANCODE_Z] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+				Joypad.KeySelect = keystate[SDL_SCANCODE_C] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
+				Joypad.KeyX = keystate[SDL_SCANCODE_X] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+				Joypad.KeyY = keystate[SDL_SCANCODE_Y] | keystate[SDL_SCANCODE_Z] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
 				Joypad.KeyLeft = keystate[SDL_SCANCODE_LEFT] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 				Joypad.KeyRight = keystate[SDL_SCANCODE_RIGHT] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 				Joypad.KeyUp = keystate[SDL_SCANCODE_UP] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
 				Joypad.KeyDown = keystate[SDL_SCANCODE_DOWN] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 
-				if (keystate[SDL_SCANCODE_ESCAPE] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))
+				if (keystate[SDL_SCANCODE_ESCAPE] /*| SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK)*/ )
 				{
 					if (OSD.idle)
 					{
@@ -505,7 +518,7 @@ void drawer()
 				
 				if (keystate[SDL_SCANCODE_M])
 				{
-					drawmode = (drawmode + 1) % 2;
+					drawmode = (drawmode + 1) % 3;
 					while (keystate[SDL_SCANCODE_M]) SDL_PumpEvents();
 					set_displaysize(OSD.displaysize, OSD.displaysize == 0);
 				}
@@ -616,7 +629,7 @@ int main(int argc, char* argv[])
 	GPU_A.drawlock = SDL_CreateMutex();
 
 	// debug
-	
+
 	openrom();
 
 	//loadstate_fromdisk("savestate.sst");
