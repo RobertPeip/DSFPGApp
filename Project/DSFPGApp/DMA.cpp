@@ -227,6 +227,17 @@ void Dma::work()
 			{
 				DMAs[i].finished = false;
 				DMAs[i].next_event_time = -1;
+
+				if (DMAs[i].iRQ_on)
+				{
+					switch (i % 4)
+					{
+					case 0: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_0); break;
+					case 1: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_1); break;
+					case 2: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_2); break;
+					case 3: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_3); break;
+					}
+				}
 			}
 			else
 			{
@@ -328,17 +339,6 @@ void Dma::work()
 				{
 					DMAs[i].running = false;
 					DMAs[i].finished = true;
-
-					if (DMAs[i].iRQ_on)
-					{
-						switch (i % 4)
-						{
-						case 0: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_0); break;
-						case 1: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_1); break;
-						case 2: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_2); break;
-						case 3: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_3); break;
-						}
-					}
 
 					if (DMAs[i].dMA_Repeat && DMAs[i].dMA_Start_Timing != 0)
 					{

@@ -112,14 +112,14 @@ void Gameboy::run()
 		reschedule = false;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 11234)
+		if (tracer.traclist_ptr == 75508)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
 		}
 		UInt64 startticks = totalticks;
 #endif
-		while (totalticks < nexteventtotal && !reschedule)
+		//while (totalticks < nexteventtotal && !reschedule)
 		{
 #if DEBUG
 			UInt64 runticks = totalticks - startticks;
@@ -151,7 +151,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 48900000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 100000;
@@ -159,10 +159,10 @@ void Gameboy::run()
 
 		if (tracer.runmoretrace > 0)
 		{
-			tracer.Tracelist[tracer.traclist_ptr][0].update(true);
-			tracer.Tracelist[tracer.traclist_ptr][1].update(false);
 			if (tracer.debug_outdivcnt == 0)
 			{
+				tracer.Tracelist[tracer.traclist_ptr][0].update(true);
+				tracer.Tracelist[tracer.traclist_ptr][1].update(false);
 				tracer.traclist_ptr++;
 				tracer.runmoretrace = tracer.runmoretrace - 1;
 			}
@@ -173,7 +173,7 @@ void Gameboy::run()
 			}
 		}
 		tracer.commands++;
-		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 100;
+		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 500;
 #endif
 
 		checkcount++;

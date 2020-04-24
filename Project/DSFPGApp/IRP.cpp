@@ -58,6 +58,7 @@ void Irp::clear_irp_bits()
 	IRP_Flags = (UInt32)(IRP_Flags & (~clearvector));
 	REG_IF.write(IRP_Flags);
 	gameboy.reschedule = true;
+	check_gxfifobits(); // clearing them has no effect if the situation is still the same?
 }
 
 void Irp::update_IME(UInt32 value)
@@ -83,9 +84,6 @@ void Irp::check_and_execute_irp()
 
 void Irp::check_gxfifobits()
 {
-	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Less_Half.write(GXFifo.lesshalf);
-	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Empty.write(GXFifo.empty);
-
 	byte irqsource = Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_IRQ.read();
 	if ((irqsource == 1 && GXFifo.lesshalf) || (irqsource == 2 && GXFifo.empty))
 	{

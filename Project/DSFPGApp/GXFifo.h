@@ -20,6 +20,7 @@ public:
 	void reset();
 	void write(byte command, UInt32 value);
 	void work();
+	void check_gxfifobits();
 	void vblank();
 
 private:

@@ -56,9 +56,837 @@ class RegSect_sound7
 {
 public:
     /// <summary>
-    /// 16 * CNT + SAD + TMR + PNT + LEN
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
     /// </summary>
-    DSReg SOUNDREGS;
+    DSReg SOUND0CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND0CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND0CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND0CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND0CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND0CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND0CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND0CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND0CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND0SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND0TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND0PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND0LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND1CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND1CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND1CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND1CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND1CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND1CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND1CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND1CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND1CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND1SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND1TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND1PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND1LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND2CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND2CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND2CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND2CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND2CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND2CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND2CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND2CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND2CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND2SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND2TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND2PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND2LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND3CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND3CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND3CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND3CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND3CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND3CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND3CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND3CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND3CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND3SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND3TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND3PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND3LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND4CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND4CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND4CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND4CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND4CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND4CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND4CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND4CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND4CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND4SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND4TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND4PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND4LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND5CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND5CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND5CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND5CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND5CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND5CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND5CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND5CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND5CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND5SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND5TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND5PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND5LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND6CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND6CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND6CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND6CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND6CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND6CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND6CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND6CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND6CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND6SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND6TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND6PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND6LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND7CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND7CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND7CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND7CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND7CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND7CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND7CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND7CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND7CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND7SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND7TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND7PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND7LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND8CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND8CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND8CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND8CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND8CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND8CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND8CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND8CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND8CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND8SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND8TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND8PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND8LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND9CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND9CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND9CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND9CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND9CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND9CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND9CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND9CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND9CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND9SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND9TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND9PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND9LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND10CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND10CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND10CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND10CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND10CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND10CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND10CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND10CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND10CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND10SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND10TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND10PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND10LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND11CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND11CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND11CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND11CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND11CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND11CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND11CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND11CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND11CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND11SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND11TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND11PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND11LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND12CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND12CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND12CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND12CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND12CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND12CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND12CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND12CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND12CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND12SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND12TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND12PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND12LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND13CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND13CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND13CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND13CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND13CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND13CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND13CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND13CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND13CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND13SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND13TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND13PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND13LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND14CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND14CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND14CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND14CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND14CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND14CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND14CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND14CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND14CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND14SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND14TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND14PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND14LEN;
+    /// <summary>
+    /// SOUNDxCNT - Sound Channel X Control Register (R/W)
+    /// </summary>
+    DSReg SOUND15CNT;
+    /// <summary>
+    /// 0-6 Volume Mul (0..127=silent..loud)
+    /// </summary>
+    DSReg SOUND15CNT_Volume_Mul;
+    /// <summary>
+    /// 8-9 Volume Div (0=Normal, 1=Div2, 2=Div4, 3=Div16)
+    /// </summary>
+    DSReg SOUND15CNT_Volume_Div;
+    /// <summary>
+    /// 15 Hold (0=Normal, 1=Hold last sample after one-shot sound)
+    /// </summary>
+    DSReg SOUND15CNT_Hold;
+    /// <summary>
+    /// 16-22 Panning (0..127=left..right) (64=half volume on both speakers)
+    /// </summary>
+    DSReg SOUND15CNT_Panning;
+    /// <summary>
+    /// 24-26 Wave Duty (0..7) ;HIGH=(N+1)*12.5%, LOW=(7-N)*12.5% (PSG only)
+    /// </summary>
+    DSReg SOUND15CNT_Wave_Duty;
+    /// <summary>
+    /// 27-28 Repeat Mode (0=Manual, 1=Loop Infinite, 2=One-Shot, 3=Prohibited)
+    /// </summary>
+    DSReg SOUND15CNT_Repeat_Mode;
+    /// <summary>
+    /// 29-30 Format (0=PCM8, 1=PCM16, 2=IMA-ADPCM, 3=PSG/Noise)
+    /// </summary>
+    DSReg SOUND15CNT_Format;
+    /// <summary>
+    /// 31 Start/Status (0=Stop, 1=Start/Busy)
+    /// </summary>
+    DSReg SOUND15CNT_Start_Status;
+    /// <summary>
+    /// SOUNDxSAD - Sound Channel X Data Source Register (W)
+    /// </summary>
+    DSReg SOUND15SAD;
+    /// <summary>
+    /// SOUNDxTMR - Sound Channel X Timer Register (W)
+    /// </summary>
+    DSReg SOUND15TMR;
+    /// <summary>
+    /// SOUNDxPNT - Sound Channel X Loopstart Register (W)
+    /// </summary>
+    DSReg SOUND15PNT;
+    /// <summary>
+    /// SOUNDxLEN - Sound Channel X Length Register (W)
+    /// </summary>
+    DSReg SOUND15LEN;
     /// <summary>
     /// 
     /// </summary>
@@ -1112,8 +1940,8 @@ public:
 
     byte data[4208];
     byte rwmask[4208];
-    const int allregcount = 262;
-    DSReg allregs[262];
+    const int allregcount = 469;
+    DSReg allregs[469];
 
     void reset();
 };

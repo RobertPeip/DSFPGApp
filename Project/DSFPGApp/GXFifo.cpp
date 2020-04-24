@@ -1,6 +1,7 @@
 #include "GXFifo.h"
 #include "gameboy.h"
 #include "IRP.h"
+#include "regs_arm9.h"
 
 GXFIFO GXFifo;
 
@@ -27,7 +28,7 @@ void GXFIFO::write(byte command, UInt32 value)
 	next_event_time = gameboy.totalticks + 1;
 
 	gameboy.reschedule = true;
-	IRP9.check_gxfifobits();
+	check_gxfifobits();
 }
 
 void GXFIFO::work()
@@ -47,8 +48,26 @@ void GXFIFO::work()
 		empty = fifo.empty();
 		lesshalf = fifo.size() < 128;
 		gameboy.reschedule = true;
-		IRP9.check_gxfifobits();
+		check_gxfifobits();
 	}
+}
+
+void GXFIFO::check_gxfifobits()
+{
+	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Less_Half.write(GXFifo.lesshalf);
+	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Empty.write(GXFifo.empty);
+	Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_Entries.write(GXFifo.fifo.size());
+
+	if (!GXFifo.empty || swapbuffers)
+	{
+		Regs_Arm9.Sect_3D9.GXSTAT_Geometry_Engine_Busy.write(1);
+	}
+	else
+	{
+		Regs_Arm9.Sect_3D9.GXSTAT_Geometry_Engine_Busy.write(0);
+	}
+
+	IRP9.check_gxfifobits();
 }
 
 void GXFIFO::vblank()
@@ -58,6 +77,16 @@ void GXFIFO::vblank()
 		active = true;
 		next_event_time = gameboy.totalticks + 1;
 		swapbuffers = false;
+		
+		// could do full check here with check_gxfifobits(), but that does way to much without need
+		if (!GXFifo.empty || swapbuffers)
+		{
+			Regs_Arm9.Sect_3D9.GXSTAT_Geometry_Engine_Busy.write(1);
+		}
+		else
+		{
+			Regs_Arm9.Sect_3D9.GXSTAT_Geometry_Engine_Busy.write(0);
+		}
 	}
 }
 

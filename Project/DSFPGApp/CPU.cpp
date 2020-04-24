@@ -82,9 +82,9 @@ void cpustate::update(bool isArm9)
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
 	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	//this->memory02 = CPU.lastAddress;
-	this->memory02 = GXFifo.fifo.size();
-	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040001A0);
+	this->memory02 = CPU.lastAddress;
+	//this->memory02 = GXFifo.fifo.size();
+	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000600);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
 	this->debug_dmatranfers = DMA.debug_dmatranfers;
@@ -2014,17 +2014,17 @@ void Cpu::single_data_swap(bool byteswap, byte Rn_op1, byte Rdest, UInt16 Op2)
 		byte swap = (*read_byte)(ACCESSTYPE::CPUDATA, regs[Rn_op1]);
 		(*write_byte)(ACCESSTYPE::CPUDATA, regs[Rn_op1], (byte)regs[(Op2 & 0xF)]);
 		regs[Rdest] = (UInt32)swap;
+		newticks = BusTiming.dataTicksAccess816(isArm9, true, regs[Rn_op1], true, lastAddress);
+		newticks += BusTiming.dataTicksAccess816(isArm9, true, regs[Rn_op1], false, lastAddress);
 	}
 	else
 	{
 		UInt32 swap = (*read_dword)(ACCESSTYPE::CPUDATA, regs[Rn_op1]);
 		(*write_dword)(ACCESSTYPE::CPUDATA, regs[Rn_op1], regs[(Op2 & 0xF)]);
 		regs[Rdest] = swap;
+		newticks = BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], true, lastAddress);
+		newticks += BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], false, lastAddress);
 	}
-
-	// shouldn't this use access8 for byte?
-	newticks = BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], true, lastAddress);
-	newticks += BusTiming.dataTicksAccess32(isArm9, regs[Rn_op1], false, lastAddress);
 	if (!isArm9) newticks += 4;
 	if (newticks < 4) newticks = 4;
 }

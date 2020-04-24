@@ -178,8 +178,8 @@ RegSect_display9::RegSect_display9()
     DISPCAPCNT_Capture_Enable = DSReg(0x0064, 31, 31, 1, 0, "writeonly", "DISPCAPCNT_Capture_Enable", Regs_Arm9.data);
     DISP_MMEM_FIFO = DSReg(0x0068, 31, 0, 1, 0, "writeonly", "DISP_MMEM_FIFO", Regs_Arm9.data);
     A_MASTER_BRIGHT = DSReg(0x006C, 15, 0, 1, 0, "writeonly", "A_MASTER_BRIGHT", Regs_Arm9.data);
-    A_MASTER_BRIGHT_Factor = DSReg(0x006C, 4, 0, 1, 0, "writeonly", "A_MASTER_BRIGHT_Factor", Regs_Arm9.data);
-    A_MASTER_BRIGHT_Mode = DSReg(0x006C, 15, 14, 1, 0, "writeonly", "A_MASTER_BRIGHT_Mode", Regs_Arm9.data);
+    A_MASTER_BRIGHT_Factor = DSReg(0x006C, 4, 0, 1, 0, "readwrite", "A_MASTER_BRIGHT_Factor", Regs_Arm9.data);
+    A_MASTER_BRIGHT_Mode = DSReg(0x006C, 15, 14, 1, 0, "readwrite", "A_MASTER_BRIGHT_Mode", Regs_Arm9.data);
     B_DISPCNT = DSReg(0x1000, 15, 0, 1, 0, "readwrite", "B_DISPCNT", Regs_Arm9.data);
     B_DISPCNT_BG_Mode = DSReg(0x1000, 2, 0, 1, 0, "readwrite", "B_DISPCNT_BG_Mode", Regs_Arm9.data);
     B_DISPCNT_BG0_2D_3D = DSReg(0x1000, 3, 3, 1, 0, "readwrite", "B_DISPCNT_BG0_2D_3D", Regs_Arm9.data);
@@ -318,8 +318,8 @@ RegSect_display9::RegSect_display9()
     B_BLDALPHA_EVB_Coefficient = DSReg(0x1050, 28, 24, 1, 0, "readwrite", "B_BLDALPHA_EVB_Coefficient", Regs_Arm9.data);
     B_BLDY = DSReg(0x1054, 4, 0, 1, 0, "writeonly", "B_BLDY", Regs_Arm9.data);
     B_MASTER_BRIGHT = DSReg(0x106C, 15, 0, 1, 0, "writeonly", "B_MASTER_BRIGHT", Regs_Arm9.data);
-    B_MASTER_BRIGHT_Factor = DSReg(0x106C, 4, 0, 1, 0, "writeonly", "B_MASTER_BRIGHT_Factor", Regs_Arm9.data);
-    B_MASTER_BRIGHT_Mode = DSReg(0x106C, 15, 14, 1, 0, "writeonly", "B_MASTER_BRIGHT_Mode", Regs_Arm9.data);
+    B_MASTER_BRIGHT_Factor = DSReg(0x106C, 4, 0, 1, 0, "readwrite", "B_MASTER_BRIGHT_Factor", Regs_Arm9.data);
+    B_MASTER_BRIGHT_Mode = DSReg(0x106C, 15, 14, 1, 0, "readwrite", "B_MASTER_BRIGHT_Mode", Regs_Arm9.data);
 }
 
 RegSect_dma9::RegSect_dma9()
@@ -1346,11 +1346,11 @@ void REGS_Arm9::reset()
     rwmask[105] = (byte)((0x0 >> 8) & 0xFF);
     rwmask[106] = (byte)((0x0 >> 16) & 0xFF);
     rwmask[107] = (byte)((0x0 >> 24) & 0xFF);
-    // A_MASTER_BRIGHT at 0x006C = 0x0;
-    rwmask[108] = (byte)(0x0 & 0xFF);
-    rwmask[109] = (byte)((0x0 >> 8) & 0xFF);
-    rwmask[110] = (byte)((0x0 >> 16) & 0xFF);
-    rwmask[111] = (byte)((0x0 >> 24) & 0xFF);
+    // A_MASTER_BRIGHT at 0x006C = 0xC01F;
+    rwmask[108] = (byte)(0xC01F & 0xFF);
+    rwmask[109] = (byte)((0xC01F >> 8) & 0xFF);
+    rwmask[110] = (byte)((0xC01F >> 16) & 0xFF);
+    rwmask[111] = (byte)((0xC01F >> 24) & 0xFF);
     // DMA0SAD at 0xB0 = 0xFFFFFFFF;
     rwmask[176] = (byte)(0xFFFFFFFF & 0xFF);
     rwmask[177] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
@@ -1746,9 +1746,9 @@ void REGS_Arm9::reset()
     rwmask[4181] = (byte)((0x0 >> 8) & 0xFF);
     rwmask[4182] = (byte)((0x0 >> 16) & 0xFF);
     rwmask[4183] = (byte)((0x0 >> 24) & 0xFF);
-    // B_MASTER_BRIGHT at 0x106C = 0x0;
-    rwmask[4204] = (byte)(0x0 & 0xFF);
-    rwmask[4205] = (byte)((0x0 >> 8) & 0xFF);
-    rwmask[4206] = (byte)((0x0 >> 16) & 0xFF);
-    rwmask[4207] = (byte)((0x0 >> 24) & 0xFF);
+    // B_MASTER_BRIGHT at 0x106C = 0xC01F;
+    rwmask[4204] = (byte)(0xC01F & 0xFF);
+    rwmask[4205] = (byte)((0xC01F >> 8) & 0xFF);
+    rwmask[4206] = (byte)((0xC01F >> 16) & 0xFF);
+    rwmask[4207] = (byte)((0xC01F >> 24) & 0xFF);
 }

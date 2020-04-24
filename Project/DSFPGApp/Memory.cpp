@@ -1323,7 +1323,7 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 	{
 		if (Regs_Arm9.Sect_3D9.GXSTAT_Matrix_Stack_Error.on()) { Regs_Arm9.Sect_3D9.GXSTAT_Matrix_Stack_Error.write(0); }
 		bool oldschedule = gameboy.reschedule; // hack because setting IF bit should usually always set reschedule, but we want to stay compatible for now...
-		IRP9.check_gxfifobits();
+		GXFifo.check_gxfifobits();
 		gameboy.reschedule = oldschedule;
 	}
 

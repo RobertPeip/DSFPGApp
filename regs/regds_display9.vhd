@@ -206,8 +206,8 @@ package pReg_ds_display_9 is
    constant DISP_MMEM_FIFO                   : regmap_type := (16#0068#,  31,      0,        1,        0,   writeonly); -- Main Memory Display FIFO (R?/W)
                                            
    constant A_MASTER_BRIGHT                  : regmap_type := (16#006C#,  15,      0,        1,        0,   writeonly); -- Alpha Blending Coefficients                   2    W  
-   constant A_MASTER_BRIGHT_Factor           : regmap_type := (16#006C#,   4,      0,        1,        0,   writeonly); -- Factor used for 6bit R,G,B Intensities (0-16, values >16 same as 16)
-   constant A_MASTER_BRIGHT_Mode             : regmap_type := (16#006C#,  15,     14,        1,        0,   writeonly); -- Mode (0=Disable, 1=Up, 2=Down, 3=Reserved)
+   constant A_MASTER_BRIGHT_Factor           : regmap_type := (16#006C#,   4,      0,        1,        0,   readwrite); -- Factor used for 6bit R,G,B Intensities (0-16, values >16 same as 16)
+   constant A_MASTER_BRIGHT_Mode             : regmap_type := (16#006C#,  15,     14,        1,        0,   readwrite); -- Mode (0=Disable, 1=Up, 2=Down, 3=Reserved)
  
    -- ###################################### 
    -- ##################### Engine B
@@ -369,8 +369,8 @@ package pReg_ds_display_9 is
    constant B_BLDY                           : regmap_type := (16#1054#,   4,      0,        1,        0,   writeonly); -- Brightness (Fade-In/Out) Coefficient  0-4   EVY Coefficient (Brightness) (0..16 = 0/16..16/16, 17..31=16/16 
                                                                              
    constant B_MASTER_BRIGHT                  : regmap_type := (16#106C#,  15,      0,        1,        0,   writeonly); -- Alpha Blending Coefficients                   2    W  
-   constant B_MASTER_BRIGHT_Factor           : regmap_type := (16#106C#,   4,      0,        1,        0,   writeonly); -- Factor used for 6bit R,G,B Intensities (0-16, values >16 same as 16)
-   constant B_MASTER_BRIGHT_Mode             : regmap_type := (16#106C#,  15,     14,        1,        0,   writeonly); -- Mode (0=Disable, 1=Up, 2=Down, 3=Reserved)
+   constant B_MASTER_BRIGHT_Factor           : regmap_type := (16#106C#,   4,      0,        1,        0,   readwrite); -- Factor used for 6bit R,G,B Intensities (0-16, values >16 same as 16)
+   constant B_MASTER_BRIGHT_Mode             : regmap_type := (16#106C#,  15,     14,        1,        0,   readwrite); -- Mode (0=Disable, 1=Up, 2=Down, 3=Reserved)
 
   
   
