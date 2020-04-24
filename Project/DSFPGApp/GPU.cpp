@@ -87,6 +87,8 @@ void Gpu::reset(bool isGPUA)
 	videomode = 0;
 	displaymode = 0;
 	is3D = false;
+	screenbase = 0;
+	charbase = 0;
 
 	ext_palette_bg = false;
 	ext_palette_obj = false;
@@ -368,11 +370,10 @@ void Gpu::dispcnt_write()
 	ext_palette_bg = DISPCNT_BG_Extended_Palettes.on();
 	ext_palette_obj = DISPCNT_OBJ_Extended_Palettes.on();
 
-	screenbase = DISPCNT_Screen_Base.read() * 32;
-	charbase = DISPCNT_Character_Base.read() * 4;
-
 	if (isGPUA)
 	{
+		screenbase = DISPCNT_Screen_Base.read() * 32;
+		charbase = DISPCNT_Character_Base.read() * 4;
 		is3D = DISPCNT_BG0_2D_3D.on();
 	}
 
@@ -788,7 +789,7 @@ void Gpu::draw_line(byte y_in)
 						case 0: //rot / scal with 16bit bgmap entries(Text + Affine mixup)
 						case 1:
 							draw_bg_mode2(pixels_bg2,
-								3,
+								2,
 								true,
 								BG2CNT_Screen_Base_Block.read() + screenbase,
 								BG2CNT_Character_Base_Block.read() + charbase,
@@ -807,6 +808,7 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode4(
 								pixels_bg2,
 								BG2CNT_Display_Area_Overflow.on(),
+								BG2CNT_Screen_Base_Block.read(),
 								ref2_x,
 								ref2_y,
 								(Int16)BG2RotScaleParDX.read(),
@@ -817,6 +819,7 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode5(
 								pixels_bg2,
 								BG2CNT_Display_Area_Overflow.on(),
+								BG2CNT_Screen_Base_Block.read(),
 								ref2_x,
 								ref2_y,
 								(Int16)BG2RotScaleParDX.read(),
@@ -924,6 +927,7 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode4(
 								pixels_bg3,
 								BG3CNT_Display_Area_Overflow.on(),
+								BG3CNT_Screen_Base_Block.read(),
 								ref3_x,
 								ref3_y,
 								(Int16)BG3RotScaleParDX.read(),
@@ -934,6 +938,7 @@ void Gpu::draw_line(byte y_in)
 							draw_bg_mode5(
 								pixels_bg3,
 								BG3CNT_Display_Area_Overflow.on(),
+								BG3CNT_Screen_Base_Block.read(),
 								ref3_x,
 								ref3_y,
 								(Int16)BG3RotScaleParDX.read(),
@@ -1606,8 +1611,13 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 	}
 }
 
-void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy)
+void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, UInt32 mapbase, Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 {
+	Int32 mapbaseaddr = (int)mapbase * 0x4000; // 16kb blocks
+
+	uint offset_display = 0;
+	if (!isGPUA) offset_display = 0x400;
+
 	int realX = refX;
 	int realY = refY;
 	int xxx = (realX >> 8);
@@ -1623,12 +1633,8 @@ void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 		if (wrap || xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 256)
 		{
 			int address = yyy * 256 + xxx;
-			//if (DISPCNT_Display_Frame_Select.on())
-			//{
-			//	address += 0xA000;
-			//}
-			byte colorptr = Memory.VRAM[get_mapped_bg_address(address)];
-			UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[colorptr * 2];
+			byte colorptr = Memory.VRAM[get_mapped_bg_address(mapbaseaddr + address)];
+			UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[offset_display + colorptr * 2];
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixelslocal[x].transparent = colorptr == 0;
 		}
@@ -1639,8 +1645,10 @@ void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 	}
 }
 
-void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, Int16 dx, Int16 dy)
+void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, UInt32 mapbase, Int32 refX, Int32 refY, Int16 dx, Int16 dy)
 {
+	Int32 mapbaseaddr = (int)mapbase * 0x4000; // 16kb blocks
+
 	int realX = refX;
 	int realY = refY;
 	int xxx = (realX >> 8);
@@ -1651,11 +1659,7 @@ void Gpu::draw_bg_mode5(Pixel pixelslocal[], bool wrap, Int32 refX, Int32 refY, 
 		if (wrap || xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 256)
 		{
 			int address = yyy * 512 + (xxx * 2);
-			//if (DISPCNT_Display_Frame_Select.on())
-			//{
-			//	address += 0xA000;
-			//}
-			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(address)];
+			UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_address(mapbaseaddr + address)];
 			pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			pixelslocal[x].transparent = false;
 		}
