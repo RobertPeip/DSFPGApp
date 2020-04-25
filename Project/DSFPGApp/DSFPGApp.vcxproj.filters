@@ -29,9 +29,6 @@
     <ClCompile Include="Sound.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="SoundDMA.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -128,9 +125,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Sound.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="SoundDMA.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">

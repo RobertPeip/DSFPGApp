@@ -309,8 +309,17 @@ void Dma::work()
 
 				if (DMAs[i].dMA_Transfer_Type)
 				{
-					UInt32 value = read_dword_9(ACCESSTYPE::DMA, DMAs[i].addr_source);
-					write_dword_9(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
+					if (i < 4)
+					{
+						UInt32 value = read_dword_9(ACCESSTYPE::DMA, DMAs[i].addr_source);
+						write_dword_9(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
+					}
+					else
+					{
+						UInt32 value = read_dword_7(ACCESSTYPE::DMA, DMAs[i].addr_source);
+						write_dword_7(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
+					}
+
 
 					if (DMAs[i].source_Adr_Control == 0 || DMAs[i].source_Adr_Control == 3 || (DMAs[i].addr_source >= 0x08000000 && DMAs[i].addr_source < 0x0E000000)) { DMAs[i].addr_source += 4; }
 					else if (DMAs[i].source_Adr_Control == 1) { DMAs[i].addr_source -= 4; }
@@ -320,8 +329,16 @@ void Dma::work()
 				}
 				else
 				{
-					UInt16 value = read_word_9(ACCESSTYPE::DMA, DMAs[i].addr_source);
-					write_word_9(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
+					if (i < 4)
+					{
+						UInt16 value = read_word_9(ACCESSTYPE::DMA, DMAs[i].addr_source);
+						write_word_9(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
+					}
+					else
+					{
+						UInt16 value = read_word_7(ACCESSTYPE::DMA, DMAs[i].addr_source);
+						write_word_7(ACCESSTYPE::DMA, DMAs[i].addr_target, value);
+					}
 
 					if (DMAs[i].source_Adr_Control == 0 || DMAs[i].source_Adr_Control == 3 || (DMAs[i].addr_source >= 0x08000000 && DMAs[i].addr_source < 0x0E000000)) { DMAs[i].addr_source += 2; }
 					else if (DMAs[i].source_Adr_Control == 1) { DMAs[i].addr_source -= 2; }

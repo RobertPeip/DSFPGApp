@@ -12,7 +12,6 @@
 #include "Joypad.h"
 #include "Timer.h"
 #include "DMA.h"
-#include "SoundDMA.h"
 #include "gpio.h"
 #include "Serial.h"
 #include "IRP.h"
@@ -56,7 +55,6 @@ void Gameboy::reset()
 	Joypad.reset();
 	Timer.reset();
 	DMA.reset();
-	SoundDMA.reset();
 	BusTiming.reset();
 	//gpio.rtcReset();
 	Serial.reset();
@@ -98,11 +96,10 @@ void Gameboy::run()
 		DMA.work();
 		Timer.work();
 
-		//Sound.work();
-		//if (GPU.lockSpeed)
-		//{
-		//	Sound.soundGenerator.fill();
-		//}
+		if (GPU_A.lockSpeed)
+		{
+			Sound.work();
+		}
 		//Serial.work();
 
 		if (IRP9.checknext) IRP9.check_and_execute_irp();
@@ -112,14 +109,14 @@ void Gameboy::run()
 		reschedule = false;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 75508)
+		if (tracer.traclist_ptr == 13811)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
 		}
 		UInt64 startticks = totalticks;
 #endif
-		//while (totalticks < nexteventtotal && !reschedule)
+		while (totalticks < nexteventtotal && !reschedule)
 		{
 #if DEBUG
 			UInt64 runticks = totalticks - startticks;
@@ -151,7 +148,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 48900000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 134800000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 100000;
@@ -173,7 +170,7 @@ void Gameboy::run()
 			}
 		}
 		tracer.commands++;
-		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 500;
+		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 2000;
 #endif
 
 		checkcount++;

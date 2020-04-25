@@ -4,8 +4,9 @@
 class SOUND
 {
 public:
-	const int SAMPLERATE = 16780000 / 44100;
 	SoundGenerator soundGenerator;
+
+	UInt64 lasttime;
 
 	void reset();
 	void set_soundreg(UInt32 adr);

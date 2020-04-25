@@ -14,7 +14,6 @@
 #include "BusTiming.h"
 #include "IRP.h"
 #include "Sound.h"
-#include "SoundDMA.h"
 #include "Joypad.h"
 #include "Serial.h"
 #include "Header.h"
@@ -1409,6 +1408,8 @@ void MEMORY::write_DSReg9(UInt32 adr, UInt32 value, bool dwaccess)
 
 void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 {
+	if (adr >= Regs_Arm7.Sect_sound7.SOUND0CNT.address && adr < Regs_Arm7.Sect_sound7.SNDCAP1LEN.address + 4) { if (!dwaccess || (adr & 2) == 0) Sound.set_soundreg(adr); return; }
+
 	if (adr == Regs_Arm7.Sect_dma7.DMA0CNT_H.address + 2) { DMA.set_settings(4); return; }
 	if (adr == Regs_Arm7.Sect_dma7.DMA1CNT_H.address + 2) { DMA.set_settings(5); return; }
 	if (adr == Regs_Arm7.Sect_dma7.DMA2CNT_H.address + 2) { DMA.set_settings(6); return; }

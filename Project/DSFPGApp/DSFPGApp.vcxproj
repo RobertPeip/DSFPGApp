@@ -47,7 +47,6 @@
     <ClCompile Include="Serial.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SoundChannel.cpp" />
-    <ClCompile Include="SoundDMA.cpp" />
     <ClCompile Include="SoundGenerator.cpp" />
     <ClCompile Include="spi_intern.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -80,7 +79,6 @@
     <ClInclude Include="Serial.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundChannel.h" />
-    <ClInclude Include="SoundDMA.h" />
     <ClInclude Include="SoundGenerator.h" />
     <ClInclude Include="spi_intern.h" />
     <ClInclude Include="Timer.h" />

@@ -21,7 +21,7 @@ package pReg_ds_sound_7 is
    constant SOUND0SAD                                : regmap_type := (16#404#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND0TMR                                : regmap_type := (16#408#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND0PNT                                : regmap_type := (16#408#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND0LEN                                : regmap_type := (16#40C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND0LEN                                : regmap_type := (16#40C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
   
    constant SOUND1CNT                                : regmap_type := (16#410#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND1CNT_Volume_Mul                     : regmap_type := (16#410#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -35,7 +35,7 @@ package pReg_ds_sound_7 is
    constant SOUND1SAD                                : regmap_type := (16#414#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND1TMR                                : regmap_type := (16#418#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND1PNT                                : regmap_type := (16#418#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND1LEN                                : regmap_type := (16#41C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND1LEN                                : regmap_type := (16#41C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND2CNT                                : regmap_type := (16#420#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND2CNT_Volume_Mul                     : regmap_type := (16#420#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -49,7 +49,7 @@ package pReg_ds_sound_7 is
    constant SOUND2SAD                                : regmap_type := (16#424#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND2TMR                                : regmap_type := (16#428#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND2PNT                                : regmap_type := (16#428#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND2LEN                                : regmap_type := (16#42C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND2LEN                                : regmap_type := (16#42C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND3CNT                                : regmap_type := (16#430#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND3CNT_Volume_Mul                     : regmap_type := (16#430#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -63,7 +63,7 @@ package pReg_ds_sound_7 is
    constant SOUND3SAD                                : regmap_type := (16#434#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND3TMR                                : regmap_type := (16#438#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND3PNT                                : regmap_type := (16#438#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND3LEN                                : regmap_type := (16#43C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND3LEN                                : regmap_type := (16#43C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND4CNT                                : regmap_type := (16#440#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND4CNT_Volume_Mul                     : regmap_type := (16#440#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -77,7 +77,7 @@ package pReg_ds_sound_7 is
    constant SOUND4SAD                                : regmap_type := (16#444#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND4TMR                                : regmap_type := (16#448#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND4PNT                                : regmap_type := (16#448#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND4LEN                                : regmap_type := (16#44C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND4LEN                                : regmap_type := (16#44C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND5CNT                                : regmap_type := (16#450#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND5CNT_Volume_Mul                     : regmap_type := (16#450#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -91,7 +91,7 @@ package pReg_ds_sound_7 is
    constant SOUND5SAD                                : regmap_type := (16#454#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND5TMR                                : regmap_type := (16#458#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND5PNT                                : regmap_type := (16#458#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND5LEN                                : regmap_type := (16#45C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND5LEN                                : regmap_type := (16#45C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND6CNT                                : regmap_type := (16#460#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND6CNT_Volume_Mul                     : regmap_type := (16#460#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -105,7 +105,7 @@ package pReg_ds_sound_7 is
    constant SOUND6SAD                                : regmap_type := (16#464#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND6TMR                                : regmap_type := (16#468#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND6PNT                                : regmap_type := (16#468#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND6LEN                                : regmap_type := (16#46C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND6LEN                                : regmap_type := (16#46C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND7CNT                                : regmap_type := (16#470#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND7CNT_Volume_Mul                     : regmap_type := (16#470#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -119,7 +119,7 @@ package pReg_ds_sound_7 is
    constant SOUND7SAD                                : regmap_type := (16#474#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND7TMR                                : regmap_type := (16#478#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND7PNT                                : regmap_type := (16#478#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND7LEN                                : regmap_type := (16#47C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND7LEN                                : regmap_type := (16#47C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND8CNT                                : regmap_type := (16#480#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND8CNT_Volume_Mul                     : regmap_type := (16#480#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -133,7 +133,7 @@ package pReg_ds_sound_7 is
    constant SOUND8SAD                                : regmap_type := (16#484#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND8TMR                                : regmap_type := (16#488#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND8PNT                                : regmap_type := (16#488#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND8LEN                                : regmap_type := (16#48C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND8LEN                                : regmap_type := (16#48C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND9CNT                                : regmap_type := (16#490#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND9CNT_Volume_Mul                     : regmap_type := (16#490#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -147,7 +147,7 @@ package pReg_ds_sound_7 is
    constant SOUND9SAD                                : regmap_type := (16#494#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND9TMR                                : regmap_type := (16#498#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND9PNT                                : regmap_type := (16#498#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND9LEN                                : regmap_type := (16#49C#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND9LEN                                : regmap_type := (16#49C#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND10CNT                               : regmap_type := (16#4A0#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND10CNT_Volume_Mul                    : regmap_type := (16#4A0#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -161,7 +161,7 @@ package pReg_ds_sound_7 is
    constant SOUND10SAD                               : regmap_type := (16#4A4#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND10TMR                               : regmap_type := (16#4A8#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND10PNT                               : regmap_type := (16#4A8#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND10LEN                               : regmap_type := (16#4AC#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND10LEN                               : regmap_type := (16#4AC#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND11CNT                               : regmap_type := (16#4B0#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND11CNT_Volume_Mul                    : regmap_type := (16#4B0#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -175,7 +175,7 @@ package pReg_ds_sound_7 is
    constant SOUND11SAD                               : regmap_type := (16#4B4#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND11TMR                               : regmap_type := (16#4B8#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND11PNT                               : regmap_type := (16#4B8#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND11LEN                               : regmap_type := (16#4BC#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND11LEN                               : regmap_type := (16#4BC#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND12CNT                               : regmap_type := (16#4C0#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND12CNT_Volume_Mul                    : regmap_type := (16#4C0#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -189,7 +189,7 @@ package pReg_ds_sound_7 is
    constant SOUND12SAD                               : regmap_type := (16#4C4#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND12TMR                               : regmap_type := (16#4C8#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND12PNT                               : regmap_type := (16#4C8#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND12LEN                               : regmap_type := (16#4CC#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND12LEN                               : regmap_type := (16#4CC#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND13CNT                               : regmap_type := (16#4D0#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND13CNT_Volume_Mul                    : regmap_type := (16#4D0#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -203,7 +203,7 @@ package pReg_ds_sound_7 is
    constant SOUND13SAD                               : regmap_type := (16#4D4#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND13TMR                               : regmap_type := (16#4D8#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND13PNT                               : regmap_type := (16#4D8#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND13LEN                               : regmap_type := (16#4DC#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND13LEN                               : regmap_type := (16#4DC#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND14CNT                               : regmap_type := (16#4E0#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND14CNT_Volume_Mul                    : regmap_type := (16#4E0#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -217,7 +217,7 @@ package pReg_ds_sound_7 is
    constant SOUND14SAD                               : regmap_type := (16#4E4#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND14TMR                               : regmap_type := (16#4E8#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND14PNT                               : regmap_type := (16#4E8#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND14LEN                               : regmap_type := (16#4EC#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND14LEN                               : regmap_type := (16#4EC#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUND15CNT                               : regmap_type := (16#4F0#,  31,      0,        1,        0,   writeonly); -- SOUNDxCNT - Sound Channel X Control Register (R/W)
    constant SOUND15CNT_Volume_Mul                    : regmap_type := (16#4F0#,   6,      0,        1,        0,   readwrite); -- 0-6    Volume Mul   (0..127=silent..loud)
@@ -231,7 +231,7 @@ package pReg_ds_sound_7 is
    constant SOUND15SAD                               : regmap_type := (16#4F4#,  26,      0,        1,        0,   writeonly); -- SOUNDxSAD - Sound Channel X Data Source Register (W)
    constant SOUND15TMR                               : regmap_type := (16#4F8#,  15,      0,        1,        0,   writeonly); -- SOUNDxTMR - Sound Channel X Timer Register (W)
    constant SOUND15PNT                               : regmap_type := (16#4F8#,  31,     16,        1,        0,   writeonly); -- SOUNDxPNT - Sound Channel X Loopstart Register (W)
-   constant SOUND15LEN                               : regmap_type := (16#4FC#,  21,     16,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
+   constant SOUND15LEN                               : regmap_type := (16#4FC#,  21,      0,        1,        0,   writeonly); -- SOUNDxLEN - Sound Channel X Length Register (W)
    
    constant SOUNDCNT                                 : regmap_type := (16#500#,  15,      0,        1,        0,   writeonly); -- 
    constant SOUNDCNT_Master_Volume                   : regmap_type := (16#500#,   6,      0,        1,        0,   readwrite); -- Bit0-6   Master Volume       (0..127=silent..loud)

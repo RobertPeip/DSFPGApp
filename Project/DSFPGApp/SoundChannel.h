@@ -1,74 +1,66 @@
 #include "types.h"
+#include "DSReg.h"
+
+#define SAMPLINGRRATE (67027964 / 44100)
 
 class SoundChannel
 {
 public:
-	byte Number_of_sweep_shift;
-	bool Sweep_Frequency_Direction;
-	byte Sweep_Time;
+	DSReg SOUNDCNT_Volume_Mul;
+	DSReg SOUNDCNT_Volume_Div;
+	DSReg SOUNDCNT_Hold;
+	DSReg SOUNDCNT_Panning;
+	DSReg SOUNDCNT_Wave_Duty;
+	DSReg SOUNDCNT_Repeat_Mode;
+	DSReg SOUNDCNT_Format;
+	DSReg SOUNDCNT_Start_Status;
+	DSReg SOUNDSAD;
+	DSReg SOUNDTMR;
+	DSReg SOUNDPNT;
+	DSReg SOUNDLEN;
 
-	byte Sound_length;
-	byte Wave_Pattern_Duty;
-	byte Envelope_Step_Time;
-	bool Envelope_Direction;
-	byte Initial_Volume_of_envelope;
-
-	Int32 Frequency;
-	bool Length_Flag;
-	bool Initial;
-
-	bool waveenable;
-	bool wavebanks;
-	bool banknumber;
-
-	bool lfsr7bit;
-
-	float volume;
+	byte index;
 	bool on;
+	int Volume_Mul;
+	int Volume_Div;
+	bool Hold;
+	int Panning;
+	int Wave_Duty;
+	int Repeat_Mode;
+	int Format;
 
-	SoundChannel();
-	void assign(int id);
-	void setNewSweep();
-	void setNewLength();
-	void setNewEnvelope();
-	void setNewFreq();
-	void setWaveTable();
-	void setNewPoly(byte divider_raw, byte shift_raw);
-	void setNewInitial();
+	uint source;
+	uint timer;
+	uint loopstart;
+	uint length;
 
-	float get_next();
+	int totallength;
+	int samplepos;
 
-private:
-	int id;
+	int freqCounter;
+	int currentSample;
 
-	byte wavetable[32];
-	byte wavetable2[32];
-	int wavetable_Length;
+	int lfsr;
+	int psgcnt;
 
-	int wavetable_ptr;
+	void reset(
+		byte index,
+		DSReg SOUNDCNT_Volume_Mul,
+		DSReg SOUNDCNT_Volume_Div,
+		DSReg SOUNDCNT_Hold,
+		DSReg SOUNDCNT_Panning,
+		DSReg SOUNDCNT_Wave_Duty,
+		DSReg SOUNDCNT_Repeat_Mode,
+		DSReg SOUNDCNT_Format,
+		DSReg SOUNDCNT_Start_Status,
+		DSReg SOUNDSAD,
+		DSReg SOUNDTMR,
+		DSReg SOUNDPNT,
+		DSReg SOUNDLEN
+	);
 
-	// channel1-4
-	UInt32 freq_cnt;
-	UInt32 length_left;
-
-	//channel1
-	UInt32 sweepcnt;
-
-	// channel1,2,4
-	UInt32 envelope_cnt;
-	Int32 envelope_add;
-
-	// channel 3
-
-	// channel 4
-	UInt32 lfsr;
-	UInt32 ch4_freqdivider;
-
-	UInt32 soundcycles_freq;
-	UInt32 soundcycles_sweep;
-	UInt32 soundcycles_envelope;
-	UInt32 soundcycles_length;
-
-	void recalc_freq();
-	void update_timebased(UInt32 new_cycles);
+	void set_soundreg(int regindex);
+	uint GetLength();
+	void check_loop_end();
+	void update_timebased(Int32 new_cycles);
 };

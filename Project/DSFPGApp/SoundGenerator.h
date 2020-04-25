@@ -8,24 +8,15 @@ using namespace std;
 class SoundGenerator
 {
 public:
-	SoundChannel soundchannels[4];
+	SoundChannel soundchannels[16];
 
-	std::queue<float> nextSamples;
+	std::queue<int> nextSamples;
 	SDL_mutex* nextSamples_lock;
 
-	UInt32 volume_left_1_4;
-	UInt32 volume_right_1_4;
-
-	float volume_1_4;
-	float volume_dma0;
-	float volume_dma1;
-
-	bool enable_channels_left[4];
-	bool enable_channels_right[4];
+	int samplingCounter;
 
 	SoundGenerator();
-	void work();
-	void fill();
+	void update_timebased(Int32 new_cycles);
 
 	static Uint8* audio_chunk;
 	static Uint32 audio_len;

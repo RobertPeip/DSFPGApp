@@ -31,7 +31,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND0SAD = DSReg(0x404, 26, 0, 1, 0, "writeonly", "SOUND0SAD", Regs_Arm7.data);
     SOUND0TMR = DSReg(0x408, 15, 0, 1, 0, "writeonly", "SOUND0TMR", Regs_Arm7.data);
     SOUND0PNT = DSReg(0x408, 31, 16, 1, 0, "writeonly", "SOUND0PNT", Regs_Arm7.data);
-    SOUND0LEN = DSReg(0x40C, 21, 16, 1, 0, "writeonly", "SOUND0LEN", Regs_Arm7.data);
+    SOUND0LEN = DSReg(0x40C, 21, 0, 1, 0, "writeonly", "SOUND0LEN", Regs_Arm7.data);
     SOUND1CNT = DSReg(0x410, 31, 0, 1, 0, "writeonly", "SOUND1CNT", Regs_Arm7.data);
     SOUND1CNT_Volume_Mul = DSReg(0x410, 6, 0, 1, 0, "readwrite", "SOUND1CNT_Volume_Mul", Regs_Arm7.data);
     SOUND1CNT_Volume_Div = DSReg(0x410, 9, 8, 1, 0, "readwrite", "SOUND1CNT_Volume_Div", Regs_Arm7.data);
@@ -44,7 +44,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND1SAD = DSReg(0x414, 26, 0, 1, 0, "writeonly", "SOUND1SAD", Regs_Arm7.data);
     SOUND1TMR = DSReg(0x418, 15, 0, 1, 0, "writeonly", "SOUND1TMR", Regs_Arm7.data);
     SOUND1PNT = DSReg(0x418, 31, 16, 1, 0, "writeonly", "SOUND1PNT", Regs_Arm7.data);
-    SOUND1LEN = DSReg(0x41C, 21, 16, 1, 0, "writeonly", "SOUND1LEN", Regs_Arm7.data);
+    SOUND1LEN = DSReg(0x41C, 21, 0, 1, 0, "writeonly", "SOUND1LEN", Regs_Arm7.data);
     SOUND2CNT = DSReg(0x420, 31, 0, 1, 0, "writeonly", "SOUND2CNT", Regs_Arm7.data);
     SOUND2CNT_Volume_Mul = DSReg(0x420, 6, 0, 1, 0, "readwrite", "SOUND2CNT_Volume_Mul", Regs_Arm7.data);
     SOUND2CNT_Volume_Div = DSReg(0x420, 9, 8, 1, 0, "readwrite", "SOUND2CNT_Volume_Div", Regs_Arm7.data);
@@ -57,7 +57,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND2SAD = DSReg(0x424, 26, 0, 1, 0, "writeonly", "SOUND2SAD", Regs_Arm7.data);
     SOUND2TMR = DSReg(0x428, 15, 0, 1, 0, "writeonly", "SOUND2TMR", Regs_Arm7.data);
     SOUND2PNT = DSReg(0x428, 31, 16, 1, 0, "writeonly", "SOUND2PNT", Regs_Arm7.data);
-    SOUND2LEN = DSReg(0x42C, 21, 16, 1, 0, "writeonly", "SOUND2LEN", Regs_Arm7.data);
+    SOUND2LEN = DSReg(0x42C, 21, 0, 1, 0, "writeonly", "SOUND2LEN", Regs_Arm7.data);
     SOUND3CNT = DSReg(0x430, 31, 0, 1, 0, "writeonly", "SOUND3CNT", Regs_Arm7.data);
     SOUND3CNT_Volume_Mul = DSReg(0x430, 6, 0, 1, 0, "readwrite", "SOUND3CNT_Volume_Mul", Regs_Arm7.data);
     SOUND3CNT_Volume_Div = DSReg(0x430, 9, 8, 1, 0, "readwrite", "SOUND3CNT_Volume_Div", Regs_Arm7.data);
@@ -70,7 +70,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND3SAD = DSReg(0x434, 26, 0, 1, 0, "writeonly", "SOUND3SAD", Regs_Arm7.data);
     SOUND3TMR = DSReg(0x438, 15, 0, 1, 0, "writeonly", "SOUND3TMR", Regs_Arm7.data);
     SOUND3PNT = DSReg(0x438, 31, 16, 1, 0, "writeonly", "SOUND3PNT", Regs_Arm7.data);
-    SOUND3LEN = DSReg(0x43C, 21, 16, 1, 0, "writeonly", "SOUND3LEN", Regs_Arm7.data);
+    SOUND3LEN = DSReg(0x43C, 21, 0, 1, 0, "writeonly", "SOUND3LEN", Regs_Arm7.data);
     SOUND4CNT = DSReg(0x440, 31, 0, 1, 0, "writeonly", "SOUND4CNT", Regs_Arm7.data);
     SOUND4CNT_Volume_Mul = DSReg(0x440, 6, 0, 1, 0, "readwrite", "SOUND4CNT_Volume_Mul", Regs_Arm7.data);
     SOUND4CNT_Volume_Div = DSReg(0x440, 9, 8, 1, 0, "readwrite", "SOUND4CNT_Volume_Div", Regs_Arm7.data);
@@ -83,7 +83,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND4SAD = DSReg(0x444, 26, 0, 1, 0, "writeonly", "SOUND4SAD", Regs_Arm7.data);
     SOUND4TMR = DSReg(0x448, 15, 0, 1, 0, "writeonly", "SOUND4TMR", Regs_Arm7.data);
     SOUND4PNT = DSReg(0x448, 31, 16, 1, 0, "writeonly", "SOUND4PNT", Regs_Arm7.data);
-    SOUND4LEN = DSReg(0x44C, 21, 16, 1, 0, "writeonly", "SOUND4LEN", Regs_Arm7.data);
+    SOUND4LEN = DSReg(0x44C, 21, 0, 1, 0, "writeonly", "SOUND4LEN", Regs_Arm7.data);
     SOUND5CNT = DSReg(0x450, 31, 0, 1, 0, "writeonly", "SOUND5CNT", Regs_Arm7.data);
     SOUND5CNT_Volume_Mul = DSReg(0x450, 6, 0, 1, 0, "readwrite", "SOUND5CNT_Volume_Mul", Regs_Arm7.data);
     SOUND5CNT_Volume_Div = DSReg(0x450, 9, 8, 1, 0, "readwrite", "SOUND5CNT_Volume_Div", Regs_Arm7.data);
@@ -96,7 +96,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND5SAD = DSReg(0x454, 26, 0, 1, 0, "writeonly", "SOUND5SAD", Regs_Arm7.data);
     SOUND5TMR = DSReg(0x458, 15, 0, 1, 0, "writeonly", "SOUND5TMR", Regs_Arm7.data);
     SOUND5PNT = DSReg(0x458, 31, 16, 1, 0, "writeonly", "SOUND5PNT", Regs_Arm7.data);
-    SOUND5LEN = DSReg(0x45C, 21, 16, 1, 0, "writeonly", "SOUND5LEN", Regs_Arm7.data);
+    SOUND5LEN = DSReg(0x45C, 21, 0, 1, 0, "writeonly", "SOUND5LEN", Regs_Arm7.data);
     SOUND6CNT = DSReg(0x460, 31, 0, 1, 0, "writeonly", "SOUND6CNT", Regs_Arm7.data);
     SOUND6CNT_Volume_Mul = DSReg(0x460, 6, 0, 1, 0, "readwrite", "SOUND6CNT_Volume_Mul", Regs_Arm7.data);
     SOUND6CNT_Volume_Div = DSReg(0x460, 9, 8, 1, 0, "readwrite", "SOUND6CNT_Volume_Div", Regs_Arm7.data);
@@ -109,7 +109,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND6SAD = DSReg(0x464, 26, 0, 1, 0, "writeonly", "SOUND6SAD", Regs_Arm7.data);
     SOUND6TMR = DSReg(0x468, 15, 0, 1, 0, "writeonly", "SOUND6TMR", Regs_Arm7.data);
     SOUND6PNT = DSReg(0x468, 31, 16, 1, 0, "writeonly", "SOUND6PNT", Regs_Arm7.data);
-    SOUND6LEN = DSReg(0x46C, 21, 16, 1, 0, "writeonly", "SOUND6LEN", Regs_Arm7.data);
+    SOUND6LEN = DSReg(0x46C, 21, 0, 1, 0, "writeonly", "SOUND6LEN", Regs_Arm7.data);
     SOUND7CNT = DSReg(0x470, 31, 0, 1, 0, "writeonly", "SOUND7CNT", Regs_Arm7.data);
     SOUND7CNT_Volume_Mul = DSReg(0x470, 6, 0, 1, 0, "readwrite", "SOUND7CNT_Volume_Mul", Regs_Arm7.data);
     SOUND7CNT_Volume_Div = DSReg(0x470, 9, 8, 1, 0, "readwrite", "SOUND7CNT_Volume_Div", Regs_Arm7.data);
@@ -122,7 +122,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND7SAD = DSReg(0x474, 26, 0, 1, 0, "writeonly", "SOUND7SAD", Regs_Arm7.data);
     SOUND7TMR = DSReg(0x478, 15, 0, 1, 0, "writeonly", "SOUND7TMR", Regs_Arm7.data);
     SOUND7PNT = DSReg(0x478, 31, 16, 1, 0, "writeonly", "SOUND7PNT", Regs_Arm7.data);
-    SOUND7LEN = DSReg(0x47C, 21, 16, 1, 0, "writeonly", "SOUND7LEN", Regs_Arm7.data);
+    SOUND7LEN = DSReg(0x47C, 21, 0, 1, 0, "writeonly", "SOUND7LEN", Regs_Arm7.data);
     SOUND8CNT = DSReg(0x480, 31, 0, 1, 0, "writeonly", "SOUND8CNT", Regs_Arm7.data);
     SOUND8CNT_Volume_Mul = DSReg(0x480, 6, 0, 1, 0, "readwrite", "SOUND8CNT_Volume_Mul", Regs_Arm7.data);
     SOUND8CNT_Volume_Div = DSReg(0x480, 9, 8, 1, 0, "readwrite", "SOUND8CNT_Volume_Div", Regs_Arm7.data);
@@ -135,7 +135,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND8SAD = DSReg(0x484, 26, 0, 1, 0, "writeonly", "SOUND8SAD", Regs_Arm7.data);
     SOUND8TMR = DSReg(0x488, 15, 0, 1, 0, "writeonly", "SOUND8TMR", Regs_Arm7.data);
     SOUND8PNT = DSReg(0x488, 31, 16, 1, 0, "writeonly", "SOUND8PNT", Regs_Arm7.data);
-    SOUND8LEN = DSReg(0x48C, 21, 16, 1, 0, "writeonly", "SOUND8LEN", Regs_Arm7.data);
+    SOUND8LEN = DSReg(0x48C, 21, 0, 1, 0, "writeonly", "SOUND8LEN", Regs_Arm7.data);
     SOUND9CNT = DSReg(0x490, 31, 0, 1, 0, "writeonly", "SOUND9CNT", Regs_Arm7.data);
     SOUND9CNT_Volume_Mul = DSReg(0x490, 6, 0, 1, 0, "readwrite", "SOUND9CNT_Volume_Mul", Regs_Arm7.data);
     SOUND9CNT_Volume_Div = DSReg(0x490, 9, 8, 1, 0, "readwrite", "SOUND9CNT_Volume_Div", Regs_Arm7.data);
@@ -148,7 +148,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND9SAD = DSReg(0x494, 26, 0, 1, 0, "writeonly", "SOUND9SAD", Regs_Arm7.data);
     SOUND9TMR = DSReg(0x498, 15, 0, 1, 0, "writeonly", "SOUND9TMR", Regs_Arm7.data);
     SOUND9PNT = DSReg(0x498, 31, 16, 1, 0, "writeonly", "SOUND9PNT", Regs_Arm7.data);
-    SOUND9LEN = DSReg(0x49C, 21, 16, 1, 0, "writeonly", "SOUND9LEN", Regs_Arm7.data);
+    SOUND9LEN = DSReg(0x49C, 21, 0, 1, 0, "writeonly", "SOUND9LEN", Regs_Arm7.data);
     SOUND10CNT = DSReg(0x4A0, 31, 0, 1, 0, "writeonly", "SOUND10CNT", Regs_Arm7.data);
     SOUND10CNT_Volume_Mul = DSReg(0x4A0, 6, 0, 1, 0, "readwrite", "SOUND10CNT_Volume_Mul", Regs_Arm7.data);
     SOUND10CNT_Volume_Div = DSReg(0x4A0, 9, 8, 1, 0, "readwrite", "SOUND10CNT_Volume_Div", Regs_Arm7.data);
@@ -161,7 +161,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND10SAD = DSReg(0x4A4, 26, 0, 1, 0, "writeonly", "SOUND10SAD", Regs_Arm7.data);
     SOUND10TMR = DSReg(0x4A8, 15, 0, 1, 0, "writeonly", "SOUND10TMR", Regs_Arm7.data);
     SOUND10PNT = DSReg(0x4A8, 31, 16, 1, 0, "writeonly", "SOUND10PNT", Regs_Arm7.data);
-    SOUND10LEN = DSReg(0x4AC, 21, 16, 1, 0, "writeonly", "SOUND10LEN", Regs_Arm7.data);
+    SOUND10LEN = DSReg(0x4AC, 21, 0, 1, 0, "writeonly", "SOUND10LEN", Regs_Arm7.data);
     SOUND11CNT = DSReg(0x4B0, 31, 0, 1, 0, "writeonly", "SOUND11CNT", Regs_Arm7.data);
     SOUND11CNT_Volume_Mul = DSReg(0x4B0, 6, 0, 1, 0, "readwrite", "SOUND11CNT_Volume_Mul", Regs_Arm7.data);
     SOUND11CNT_Volume_Div = DSReg(0x4B0, 9, 8, 1, 0, "readwrite", "SOUND11CNT_Volume_Div", Regs_Arm7.data);
@@ -174,7 +174,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND11SAD = DSReg(0x4B4, 26, 0, 1, 0, "writeonly", "SOUND11SAD", Regs_Arm7.data);
     SOUND11TMR = DSReg(0x4B8, 15, 0, 1, 0, "writeonly", "SOUND11TMR", Regs_Arm7.data);
     SOUND11PNT = DSReg(0x4B8, 31, 16, 1, 0, "writeonly", "SOUND11PNT", Regs_Arm7.data);
-    SOUND11LEN = DSReg(0x4BC, 21, 16, 1, 0, "writeonly", "SOUND11LEN", Regs_Arm7.data);
+    SOUND11LEN = DSReg(0x4BC, 21, 0, 1, 0, "writeonly", "SOUND11LEN", Regs_Arm7.data);
     SOUND12CNT = DSReg(0x4C0, 31, 0, 1, 0, "writeonly", "SOUND12CNT", Regs_Arm7.data);
     SOUND12CNT_Volume_Mul = DSReg(0x4C0, 6, 0, 1, 0, "readwrite", "SOUND12CNT_Volume_Mul", Regs_Arm7.data);
     SOUND12CNT_Volume_Div = DSReg(0x4C0, 9, 8, 1, 0, "readwrite", "SOUND12CNT_Volume_Div", Regs_Arm7.data);
@@ -187,7 +187,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND12SAD = DSReg(0x4C4, 26, 0, 1, 0, "writeonly", "SOUND12SAD", Regs_Arm7.data);
     SOUND12TMR = DSReg(0x4C8, 15, 0, 1, 0, "writeonly", "SOUND12TMR", Regs_Arm7.data);
     SOUND12PNT = DSReg(0x4C8, 31, 16, 1, 0, "writeonly", "SOUND12PNT", Regs_Arm7.data);
-    SOUND12LEN = DSReg(0x4CC, 21, 16, 1, 0, "writeonly", "SOUND12LEN", Regs_Arm7.data);
+    SOUND12LEN = DSReg(0x4CC, 21, 0, 1, 0, "writeonly", "SOUND12LEN", Regs_Arm7.data);
     SOUND13CNT = DSReg(0x4D0, 31, 0, 1, 0, "writeonly", "SOUND13CNT", Regs_Arm7.data);
     SOUND13CNT_Volume_Mul = DSReg(0x4D0, 6, 0, 1, 0, "readwrite", "SOUND13CNT_Volume_Mul", Regs_Arm7.data);
     SOUND13CNT_Volume_Div = DSReg(0x4D0, 9, 8, 1, 0, "readwrite", "SOUND13CNT_Volume_Div", Regs_Arm7.data);
@@ -200,7 +200,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND13SAD = DSReg(0x4D4, 26, 0, 1, 0, "writeonly", "SOUND13SAD", Regs_Arm7.data);
     SOUND13TMR = DSReg(0x4D8, 15, 0, 1, 0, "writeonly", "SOUND13TMR", Regs_Arm7.data);
     SOUND13PNT = DSReg(0x4D8, 31, 16, 1, 0, "writeonly", "SOUND13PNT", Regs_Arm7.data);
-    SOUND13LEN = DSReg(0x4DC, 21, 16, 1, 0, "writeonly", "SOUND13LEN", Regs_Arm7.data);
+    SOUND13LEN = DSReg(0x4DC, 21, 0, 1, 0, "writeonly", "SOUND13LEN", Regs_Arm7.data);
     SOUND14CNT = DSReg(0x4E0, 31, 0, 1, 0, "writeonly", "SOUND14CNT", Regs_Arm7.data);
     SOUND14CNT_Volume_Mul = DSReg(0x4E0, 6, 0, 1, 0, "readwrite", "SOUND14CNT_Volume_Mul", Regs_Arm7.data);
     SOUND14CNT_Volume_Div = DSReg(0x4E0, 9, 8, 1, 0, "readwrite", "SOUND14CNT_Volume_Div", Regs_Arm7.data);
@@ -213,7 +213,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND14SAD = DSReg(0x4E4, 26, 0, 1, 0, "writeonly", "SOUND14SAD", Regs_Arm7.data);
     SOUND14TMR = DSReg(0x4E8, 15, 0, 1, 0, "writeonly", "SOUND14TMR", Regs_Arm7.data);
     SOUND14PNT = DSReg(0x4E8, 31, 16, 1, 0, "writeonly", "SOUND14PNT", Regs_Arm7.data);
-    SOUND14LEN = DSReg(0x4EC, 21, 16, 1, 0, "writeonly", "SOUND14LEN", Regs_Arm7.data);
+    SOUND14LEN = DSReg(0x4EC, 21, 0, 1, 0, "writeonly", "SOUND14LEN", Regs_Arm7.data);
     SOUND15CNT = DSReg(0x4F0, 31, 0, 1, 0, "writeonly", "SOUND15CNT", Regs_Arm7.data);
     SOUND15CNT_Volume_Mul = DSReg(0x4F0, 6, 0, 1, 0, "readwrite", "SOUND15CNT_Volume_Mul", Regs_Arm7.data);
     SOUND15CNT_Volume_Div = DSReg(0x4F0, 9, 8, 1, 0, "readwrite", "SOUND15CNT_Volume_Div", Regs_Arm7.data);
@@ -226,7 +226,7 @@ RegSect_sound7::RegSect_sound7()
     SOUND15SAD = DSReg(0x4F4, 26, 0, 1, 0, "writeonly", "SOUND15SAD", Regs_Arm7.data);
     SOUND15TMR = DSReg(0x4F8, 15, 0, 1, 0, "writeonly", "SOUND15TMR", Regs_Arm7.data);
     SOUND15PNT = DSReg(0x4F8, 31, 16, 1, 0, "writeonly", "SOUND15PNT", Regs_Arm7.data);
-    SOUND15LEN = DSReg(0x4FC, 21, 16, 1, 0, "writeonly", "SOUND15LEN", Regs_Arm7.data);
+    SOUND15LEN = DSReg(0x4FC, 21, 0, 1, 0, "writeonly", "SOUND15LEN", Regs_Arm7.data);
     SOUNDCNT = DSReg(0x500, 15, 0, 1, 0, "writeonly", "SOUNDCNT", Regs_Arm7.data);
     SOUNDCNT_Master_Volume = DSReg(0x500, 6, 0, 1, 0, "readwrite", "SOUNDCNT_Master_Volume", Regs_Arm7.data);
     SOUNDCNT_Left_Output_from = DSReg(0x500, 9, 8, 1, 0, "readwrite", "SOUNDCNT_Left_Output_from", Regs_Arm7.data);
