@@ -49,18 +49,32 @@ void SoundChannel::set_soundreg(int regindex)
 		Wave_Duty = SOUNDCNT_Wave_Duty.read();
 		Repeat_Mode = SOUNDCNT_Repeat_Mode.read();
 		Format = SOUNDCNT_Format.read();
-		on = SOUNDCNT_Start_Status.read();
-		if (on)
+		if (!on && SOUNDCNT_Start_Status.on())
 		{
+			on = true;
 			totallength = GetLength();
 			freqCounter = 0;
-			lfsr = 0x7FFF;
-			psgcnt = 0;
 			samplepos = -3;
-			if (Format == 3)
+			
+			if (Format == 2)
+			{ 
+				UInt32 data = read_dword_7(ACCESSTYPE::DMA, source);
+				samplepos = 8;
+				currentSample = (Int16)(data & 0xFFFF);
+				tableindex = ((data >> 16) & 0x7F);
+				if (tableindex > 88) tableindex = 88;
+				loop_index = 100;
+			}
+			else if (Format == 3)
 			{
+				lfsr = 0x7FFF;
+				psgcnt = 0;
 				samplepos = -1;
 			}
+		}
+		else if (on && !SOUNDCNT_Start_Status.on())
+		{
+			on = false;
 		}
 		break;
 
@@ -105,7 +119,22 @@ void SoundChannel::check_loop_end()
 			{
 			case 0: samplepos -= (totallength - loopstart * 4); break;
 			case 1: samplepos -= (totallength - loopstart * 2); break;
-			case 2: samplepos -= (totallength - loopstart * 8); break;
+			case 2: 
+				if (loop_index == 100) // loop was not reached for some reason
+				{
+					UInt32 data = read_dword_7(ACCESSTYPE::DMA, source);
+					samplepos = 8;
+					currentSample = (Int16)(data & 0xFFFF);
+					tableindex = ((data >> 16) & 0x7F);
+					if (tableindex > 88) tableindex = 88;
+				}
+				else
+				{
+					samplepos -= (totallength - loopstart * 8);
+					currentSample = loop_sample;
+					tableindex = loop_index;
+				}
+				break;
 			}
 		}
 		else
@@ -144,7 +173,22 @@ void SoundChannel::update_timebased(Int32 new_cycles)
 		case 2:
 			if (samplepos >= 0)
 			{
-				//currentSample = read_byte_7(ACCESSTYPE::DMA, ptr);
+				byte data = read_byte_7(ACCESSTYPE::DMA, source + (samplepos / 2));
+
+				if ((samplepos & 1) == 1) data >>= 4;
+
+				Int16 diff = ((data & 7) * 2 + 1) * ADPCMTABLE[tableindex] / 8;
+				if ((data & 8) == 0) currentSample = currentSample + diff; if (currentSample > 0x7FFF) currentSample = 0x7FFF;
+				if ((data & 8) == 8) currentSample = currentSample - diff; if (currentSample < -0x7FFF) currentSample = -0x7FFF;
+				tableindex = tableindex + INDEXTBL[data & 7];
+				if (tableindex < 0) tableindex = 0;
+				if (tableindex > 88) tableindex = 88;
+
+				if (samplepos == (loopstart * 8))
+				{
+					loop_sample = currentSample;
+					loop_index = tableindex;
+				}
 			}
 			samplepos++;
 			break;

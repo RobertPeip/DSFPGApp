@@ -16,6 +16,14 @@ void SOUND::set_soundreg(UInt32 adr)
 	{
 		soundGenerator.soundchannels[(adr & 0xFF) / 0x10].set_soundreg((adr % 0x10) / 4);
 	}
+	else if (adr >= Regs_Arm7.Sect_sound7.SOUNDCNT.address && adr < Regs_Arm7.Sect_sound7.SOUNDCNT.address + 4)
+	{
+		soundGenerator.set_soundcontrol();
+	}
+	else if (adr >= Regs_Arm7.Sect_sound7.SOUNDCAP.address && adr < Regs_Arm7.Sect_sound7.SOUNDCAP.address + 4)
+	{
+		soundGenerator.set_soundcapture();
+	}
 }
 
 void SOUND::work()

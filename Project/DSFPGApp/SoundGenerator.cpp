@@ -23,6 +23,9 @@ SoundGenerator::SoundGenerator()
 
 	samplingCounter = 0;
 
+	Master_Enable = false;
+	capturehack = false;
+
 	nextSamples_lock = SDL_CreateMutex();
 
     SDL_AudioSpec wanted;
@@ -30,11 +33,30 @@ SoundGenerator::SoundGenerator()
 	wanted.userdata = this;
 	wanted.freq = 44100;
 	wanted.format = AUDIO_S16;
-	wanted.channels = 1;
+	wanted.channels = 2;
 	wanted.samples = 4096;
 
 	SDL_OpenAudio(&wanted, NULL);
 	SDL_PauseAudio(0);
+}
+
+void SoundGenerator::set_soundcontrol()
+{
+	Master_Volume = Regs_Arm7.Sect_sound7.SOUNDCNT_Master_Volume.read();
+	Left_Output_from = Regs_Arm7.Sect_sound7.SOUNDCNT_Left_Output_from.read();
+	Right_Output_from = Regs_Arm7.Sect_sound7.SOUNDCNT_Right_Output_from.read();
+	Output_Ch1_to_Mixer = Regs_Arm7.Sect_sound7.SOUNDCNT_Output_Ch1_to_Mixer.on();
+	Output_Ch3_to_Mixer = Regs_Arm7.Sect_sound7.SOUNDCNT_Output_Ch3_to_Mixer.on();
+	Master_Enable = Regs_Arm7.Sect_sound7.SOUNDCNT_Master_Enable.on();
+}
+
+void SoundGenerator::set_soundcapture()
+{
+	capturehack = false;
+	if (Regs_Arm7.Sect_sound7.SOUNDCAP.read() == 0x8080)
+	{
+		capturehack = true;
+	}
 }
 
 void SoundGenerator::update_timebased(Int32 new_cycles)
@@ -55,17 +77,80 @@ void SoundGenerator::update_timebased(Int32 new_cycles)
 			while (samplingCounter >= SAMPLINGRRATE)
 			{
 				samplingCounter -= SAMPLINGRRATE;
-				if (nextSamples.size() < 15000)
+				if (nextSamples_left.size() < 15000)
 				{
-					int value = 0;
-					for (int i = 0; i < 16; i++)
+					Int64 value_left = 0;
+					Int64 value_right = 0;
+					Int64 value_left_1 = 0;
+					Int64 value_right_1 = 0;
+					Int64 value_left_3 = 0;
+					Int64 value_right_3 = 0;
+					if (Master_Enable)
 					{
-						if (soundchannels[i].on)
+						for (int i = 0; i < 16; i++)
 						{
-							value += soundchannels[i].currentSample / 16;
+							if (soundchannels[i].on)
+							{
+								Int64 next_sample = (Int64)soundchannels[i].currentSample; // Incoming PCM16 Data 16.0
+
+								switch (soundchannels[i].Volume_Div) // Volume Divider(div 1..16) 16.4
+								{
+								case 0: next_sample = next_sample * 16; break;
+								case 1: next_sample = next_sample * 8; break;
+								case 2: next_sample = next_sample * 4; break;
+								case 3: next_sample = next_sample * 1; break;
+								}
+								
+								next_sample *= soundchannels[i].Volume_Mul; // Volume Factor(mul N / 128) 16.11
+								
+								Int64 next_left  = next_sample * (127 - soundchannels[i].Panning) / 1024; //Panning(mul N / 128) 16.18
+								Int64 next_right = next_sample * soundchannels[i].Panning / 1024;//  Rounding Down(strip 10bit) 16.8
+
+								if (i == 1)
+								{
+									value_left_1 = next_left;
+									value_right_1 = next_right;
+								}
+								else if (i == 3)
+								{
+									value_left_3 = next_left;
+									value_right_3 = next_right;
+								}
+
+								if (i == 1 && Output_Ch1_to_Mixer) continue; //(0=Yes, 1=No)
+								if (i == 3 && Output_Ch3_to_Mixer) continue; //(0=Yes, 1=No)
+								value_left += next_left;
+								value_right += next_right;
+							}
 						}
+
+						if (!capturehack)
+						{
+							switch (Left_Output_from)
+							{
+							case 0: value_left = value_left; break;
+							case 1: value_left = value_left_1; break;
+							case 2: value_left = value_left_3; break;
+							case 3: value_left = value_left_1 + value_left_3; break;
+							}
+							switch (Right_Output_from)
+							{
+							case 0: value_right = value_right; break;
+							case 1: value_right = value_right_1; break;
+							case 2: value_right = value_right_3; break;
+							case 3: value_right = value_right_1 + value_right_3; break;
+							}
+						}
+
+						value_left  = value_left  * Master_Volume / 0x20000; // Master Volume(mul N / 128 / 64) 14.21
+						value_right = value_right * Master_Volume / 0x20000; // Strip fraction                  14.0
+
+						// 8 Add Bias(0..3FFh, def = 200h)   15.0 - 2000h + 0 + 1FF0h + 3FFh
+						// 9 Clip(min / max 0h..3FFh)        10.0  0 + 3FFh
 					}
-					nextSamples.push(value);
+
+					nextSamples_left.push((Int32)value_left);
+					nextSamples_right.push((Int32)value_right);
 				}
 			}
 			SDL_UnlockMutex(nextSamples_lock);
@@ -79,19 +164,26 @@ void fill_audio(void* udata, Uint8* stream, int len)
 
 	if (SDL_LockMutex(soundGenerator->nextSamples_lock) == 0)
 	{
-		for (int n = 0; n < len; n += 2)
+		for (int n = 0; n < len; n += 4)
 		{
-			if (!soundGenerator->nextSamples.empty())
+			if (!soundGenerator->nextSamples_left.empty())
 			{
-				int valueInt = soundGenerator->nextSamples.front();
-				soundGenerator->nextSamples.pop();
-				stream[n] = (byte)(valueInt & 0xFF);
-				stream[n + 1] = (byte)(valueInt >> 8);
+				int valueInt_left = soundGenerator->nextSamples_left.front();
+				int valueInt_right = soundGenerator->nextSamples_right.front();
+
+				soundGenerator->nextSamples_left.pop();
+				soundGenerator->nextSamples_right.pop();
+				stream[n] = (byte)(valueInt_left & 0xFF);
+				stream[n + 1] = (byte)(valueInt_left >> 8);
+				stream[n + 2] = (byte)(valueInt_right & 0xFF);
+				stream[n + 3] = (byte)(valueInt_right >> 8);
 			}
 			else
 			{
 				stream[n] = 0;
 				stream[n + 1] = 0;
+				stream[n + 2] = 0;
+				stream[n + 3] = 0;
 			}
 		}
 		SDL_UnlockMutex(soundGenerator->nextSamples_lock);
