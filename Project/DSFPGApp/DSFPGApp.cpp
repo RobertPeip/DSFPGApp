@@ -24,6 +24,9 @@ uint framebuffer_raw_b[256 * 192];
 int screensizemult = 3;
 
 uint drawmode = 0;
+uint touchmode = 0;
+int touchposX = WIDTH / 2;
+int touchposY = HEIGHT / 2;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -204,7 +207,8 @@ void drawer()
 	const long frametime = (1000000 / 60);
 
 	UInt64 oldcycles = 0;
-	UInt64 oldcommands = 0;
+	UInt64 oldcommands9 = 0;
+	UInt64 oldcommands7 = 0;
 
 	bool running = true;
 	while (running)
@@ -235,6 +239,12 @@ void drawer()
 					framebuffer_raw2 = framebuffer_raw_a;
 				}
 				SDL_Rect copyrect;
+
+				SDL_DisplayMode DM;
+				SDL_GetCurrentDisplayMode(0, &DM);
+				int offset_x = 0;
+				int offset_y = 0;
+
 				if (drawmode == 0)
 				{
 					copyrect.x = 0; copyrect.y = 0; copyrect.w = WIDTH; copyrect.h = HEIGHT;
@@ -243,6 +253,17 @@ void drawer()
 					SDL_UpdateTexture(framebuffer1, &copyrect, framebuffer_raw2, WIDTH * sizeof(uint32_t));
 					SDL_RenderClear(renderer);
 					SDL_RenderCopy(renderer, framebuffer1, NULL, NULL);
+					if (touchmode > 0)
+					{
+						if (OSD.displaysize == 0)
+						{
+							int realwidth = screensizemult * WIDTH;
+							int realheight = screensizemult * HEIGHT * 2;
+							offset_x = (DM.w - realwidth) / 2;
+							offset_y = (DM.h - realheight) / 2;
+						}
+						SDL_WarpMouseInWindow(window, offset_x + touchposX * screensizemult, offset_y + touchposY * screensizemult + HEIGHT * screensizemult);
+					}
 				}
 				else if (drawmode == 1)
 				{
@@ -252,6 +273,17 @@ void drawer()
 					SDL_UpdateTexture(framebuffer2, &copyrect, framebuffer_raw2, WIDTH * sizeof(uint32_t));
 					SDL_RenderClear(renderer);
 					SDL_RenderCopy(renderer, framebuffer2, NULL, NULL);
+					if (touchmode > 0)
+					{
+						if (OSD.displaysize == 0)
+						{
+							int realwidth = screensizemult * WIDTH * 2;
+							int realheight = screensizemult * HEIGHT;
+							offset_x = (DM.w - realwidth) / 2;
+							offset_y = (DM.h - realheight) / 2;
+						}
+						SDL_WarpMouseInWindow(window, offset_x + touchposX * screensizemult + WIDTH * screensizemult, offset_y + touchposY * screensizemult);
+					}
 				}
 				else if (drawmode == 2)
 				{
@@ -265,6 +297,17 @@ void drawer()
 					framerect_src.x = 0;         framerect_src.y = 0; framerect_src.w = WIDTH; framerect_src.h = HEIGHT;
 					framerect_dst.x = WIDTH * 2; framerect_dst.y = HEIGHT / 2; framerect_dst.w = WIDTH; framerect_dst.h = HEIGHT;
 					SDL_RenderCopy(renderer, framebuffer4, &framerect_src, &framerect_dst);
+					if (touchmode > 0)
+					{
+						if (OSD.displaysize == 0)
+						{
+							int realwidth = screensizemult * WIDTH * 3;
+							int realheight = screensizemult * HEIGHT * 2;
+							offset_x = (DM.w - realwidth) / 2;
+							offset_y = (DM.h - realheight) / 2;
+						}
+						SDL_WarpMouseInWindow(window, offset_x + touchposX * screensizemult + WIDTH * screensizemult * 2, offset_y + touchposY * screensizemult + HEIGHT * screensizemult / 2);
+					}
 				}
 			}
 
@@ -386,62 +429,107 @@ void drawer()
 			{
 				gameboy.pause = false;
 
-				int mouse_x;
-				int mouse_y;
-				if (SDL_GetMouseState(&mouse_x, &mouse_y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+				switch (touchmode)
 				{
-					if (OSD.displaysize == 0)
+				case 0:
+					int mouse_x;
+					int mouse_y;
+					bool pressed;
+					Int32 xval;
+					Int32 yval;
+					if (SDL_GetMouseState(&mouse_x, &mouse_y) & SDL_BUTTON(SDL_BUTTON_LEFT))
 					{
-						int realwidth;
-						int realheight;
+						if (OSD.displaysize == 0)
+						{
+							int realwidth;
+							int realheight;
+							switch (drawmode)
+							{
+							case 0:
+								realwidth = screensizemult * WIDTH;
+								realheight = screensizemult * HEIGHT * 2;
+								break;
+							case 1:
+								realwidth = screensizemult * WIDTH * 2;
+								realheight = screensizemult * HEIGHT;
+								break;
+							case 2:
+								realwidth = screensizemult * WIDTH * 3;
+								realheight = screensizemult * HEIGHT * 2;
+								break;
+							}
+
+							SDL_DisplayMode DM;
+							SDL_GetCurrentDisplayMode(0, &DM);
+							mouse_x -= (DM.w - realwidth) / 2;
+							mouse_y -= (DM.h - realheight) / 2;
+						}
+
+						int realx = -1;
+						int realy = -1;
 						switch (drawmode)
 						{
 						case 0:
-							realwidth = screensizemult * WIDTH;
-							realheight = screensizemult * HEIGHT * 2;
+							realx = (mouse_x / screensizemult) - 1;
+							realy = (mouse_y / screensizemult) - 193;
 							break;
 						case 1:
-							realwidth = screensizemult * WIDTH * 2;
-							realheight = screensizemult * HEIGHT;
+							realx = (mouse_x / screensizemult) - 257;
+							realy = (mouse_y / screensizemult) - 1;
 							break;
 						case 2:
-							realwidth = screensizemult * WIDTH * 3;
-							realheight = screensizemult * HEIGHT * 2;
+							realx = (mouse_x / screensizemult) - (WIDTH * 2) - 1;
+							realy = (mouse_y / screensizemult) - (HEIGHT / 2) - 1;
 							break;
 						}
 
-						SDL_DisplayMode DM;
-						SDL_GetCurrentDisplayMode(0, &DM);
-						mouse_x -= (DM.w - realwidth) / 2;
-						mouse_y -= (DM.h - realheight) / 2;
+						if (realx >= 0 && realx < 256 && realy >= 0 && realy <= 192)
+						{
+							SPI_Intern.updateADCTouchPos(true, realx, realy);
+						}
 					}
-
-					int realx = -1;
-					int realy = -1;
-					switch (drawmode)
+					else
 					{
-					case 0:
-						realx = (mouse_x / screensizemult) - 1;
-						realy = (mouse_y / screensizemult) - 193;
-						break;
-					case 1:
-						realx = (mouse_x / screensizemult) - 257;
-						realy = (mouse_y / screensizemult) - 1;
-						break;
-					case 2:
-						realx = (mouse_x / screensizemult) - (WIDTH * 2) - 1;
-						realy = (mouse_y / screensizemult) - (HEIGHT / 2) - 1;
-						break;
+						SPI_Intern.updateADCTouchPos(false, 0, 0);
 					}
+					break;
 
-					if (realx >= 0 && realx < 256 && realy >= 0 && realy <= 192)
-					{
-						SPI_Intern.updateADCTouchPos(true, realx, realy);
-					}
-				}
-				else
-				{
-					SPI_Intern.updateADCTouchPos(false, 0, 0);
+				case 1:
+				case 2:
+					xval = (Int32)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+					yval = (Int32)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+					if (xval > -500 && xval < 500) xval = 0;
+					if (yval > -500 && yval < 500) yval = 0;
+					xval = WIDTH / 2 + (xval * (WIDTH / 2) / 0x8000);
+					yval = HEIGHT / 2 + (yval * (WIDTH / 2) / 0x8000);
+					if (xval < 0) xval = 0;
+					if (yval < 0) yval = 0;
+					if (xval > WIDTH) xval = WIDTH;
+					if (yval > HEIGHT) yval = HEIGHT;
+					pressed = true;
+					if (touchmode == 1) pressed = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 0;
+					SPI_Intern.updateADCTouchPos(pressed, xval, yval);
+					touchposX = xval;
+					touchposY = yval;
+					break;
+
+				case 3:
+				case 4:
+					xval = (Int32)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+					yval = (Int32)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+					if (xval > -500 && xval < 500) xval = 0;
+					if (yval > -500 && yval < 500) yval = 0;
+					touchposX += xval / 4000;
+					touchposY += yval / 4000;
+					if (touchposX < 0) touchposX = 0;
+					if (touchposY < 0) touchposY = 0;
+					if (touchposX > WIDTH) touchposX = WIDTH;
+					if (touchposY > HEIGHT) touchposY = HEIGHT;
+					pressed = true;
+					if (touchmode == 3) pressed = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 0;
+					SPI_Intern.updateADCTouchPos(pressed, touchposX, touchposY);
+					break;
+
 				}
 				//SPI_Intern.updateADCTouchPos(true, 50, 50);
 
@@ -460,7 +548,7 @@ void drawer()
 				Joypad.KeyUp = keystate[SDL_SCANCODE_UP] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
 				Joypad.KeyDown = keystate[SDL_SCANCODE_DOWN] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 
-				if (keystate[SDL_SCANCODE_ESCAPE] /*| SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK)*/ )
+				if (keystate[SDL_SCANCODE_ESCAPE] | SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK))
 				{
 					if (OSD.idle)
 					{
@@ -522,8 +610,13 @@ void drawer()
 					while (keystate[SDL_SCANCODE_M]) SDL_PumpEvents();
 					set_displaysize(OSD.displaysize, OSD.displaysize == 0);
 				}
+				if (keystate[SDL_SCANCODE_T])
+				{
+					touchmode = (touchmode + 1) % 5;
+					while (keystate[SDL_SCANCODE_T]) SDL_PumpEvents();
+				}
 
-				if (keystate[SDL_SCANCODE_SPACE] || keystate[SDL_SCANCODE_0] || SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y))
+				if (keystate[SDL_SCANCODE_SPACE] || keystate[SDL_SCANCODE_0] || (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 0))
 				{
 					GPU_A.lockSpeed = false;
 					GPU_A.frameskip = 10;
@@ -585,9 +678,15 @@ void drawer()
 			std::cout << " | AVG Cycles: " << (newcycles / (CPU9.commands - oldcommands)) << "\n";
 #endif
 			string title = std::to_string(100 * newcycles / 67027964);
-			if (GPU_A.swap) title += " ScreenSwapped ";
-			if (GPU_A.layerenable != 0x1F) title += " LayerA " + to_string(GPU_A.layerenable);
-			if (GPU_B.layerenable != 0x1F) title += " LayerB " + to_string(GPU_B.layerenable);
+			title += " | Touchmode " + to_string(touchmode);
+			if (GPU_A.swap) title += " | ScreenSwapped ";
+			if (GPU_A.layerenable != 0x1F) title += " | LayerA " + to_string(GPU_A.layerenable);
+			if (GPU_B.layerenable != 0x1F) title += " | LayerB " + to_string(GPU_B.layerenable);
+			title += " | AVG Cycles(9/7): ";
+			title += to_string((newcycles / (CPU9.commands - oldcommands9)));
+			title += " | ";
+			title += to_string((newcycles / (CPU7.commands - oldcommands7)));
+			
 			SDL_SetWindowTitle(window, title.c_str());
 
 			lastTime_second = SDL_GetPerformanceCounter();
@@ -602,7 +701,8 @@ void drawer()
 				GPU_A.intern_frames = 0;
 				GPU_A.videomode_frames = 0;
 				oldcycles = cpucycles;
-				oldcommands = CPU9.commands;
+				oldcommands9 = CPU9.commands;
+				oldcommands7 = CPU7.commands;
 				SDL_UnlockMutex(GPU_A.drawlock);
 			}
 		}

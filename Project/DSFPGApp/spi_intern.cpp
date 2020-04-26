@@ -260,11 +260,11 @@ void SPI_INTERN::updateADCTouchPos(bool touch, int touch_x, int touch_y)
 
 		adc_jitterctr = 0;
 	}
-	else
-	{
-		adc_x = 0;
-		adc_y = 0;
-	}
+	//else
+	//{
+	//	adc_x = 0;
+	//	adc_y = 0;
+	//}
 
 	Joypad.KeyPen = touched;
 }
