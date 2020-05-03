@@ -79,7 +79,6 @@ public:
 	void set_settings(int index);
 	void check_run(int index);
 	void work();
-	void request_audio(uint audioindex);
 	void request_cardtransfer(uint length);
 };
 extern Dma DMA;

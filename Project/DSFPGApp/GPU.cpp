@@ -1623,11 +1623,6 @@ void Gpu::draw_bg_mode4(Pixel pixelslocal[], bool wrap, UInt32 mapbase, Int32 re
 	int xxx = (realX >> 8);
 	int yyy = (realY >> 8);
 
-	if (yyy > 170)
-	{
-		int a = 5;
-	}
-
 	for (int x = 0; x < 256; x++)
 	{
 		if (wrap || xxx >= 0 && yyy >= 0 && xxx < 256 && yyy < 256)
@@ -2087,9 +2082,9 @@ void Gpu::draw_obj(int y, int baseaddr)
 											pixels_obj[target].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 											pixels_obj[target].transparent = transparent;
 											pixels_obj[target].undrawn = false;
+											pixels_obj[target].prio = prio;
+											pixels_obj[target].alpha = ((Atr0 >> 10) & 3) == 1;
 										}
-										pixels_obj[target].prio = prio;
-										pixels_obj[target].alpha = ((Atr0 >> 10) & 3) == 1;
 									}
 								}
 							}

@@ -3,8 +3,6 @@
 #include "DMA.h"
 #include "regs_arm9.h"
 #include "regs_arm7.h"
-#include "EEProm.h"
-#include "Flash.h"
 #include "GPU.h"
 #include "GPU_Timing.h"
 #include "gpio.h"
@@ -105,12 +103,7 @@ void MEMORY::GameRAMSnapshot()
 		int index = 0;
 		for (int i = 0; i < 131072; i++)
 		{
-			GameRamSnapshot[index] = Flash.flashSaveMemory[i];
-			index++;
-		}
-		for (int i = 0; i < 8192; i++)
-		{
-			GameRamSnapshot[index] = EEProm.eepromData[i];
+			//GameRamSnapshot[index] = Flash.flashSaveMemory[i];
 			index++;
 		}
 
@@ -132,12 +125,7 @@ void MEMORY::load_gameram(string gamename)
 		int index = 0;
 		for (int i = 0; i < 131072; i++)
 		{
-			Flash.flashSaveMemory[i] = GameRamSnapshot[index];
-			index++;
-		}
-		for (int i = 0; i < 8192; i++)
-		{
-			EEProm.eepromData[i] = GameRamSnapshot[index];
+			//Flash.flashSaveMemory[i] = GameRamSnapshot[index];
 			index++;
 		}
 	}

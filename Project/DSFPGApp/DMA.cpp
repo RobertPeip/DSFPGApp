@@ -412,29 +412,11 @@ void Dma::work()
 	new_MemDisplay = false;
 }
 
-void Dma::request_audio(uint audioindex)
-{
-	for (int i = 1; i < 3; i++)
-	{
-		if (DMAs[i].dMA_Enable && DMAs[i].waiting && DMAs[i].dMA_Start_Timing == 3)
-		{
-			if (audioindex + 1 == i)
-			{
-				DMAs[i].running = true;
-				DMAs[i].first = true;
-				DMAs[i].fullcount = DMAs[i].count;
-				DMAs[i].skipdebugout = true;
-				gameboy.reschedule = true;
-			}
-		}
-	}
-}
-
 void Dma::request_cardtransfer(uint length)
 {
 	for (int i = 0; i < 8; i++) // maybe only check right arm9/7?
 	{
-		if (DMAs[i].dMA_Enable && DMAs[i].waiting && DMAs[i].dMA_Start_Timing == 5)
+		if (DMAs[i].dMA_Enable && DMAs[i].waiting && ((i < 4 && DMAs[i].dMA_Start_Timing == 5) || (i >= 4 && DMAs[i].dMA_Start_Timing == 2)))
 		{
 			DMAs[i].running = true;
 			DMAs[i].first = true;

@@ -4,8 +4,6 @@
 #include "Memory.h"
 #include "regs_arm9.h"
 #include "regs_arm7.h"
-#include "Flash.h"
-#include "EEprom.h"
 #include "GPU.h"
 #include "GPU_Timing.h"
 #include "Sound.h"
@@ -34,8 +32,6 @@ void Gameboy::reset()
 	{
 		Regs_Arm9.reset();
 		Regs_Arm7.reset();
-		Flash.reset();
-		EEProm.reset();
 		GPU_A.reset(true);
 		GPU_B.reset(false);
 		Memory.reset(filename);

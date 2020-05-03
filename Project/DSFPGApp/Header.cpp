@@ -1,6 +1,5 @@
 #include "Header.h"
 #include "Memory.h"
-#include "Flash.h"
 
 HEADER Header;
 
@@ -19,15 +18,6 @@ void HEADER::read()
 	chipID = 0xC2;
 	chipID |= ((((128 << cardSize) / 1024) - 1) << 8); // Chip size in megabytes minus 1 (07h = 8MB, 0Fh = 16MB, 1Fh = 32MB, 3Fh = 64MB, 7Fh = 128MB)
 }
-
-//void HEADER::check_flash_size()
-//{
-//	byte bytes[] = { 'F', 'L', 'A', 'S', 'H', '1', 'M', '_', 'V' };
-//	if (FindArray(Memory.GameRom, Memory.GameRom_max, bytes, 9))
-//	{
-//		Flash.flashSetSize(0x20000);
-//	}
-//}
 
 bool HEADER::FindArray(byte* array, unsigned int arraylength,  byte* pattern, int patternlength)
 {

@@ -18,7 +18,6 @@ public:
 	uint chipID;
 
 	void read();
-	//void check_flash_size();
 	bool FindArray(byte* array, unsigned int arraylength, byte* pattern, int patternlength);
 };
 extern HEADER Header;

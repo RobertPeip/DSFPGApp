@@ -24,13 +24,10 @@
     <ClCompile Include="CPUCache.cpp" />
     <ClCompile Include="DMA.cpp" />
     <ClCompile Include="DSReg.cpp" />
-    <ClCompile Include="EEprom.cpp" />
     <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="Flash.cpp" />
     <ClCompile Include="DSFPGApp.cpp" />
     <ClCompile Include="gameboy.cpp" />
     <ClCompile Include="Gamecard.cpp" />
-    <ClCompile Include="gpio.cpp" />
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GPU_Timing.cpp" />
     <ClCompile Include="GXFifo.cpp" />
@@ -57,12 +54,9 @@
     <ClInclude Include="CPUCache.h" />
     <ClInclude Include="DMA.h" />
     <ClInclude Include="DSReg.h" />
-    <ClInclude Include="EEprom.h" />
     <ClInclude Include="FileIO.h" />
-    <ClInclude Include="Flash.h" />
     <ClInclude Include="gameboy.h" />
     <ClInclude Include="Gamecard.h" />
-    <ClInclude Include="gpio.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GPU_Timing.h" />
     <ClInclude Include="GXFifo.h" />
