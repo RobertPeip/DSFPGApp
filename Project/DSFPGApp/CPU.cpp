@@ -81,8 +81,8 @@ void cpustate::update(bool isArm9)
 	//this->memory03 = (*read_dword)(0x04000208); // master irp
 	//this->memory01 = (*read_dword)(0x04000200); // IME/IF
 
-	this->memory01 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
-	this->memory02 = CPU.lastAddress;
+	this->memory01 = 0; //(*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
+	this->memory02 = 0; //CPU.lastAddress;
 	//this->memory02 = GXFifo.fifo.size();
 	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000600);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
@@ -284,25 +284,32 @@ void Tracer::vcd_file_last()
 				fprintf(file, " %dO\n", cpuindex);
 			}
 			
-			if (i == 0 || state.flag_Negative != laststate.flag_Negative) fprintf(file, "b%s%dFN\n", std::bitset<1>(state.flag_Negative).to_string().c_str(), cpuindex);
-			if (i == 0 || state.flag_Carry != laststate.flag_Carry) fprintf(file, "b%s%dFC\n", std::bitset<1>(state.flag_Carry).to_string().c_str(), cpuindex);
-			if (i == 0 || state.flag_Zero != laststate.flag_Zero) fprintf(file, "b%s%dFZ\n", std::bitset<1>(state.flag_Zero).to_string().c_str(), cpuindex);
-			if (i == 0 || state.flag_V_Overflow != laststate.flag_V_Overflow) fprintf(file, "b%s%dFV\n", std::bitset<1>(state.flag_V_Overflow).to_string().c_str(), cpuindex);
-			if (i == 0 || state.flag_Q != laststate.flag_Q) fprintf(file, "b%s%dFQ\n", std::bitset<1>(state.flag_Q).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_Negative != laststate.flag_Negative) fprintf(file, "b%s %dFN\n", std::bitset<1>(state.flag_Negative).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_Carry != laststate.flag_Carry) fprintf(file, "b%s %dFC\n", std::bitset<1>(state.flag_Carry).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_Zero != laststate.flag_Zero) fprintf(file, "b%s %dFZ\n", std::bitset<1>(state.flag_Zero).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_V_Overflow != laststate.flag_V_Overflow) fprintf(file, "b%s %dFV\n", std::bitset<1>(state.flag_V_Overflow).to_string().c_str(), cpuindex);
+			if (i == 0 || state.flag_Q != laststate.flag_Q) fprintf(file, "b%s %dFQ\n", std::bitset<1>(state.flag_Q).to_string().c_str(), cpuindex);
 			
 			if (i == 0 || state.newticks != laststate.newticks)
 			{
 				fprintf(file, "b");
-				print_bits(file, (state.newticks - laststate.newticks), 16);
+				if (i == 0)
+				{
+					print_bits(file, state.newticks, 16);
+				}
+				else
+				{
+					print_bits(file, (state.newticks - laststate.newticks), 16);
+				}
 				fprintf(file, " %dTK\n", cpuindex);
 			}
 
-			if (i == 0 || state.busprefetch != laststate.busprefetch) fprintf(file, "b%s %dPF\n", std::bitset<12>(state.busprefetch).to_string().c_str(), cpuindex);
-			if (i == 0 || state.thumbmode != laststate.thumbmode) fprintf(file, "%s%dAT\n", std::bitset<1>(state.thumbmode).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.busprefetch != laststate.busprefetch) fprintf(file, "b%s %dPF\n", std::bitset<12>(state.busprefetch).to_string().c_str(), cpuindex);
+			if (i == 0 || state.thumbmode != laststate.thumbmode) fprintf(file, "b%s %dAT\n", std::bitset<1>(state.thumbmode).to_string().c_str(), cpuindex);
 			if (i == 0 || state.armmode != laststate.armmode) fprintf(file, "b%s %dM\n", std::bitset<8>(state.armmode).to_string().c_str(), cpuindex);
-			if (i == 0 || state.irpdisable != laststate.irpdisable) fprintf(file, "%s%dI\n", std::bitset<1>(state.irpdisable).to_string().c_str(), cpuindex);
+			if (i == 0 || state.irpdisable != laststate.irpdisable) fprintf(file, "b%s %dI\n", std::bitset<1>(state.irpdisable).to_string().c_str(), cpuindex);
 			if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s %dIF\n", std::bitset<32>(state.IF_intern).to_string().c_str(), cpuindex);
-			if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s %dIW\n", std::bitset<8>(state.irp_wait).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s %dIW\n", std::bitset<8>(state.irp_wait).to_string().c_str(), cpuindex);
 			
 			if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s %dT0\n", std::bitset<32>(state.timer0).to_string().c_str(), cpuindex);
 			if (i == 0 || state.timer1 != laststate.timer1) fprintf(file, "b%s %dT1\n", std::bitset<32>(state.timer1).to_string().c_str(), cpuindex);
@@ -317,14 +324,14 @@ void Tracer::vcd_file_last()
 			
 			if (i == 0 || state.R16 != laststate.R16) fprintf(file, "b%s %dR16\n", std::bitset<32>(state.R16).to_string().c_str(), cpuindex);
 			//if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s %dR17\n", std::bitset<32>(state.R17).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s %dR14u\n", std::bitset<32>(state.R14_USR).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s %dR13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R14_IRQ != laststate.R14_IRQ) fprintf(file, "b%s %dR14i\n", std::bitset<32>(state.R14_IRQ).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R13_SVC != laststate.R13_SVC) fprintf(file, "b%s %dR13s\n", std::bitset<32>(state.R13_SVC).to_string().c_str(), cpuindex);
-			if (i == 0 || state.R14_SVC != laststate.R14_SVC) fprintf(file, "b%s %dR14s\n", std::bitset<32>(state.R14_SVC).to_string().c_str(), cpuindex);
-			if (i == 0 || state.SPSR_IRQ != laststate.SPSR_IRQ) fprintf(file, "b%s %dSPi\n", std::bitset<32>(state.SPSR_IRQ).to_string().c_str(), cpuindex);
-			if (i == 0 || state.SPSR_SVC != laststate.SPSR_SVC) fprintf(file, "b%s %dSPs\n", std::bitset<32>(state.SPSR_SVC).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s %dR14u\n", std::bitset<32>(state.R14_USR).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s %dR13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R14_IRQ != laststate.R14_IRQ) fprintf(file, "b%s %dR14i\n", std::bitset<32>(state.R14_IRQ).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R13_SVC != laststate.R13_SVC) fprintf(file, "b%s %dR13s\n", std::bitset<32>(state.R13_SVC).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.R14_SVC != laststate.R14_SVC) fprintf(file, "b%s %dR14s\n", std::bitset<32>(state.R14_SVC).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.SPSR_IRQ != laststate.SPSR_IRQ) fprintf(file, "b%s %dSPi\n", std::bitset<32>(state.SPSR_IRQ).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.SPSR_SVC != laststate.SPSR_SVC) fprintf(file, "b%s %dSPs\n", std::bitset<32>(state.SPSR_SVC).to_string().c_str(), cpuindex);
 		}
 
 		i = (i + 1) % Tracelist_Length;
@@ -489,7 +496,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		return;
 	}
 
-#if DEBUG
+#if DEBUG && DESMUMECOMPATIBLE
 	//if (commands == 5645810) { newticks -= 0xE; }
 
 	if (thumbmode)
@@ -511,7 +518,11 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		} 
 		else if((PC & 0x0F000000) == 0x02000000)
 		{
-			if (!InstrCache.inCache(PC, true))
+			uint cachetest_addr = PC;
+#ifndef DESMUMECOMPATIBLE
+			cachetest_addr = PC_old;
+#endif
+			if (!InstrCache.inCache(cachetest_addr, true))
 			{
 				if (newticks <= 0x34)
 				{
@@ -526,6 +537,33 @@ void Cpu::nextInstr(UInt64 next_event_time)
 			{
 				totalticks += newticks;
 			}
+#ifdef FPGACOMPATIBLE
+			uint pipeline_addr = PC_old;
+			if (thumbmode) pipeline_addr += 2; else pipeline_addr += 4;
+			if (PC != pipeline_addr)
+			{
+				if ((pipeline_addr & 0x1F) == 0)
+				{
+					if (pipeline_addr == 0x02000860)
+					{
+						int a = 5;
+					}
+					InstrCache.inCache(pipeline_addr, true); // read further to make sure cache is updated because of pipeline
+				}
+				else
+				{
+					if (thumbmode) pipeline_addr += 2; else pipeline_addr += 4;
+					if ((pipeline_addr & 0x1F) == 0)
+					{
+						if (pipeline_addr == 0x02000860)
+						{
+							int a = 5;
+						}
+						InstrCache.inCache(pipeline_addr, true); // read further to make sure cache is updated because of pipeline
+					}
+				}
+			}
+#endif
 		}
 		else
 		{
@@ -1357,7 +1395,7 @@ void Cpu::arm_command()
 				{
 					SMUL((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 5) & 1) == 1, ((asmcmd >> 6) & 1) == 1);
 				}
-				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && (opcode_low & 0x9) == 0xC)
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && (opcode_low & 0xB) == 0xA)
 				{
 					SMULW((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 6) & 1) == 1);
 				}
@@ -1365,7 +1403,7 @@ void Cpu::arm_command()
 				{
 					SMLA((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 12) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 5) & 1) == 1, ((asmcmd >> 6) & 1) == 1);
 				}
-				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && (opcode_low & 0x9) == 0x8)
+				else if (isArm9 && (((asmcmd >> 20) & 0xFF) == 0x12) && (opcode_low & 0xB) == 0x8)
 				{
 					SMLAW((Byte)((asmcmd >> 16) & 0xF), (Byte)((asmcmd >> 12) & 0xF), (Byte)((asmcmd >> 8) & 0xF), (Byte)(asmcmd & 0xF), ((asmcmd >> 6) & 1) == 1);
 				}
@@ -1422,7 +1460,10 @@ void Cpu::arm_command()
 			break;
 
 		case 6:
-			coprocessor_data_transfer(((asmcmd >> 24) & 1), ((asmcmd >> 23) & 1), ((asmcmd >> 22) & 1), ((asmcmd >> 21) & 1), ((asmcmd >> 20) & 1), ((asmcmd >> 16) & 0xF), ((asmcmd >> 12) & 0xF), ((asmcmd >> 8) & 0xF), (asmcmd & 0xFF));
+			if (isArm9)
+			{
+				coprocessor_data_transfer(((asmcmd >> 24) & 1), ((asmcmd >> 23) & 1), ((asmcmd >> 22) & 1), ((asmcmd >> 21) & 1), ((asmcmd >> 20) & 1), ((asmcmd >> 16) & 0xF), ((asmcmd >> 12) & 0xF), ((asmcmd >> 8) & 0xF), (asmcmd & 0xFF));
+			}
 			break;
 
 		case 7:
@@ -1646,6 +1687,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 		if (R15set)
 		{
 			PC = (*read_dword)(ACCESSTYPE::CPUDATA, address & 0xFFFFFFFC);
+			regs[15] = PC;
 			newticks += BusTiming.dataTicksAccess32(isArm9, address & 0xFFFFFFFC, true, lastAddress);
 			address += 4;
 			if (!isArm9) newticks += 4;
@@ -3102,8 +3144,18 @@ void Cpu::SMLA(byte Rd, byte Rn, byte Rs, byte Rm, bool x, bool y)
 		mul2 = (Int16)(op2_val & 0xFFFF);
 	}
 
-	Int32 result = (Int32)mul1 * (Int32)mul2;
-	regs[Rd] = (UInt32)(result + op_add);
+	Int64 result = (Int64)mul1 * (Int64)mul2;
+	result = result + op_add;
+	if (result < -2147483648)
+	{
+		Flag_Q = true;
+	}
+	else if (result > 2147483647)
+	{
+		Flag_Q = true;
+	}
+	
+	regs[Rd] = (UInt32)result;
 
 	if (Rd == 15)
 	{
@@ -3135,7 +3187,17 @@ void Cpu::SMLAW(byte Rd, byte Rn, byte Rs, byte Rm, bool y)
 	}
 
 	Int64 result = (Int64)op1_val * (Int64)mul2;
-	regs[Rd] = (UInt32)((result >> 16) + op_add);
+	result = (result >> 16) + op_add;
+	if (result < -2147483648)
+	{
+		Flag_Q = true;
+	}
+	else if (result > 2147483647)
+	{
+		Flag_Q = true;
+	}
+
+	regs[Rd] = (UInt32)result;
 
 	if (Rd == 15)
 	{
@@ -3176,6 +3238,8 @@ void Cpu::SMLAL(byte RdHi, byte RdLo, byte Rs, byte Rm, bool x, bool y)
 
 	Int32 result = (Int32)mul1 * (Int32)mul2;
 	Int64 Rdvalue = (Int64)((((UInt64)regs[RdHi]) << 32) | (UInt64)regs[RdLo]);
+
+	Rdvalue = Rdvalue + result;
 
 	regs[RdHi] = (UInt32)(Rdvalue >> 32);
 	regs[RdLo] = (UInt32)(Rdvalue);

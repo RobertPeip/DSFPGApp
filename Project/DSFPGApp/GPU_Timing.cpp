@@ -129,6 +129,18 @@ void GPUTiming::work()
 				localticks += 12;
 				next_event_time = localticks + 84;
 				gpustate = GPUState::VBLANK_HIRQ;
+
+				if (vcount_irp_next9)
+				{
+					vcount_irp_next9 = false;
+					IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match);
+				}
+				if (vcount_irp_next7)
+				{
+					vcount_irp_next7 = false;
+					IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match);
+				}
+
 				if (line == 192)
 				{
 					DMA.new_vblank = true;

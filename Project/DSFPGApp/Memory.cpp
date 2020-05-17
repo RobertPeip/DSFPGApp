@@ -245,7 +245,7 @@ byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 	Memory.unreadable = false;
 	uint adr;
 
-	if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+	if (accesstype == ACCESSTYPE::CPUDATA && (address & (~0x3FFF)) == Co15.DTCMRegion)
 	{
 		return Memory.DTCM[address & 0x3FFF];
 	}
@@ -296,7 +296,7 @@ byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 			return Memory.read_unreadable_byte(address & 1);
 		}
 
-	case 5: return Memory.PaletteRAM[address & 0x3FF];
+	case 5: return Memory.PaletteRAM[address & 0x7FF];
 
 	case 6:
 		adr = Memory.get_vram_address(true, address);
@@ -306,7 +306,7 @@ byte read_byte_9(ACCESSTYPE accesstype, UInt32 address)
 		}
 		return 0;
 
-	case 7: return Memory.OAMRAM[address & 0x3FF];
+	case 7: return Memory.OAMRAM[address & 0x7FF];
 
 	case 0xF: return Memory.Bios9[address & 0xFFF];
 
@@ -324,7 +324,7 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 	address = address & 0xFFFFFFFE;
 	uint adr;
 
-	if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+	if (accesstype == ACCESSTYPE::CPUDATA && (address & (~0x3FFF)) == Co15.DTCMRegion)
 	{
 		value = *(UInt16*)&Memory.DTCM[address & 0x3FFF];
 	}
@@ -389,7 +389,7 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 			}
 			break;
 
-		case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x3FF]; break;
+		case 5: value = *(UInt16*)&Memory.PaletteRAM[address & 0x7FF]; break;
 
 		case 6:
 			adr = Memory.get_vram_address(true, address);
@@ -399,7 +399,7 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 			}
 			break;
 
-		case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x3FF]; break;
+		case 7: value = *(UInt16*)&Memory.OAMRAM[address & 0x7FF]; break;
 
 		case 0xFF: value = *(UInt16*)&Memory.Bios9[address & 0xFFF]; break;
 
@@ -430,7 +430,7 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 	address = address & 0xFFFFFFFC;
 	uint adr;
 
-	if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+	if (accesstype == ACCESSTYPE::CPUDATA && (address & (~0x3FFF)) == Co15.DTCMRegion)
 	{
 		value = *(UInt32*)&Memory.DTCM[address & 0x3FFF];
 	}
@@ -484,7 +484,7 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 			}
 			break;
 
-		case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x3FF]; break;
+		case 5: value = *(UInt32*)&Memory.PaletteRAM[address & 0x7FF]; break;
 
 		case 6:
 			adr = Memory.get_vram_address(true, address);
@@ -494,7 +494,7 @@ UInt32 read_dword_9(ACCESSTYPE accesstype, UInt32 address)
 			}
 			break;
 
-		case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x3FF]; break;
+		case 7: value = *(UInt32*)&Memory.OAMRAM[address & 0x7FF]; break;
 
 		case 0xFF: value = *(UInt32*)&Memory.Bios9[address & 0xFFF]; break;
 
@@ -520,7 +520,7 @@ void write_byte_9(ACCESSTYPE accesstype, UInt32 address, byte data)
 {
 	uint adr;
 
-	if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+	if (accesstype == ACCESSTYPE::CPUDATA && (address & (~0x3FFF)) == Co15.DTCMRegion)
 	{
 		adr = address & 0x3FFF;
 		Memory.DTCM[adr] = (byte)(data & 0xFF);
@@ -580,7 +580,7 @@ void write_word_9(ACCESSTYPE accesstype, UInt32 address, UInt16 data)
 	address = address & 0xFFFFFFFE;
 	uint adr;
 
-	if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+	if (accesstype == ACCESSTYPE::CPUDATA && (address & (~0x3FFF)) == Co15.DTCMRegion)
 	{
 		adr = address & 0x3FFF;
 		Memory.DTCM[adr] = (byte)(data & 0xFF);
@@ -668,7 +668,7 @@ void write_dword_9(ACCESSTYPE accesstype, UInt32 address, UInt32 data)
 	address = address & 0xFFFFFFFC;
 	uint adr;
 
-	if ((address & (~0x3FFF)) == Co15.DTCMRegion)
+	if (accesstype == ACCESSTYPE::CPUDATA && (address & (~0x3FFF)) == Co15.DTCMRegion)
 	{
 		adr = address & 0x3FFF;
 		Memory.DTCM[adr] = (byte)(data & 0xFF);
@@ -1005,7 +1005,7 @@ UInt32 read_dword_7(ACCESSTYPE accesstype, UInt32 address)
 		{
 			switch (Memory.wrammux)
 			{
-			case 0:  adr = address & 0xFFFF; value = *(UInt32*)&Memory.WRAM_Small_64[adr];; break;
+			case 0:  adr = address & 0xFFFF; value = *(UInt32*)&Memory.WRAM_Small_64[adr]; break;
 			case 1:  adr = address & 0x3FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr]; break;
 			case 2:  adr = address & 0x3FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr + 16384]; break;
 			case 3:  adr = address & 0x7FFF; value = *(UInt32*)&Memory.WRAM_Small_32[adr]; break;
@@ -1435,6 +1435,8 @@ void MEMORY::write_DSReg7(UInt32 adr, UInt32 value, bool dwaccess)
 
 void MEMORY::set_vrammode()
 {
+	wrammux = Regs_Arm9.Sect_system9.MemControl2_WRAM.read();
+
 	uint mst_a = Regs_Arm9.Sect_system9.MemControl1_VRAM_A_MST.read();
 	uint mst_b = Regs_Arm9.Sect_system9.MemControl1_VRAM_B_MST.read();
 	uint mst_c = Regs_Arm9.Sect_system9.MemControl1_VRAM_C_MST.read();

@@ -20,6 +20,7 @@ void SPI_INTERN::reset()
 	firmware_address = 0;
 	firmware_wordcnt = 0;
 
+	powerman_control = 0;
 	powerman_regs[0] = 0x0D;
 	powerman_regs[1] = 0x00;
 	powerman_regs[2] = 0x01;
@@ -48,14 +49,14 @@ void SPI_INTERN::check_reset(UInt16 value)
 
 void SPI_INTERN::write_data(UInt16 value)
 {
-	if (value == 0)
-	{
-		Regs_Arm7.Sect_system7.SPIDATA.write(lastcommand);
-	}
-	else
-	{
-		lastcommand = value;
-	}
+	//if (value == 0)
+	//{
+	//	Regs_Arm7.Sect_system7.SPIDATA.write(lastcommand);
+	//}
+	//else
+	//{
+	//	lastcommand = value;
+	//}
 
 	UInt16 retval = value;
 
@@ -97,7 +98,6 @@ void SPI_INTERN::write_data(UInt16 value)
 
 	case 2:
 		UInt16 scratch;
-		int path = 0;
 		switch (Regs_Arm7.Sect_system7.SPIDATA_Channel_Select.read())
 		{
 		case 0: // Temperature 0 (requires calibration, step 2.1mV per 1'C accuracy)
@@ -114,7 +114,7 @@ void SPI_INTERN::write_data(UInt16 value)
 				break;
 			}
 			retval = ((716 << 3) & 0x7FF);
-			first = 1;
+			first = true;
 			break;
 
 		case 1: // Touchscreen Y - Position(somewhat 0B0h..F20h, or FFFh = released)
@@ -146,7 +146,7 @@ void SPI_INTERN::write_data(UInt16 value)
 			break;
 
 		case 2: // Battery Voltage(not used, connected to GND in NDS, always 000h)
-			path = 2;
+			retval = 0;
 			break;
 
 		case 3: // Touchscreen Z1 - Position(diagonal position for pressure measurement)
@@ -205,7 +205,7 @@ void SPI_INTERN::write_data(UInt16 value)
 			break;
 
 		case 6: // AUX Input(connected to Microphone in the NDS)
-			path = 6;
+			retval = 0;
 			break;
 
 		case 7: // Temperature 1 (difference to Temp 0, without calibration, 2'C accuracy)

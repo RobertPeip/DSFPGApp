@@ -67,7 +67,9 @@ void Gameboy::reset()
 	CPU9.PC = Header.ARM9_CODE_PC;
 	CPU7.PC = Header.ARM7_CODE_PC;
 
+#if DESMUMECOMPATIBLE
 	InstrCache.inCache(CPU9.PC, true); // fetch first instruction
+#endif
 
 	on = true;
 	pause = false;
@@ -105,14 +107,14 @@ void Gameboy::run()
 		reschedule = false;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 13811)
+		if (tracer.traclist_ptr == 24644)
 		//if (tracer.commands == 1)
 		{
 			int stop = 1;
 		}
 		UInt64 startticks = totalticks;
 #endif
-		while (totalticks < nexteventtotal && !reschedule)
+		//while (totalticks < nexteventtotal && !reschedule)
 		{
 #if DEBUG
 			UInt64 runticks = totalticks - startticks;
@@ -144,7 +146,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 134800000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 100000;
@@ -162,7 +164,7 @@ void Gameboy::run()
 			if (tracer.runmoretrace == 0)
 			{
 				tracer.runmoretrace = -1;
-				tracer.vcd_file_last();
+				//tracer.vcd_file_last();
 			}
 		}
 		tracer.commands++;

@@ -11,7 +11,6 @@ public:
 	byte memoryWait16Arm7[16] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x08, 0x08, 0x08, 0x01, 0x01, 0x01, 0x01, 0x01 };
 
 	void reset();
-	void update(UInt16 value);
 	int dataTicksAccess816(bool isArm9, bool is8Bit, UInt32 address, bool isRead, uint& lastAddress); // DATA 8/16bits NON SEQ
 	int dataTicksAccess32(bool isArm9, UInt32 address, bool isRead, uint& lastAddress); // DATA 32bits NON SE
 	int codeTicksAccess16(bool isArm9, UInt32 address); // THUMB NON SEQ

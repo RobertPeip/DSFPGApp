@@ -12,10 +12,6 @@ void BUSTiming::reset()
 {
 }
 
-void BUSTiming::update(UInt16 value)
-{
-}
-
 int BUSTiming::dataTicksAccess816(bool isArm9, bool is8Bit, UInt32 address, bool isRead, uint& lastAddress) // DATA 8/16bits NON SEQ
 {
 	UInt32 addr = (address >> 24) & 15;

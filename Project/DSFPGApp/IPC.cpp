@@ -121,13 +121,23 @@ void IPC::writefifo(uint value)
 {
 	bool recempty = fifo.empty();
 
-	fifo.push(value);
-	IPC9to7.update_status();
-	IPC7to9.update_status();
-
-	if (recempty)
+	if (Enable_Send_Receive_Fifo.on())
 	{
-		IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Recv_FIFO_Not_Empty);
+		if (fifo.size() == 16)
+		{
+			readWriteError = 1;
+		}
+		else
+		{
+			fifo.push(value);
+			IPC9to7.update_status();
+			IPC7to9.update_status();
+
+			if (recempty)
+			{
+				IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Recv_FIFO_Not_Empty);
+			}
+		}
 	}
 
 	gameboy.reschedule = true; // probably not required
@@ -139,7 +149,8 @@ uint IPC::readfifo()
 
 	if (fifo.empty())
 	{
-		return 0;
+		return 0; // should return the last value, unless fifo was cleared
+		readWriteError = 1;
 	}
 	else
 	{
