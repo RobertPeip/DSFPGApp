@@ -49,14 +49,14 @@ void SPI_INTERN::check_reset(UInt16 value)
 
 void SPI_INTERN::write_data(UInt16 value)
 {
-	//if (value == 0)
-	//{
-	//	Regs_Arm7.Sect_system7.SPIDATA.write(lastcommand);
-	//}
-	//else
-	//{
-	//	lastcommand = value;
-	//}
+	if (value == 0)
+	{
+		Regs_Arm7.Sect_system7.SPIDATA.write(lastcommand);
+	}
+	else
+	{
+		lastcommand = value;
+	}
 
 	UInt16 retval = value;
 
