@@ -360,27 +360,17 @@ UInt32 read_word_9(ACCESSTYPE accesstype, UInt32 address)
 			{
 				adr = address & 0x1FFF;
 
-				if (adr == Regs_Arm9.Sect_dma9.DMA0CNT_L.address ||
-					adr == Regs_Arm9.Sect_dma9.DMA1CNT_L.address ||
-					adr == Regs_Arm9.Sect_dma9.DMA2CNT_L.address ||
-					adr == Regs_Arm9.Sect_dma9.DMA3CNT_L.address)
+				UInt16 rwmask = *(UInt16*)&Regs_Arm9.rwmask[adr & 0x3FFE];
+
+				if (rwmask == 0)
 				{
-					return 0;
+					value = Memory.read_unreadable_word();
 				}
 				else
 				{
-					UInt16 rwmask = *(UInt16*)&Regs_Arm9.rwmask[adr & 0x3FFE];
-
-					if (rwmask == 0)
-					{
-						value = Memory.read_unreadable_word();
-					}
-					else
-					{
-						Memory.prepare_read_DSReg9(adr);
-						value = *(UInt16*)&Regs_Arm9.data[adr];
-						value &= rwmask;
-					}
+					Memory.prepare_read_DSReg9(adr);
+					value = *(UInt16*)&Regs_Arm9.data[adr];
+					value &= rwmask;
 				}
 			}
 			else
@@ -909,28 +899,17 @@ UInt32 read_word_7(ACCESSTYPE accesstype, UInt32 address)
 		{
 			adr = address & 0xFFF;
 
-			if (adr == Regs_Arm7.Sect_dma7.DMA0CNT_L.address ||
-				adr == Regs_Arm7.Sect_dma7.DMA1CNT_L.address ||
-				adr == Regs_Arm7.Sect_dma7.DMA2CNT_L.address ||
-				adr == Regs_Arm7.Sect_dma7.DMA3CNT_L.address || 
-				adr == Regs_Arm7.Sect_system7.RTC_reg.address)
+			UInt16 rwmask = *(UInt16*)&Regs_Arm7.rwmask[adr & 0x3FFE];
+
+			if (rwmask == 0)
 			{
-				return 0;
+				value = Memory.read_unreadable_word();
 			}
 			else
 			{
-				UInt16 rwmask = *(UInt16*)&Regs_Arm7.rwmask[adr & 0x3FFE];
-
-				if (rwmask == 0)
-				{
-					value = Memory.read_unreadable_word();
-				}
-				else
-				{
-					Memory.prepare_read_DSReg7(adr);
-					value = *(UInt16*)&Regs_Arm7.data[adr];
-					value &= rwmask;
-				}
+				Memory.prepare_read_DSReg7(adr);
+				value = *(UInt16*)&Regs_Arm7.data[adr];
+				value &= rwmask;
 			}
 		}
 		else

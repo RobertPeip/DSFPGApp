@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <bitset>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 #include "CPU.h"
@@ -84,10 +86,17 @@ void cpustate::update(bool isArm9)
 	this->memory01 = 0; //(*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000000); // display settings
 	this->memory02 = 0; //CPU.lastAddress;
 	//this->memory02 = GXFifo.fifo.size();
-	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000600);
+	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040000DC);
 	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
 
-	this->debug_dmatranfers = DMA.debug_dmatranfers;
+	if (isArm9)
+	{
+		this->debug_dmatranfers = DMA.debug_dmatranfers9;
+	}
+	else
+	{
+		this->debug_dmatranfers = DMA.debug_dmatranfers7;
+	}
 
 	R16 = CPU.get_CPSR();
 	R17 = CPU.regs[17];
@@ -183,9 +192,15 @@ void print_bits(FILE* file, uint value, int bits)
 	}
 }
 
-void Tracer::vcd_file_last()
+void Tracer::vcd_file_last(int startpos)
 {
-	FILE* file = fopen("R:\\debug.vcd", "w");
+	stringstream sstream;
+	sstream << setw(8) << setfill('0') << hex << startpos;
+	string result = sstream.str();
+
+	string filename = "R:\\debug_" + result;
+	filename += ".vcd";
+	FILE* file = fopen(filename.c_str(), "w");
 
 	fprintf(file, "$date Feb 29, 2134 $end\n");
 	fprintf(file, "$version 0.1 $end\n");
@@ -249,7 +264,7 @@ void Tracer::vcd_file_last()
 	int i = 0;
 	while (true)
 	{
-		fprintf(file, "#%d\n", i); //timestamp
+		fprintf(file, "#%d\n", i + startpos); //timestamp
 
 		for (int cpuindex = 0; cpuindex < 2; cpuindex++)
 		{
@@ -295,11 +310,11 @@ void Tracer::vcd_file_last()
 				fprintf(file, "b");
 				if (i == 0)
 				{
-					print_bits(file, state.newticks, 16);
+					print_bits(file, state.newticks, 32);
 				}
 				else
 				{
-					print_bits(file, (state.newticks - laststate.newticks), 16);
+					print_bits(file, (state.newticks - laststate.newticks), 32);
 				}
 				fprintf(file, " %dTK\n", cpuindex);
 			}
@@ -324,14 +339,14 @@ void Tracer::vcd_file_last()
 			
 			if (i == 0 || state.R16 != laststate.R16) fprintf(file, "b%s %dR16\n", std::bitset<32>(state.R16).to_string().c_str(), cpuindex);
 			//if (i == 0 || state.R17 != laststate.R17) fprintf(file, "b%s %dR17\n", std::bitset<32>(state.R17).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s %dR14u\n", std::bitset<32>(state.R14_USR).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s %dR13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.R14_IRQ != laststate.R14_IRQ) fprintf(file, "b%s %dR14i\n", std::bitset<32>(state.R14_IRQ).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.R13_SVC != laststate.R13_SVC) fprintf(file, "b%s %dR13s\n", std::bitset<32>(state.R13_SVC).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.R14_SVC != laststate.R14_SVC) fprintf(file, "b%s %dR14s\n", std::bitset<32>(state.R14_SVC).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.SPSR_IRQ != laststate.SPSR_IRQ) fprintf(file, "b%s %dSPi\n", std::bitset<32>(state.SPSR_IRQ).to_string().c_str(), cpuindex);
-			//if (i == 0 || state.SPSR_SVC != laststate.SPSR_SVC) fprintf(file, "b%s %dSPs\n", std::bitset<32>(state.SPSR_SVC).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R13_USR != laststate.R13_USR) fprintf(file, "b%s %dR13u\n", std::bitset<32>(state.R13_USR).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R14_USR != laststate.R14_USR) fprintf(file, "b%s %dR14u\n", std::bitset<32>(state.R14_USR).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R13_IRQ != laststate.R13_IRQ) fprintf(file, "b%s %dR13i\n", std::bitset<32>(state.R13_IRQ).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R14_IRQ != laststate.R14_IRQ) fprintf(file, "b%s %dR14i\n", std::bitset<32>(state.R14_IRQ).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R13_SVC != laststate.R13_SVC) fprintf(file, "b%s %dR13s\n", std::bitset<32>(state.R13_SVC).to_string().c_str(), cpuindex);
+			if (i == 0 || state.R14_SVC != laststate.R14_SVC) fprintf(file, "b%s %dR14s\n", std::bitset<32>(state.R14_SVC).to_string().c_str(), cpuindex);
+			if (i == 0 || state.SPSR_IRQ != laststate.SPSR_IRQ) fprintf(file, "b%s %dSPi\n", std::bitset<32>(state.SPSR_IRQ).to_string().c_str(), cpuindex);
+			if (i == 0 || state.SPSR_SVC != laststate.SPSR_SVC) fprintf(file, "b%s %dSPs\n", std::bitset<32>(state.SPSR_SVC).to_string().c_str(), cpuindex);
 		}
 
 		i = (i + 1) % Tracelist_Length;
@@ -442,6 +457,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 	newticks = 0;
 
 	PC_old = PC;
+	bool old_thumb = thumbmode;
 
 	//if (irpnext && !IRQ_disable)
 	//{
@@ -496,9 +512,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		return;
 	}
 
-#if DEBUG && DESMUMECOMPATIBLE
-	//if (commands == 5645810) { newticks -= 0xE; }
-
+#ifdef DESMUMECOMPATIBLE
 	if (thumbmode)
 	{
 		regs[15] = PC + 4;
@@ -508,17 +522,32 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		regs[15] = PC + 8;
 	}
 #endif
+#ifdef FPGACOMPATIBLE
+	if (old_thumb)
+	{
+		regs[15] = PC_old + 2;
+	}
+	else
+	{
+		regs[15] = PC_old + 4;
+	}
+#endif
+
+	uint fetch_pc = PC;
+#ifdef FPGACOMPATIBLE
+	fetch_pc = PC_old;
+#endif
 
 	if (isArm9)
 	{
-		if (PC < 0x02000000)
+		if (fetch_pc < 0x02000000)
 		{
-			lastfetchAddress = PC;
+			lastfetchAddress = fetch_pc;
 			totalticks += newticks;
 		} 
-		else if((PC & 0x0F000000) == 0x02000000)
+		else if((fetch_pc & 0x0F000000) == 0x02000000)
 		{
-			uint cachetest_addr = PC;
+			uint cachetest_addr = fetch_pc;
 #ifndef DESMUMECOMPATIBLE
 			cachetest_addr = PC_old;
 #endif
@@ -526,7 +555,8 @@ void Cpu::nextInstr(UInt64 next_event_time)
 			{
 				if (newticks <= 0x34)
 				{
-					totalticks += 0x34;
+					newticks = 0x34;
+					totalticks += newticks;
 				}
 				else
 				{
@@ -572,12 +602,12 @@ void Cpu::nextInstr(UInt64 next_event_time)
 			{
 				//if (!(PC == PC_old + 2 && (PC & 2)))
 				//{
-					fetchticks = BusTiming.memoryWait32Arm9[(PC >> 24) & 15];
-					if (PC != lastfetchAddress + 4)
+					fetchticks = BusTiming.memoryWait32Arm9[(fetch_pc >> 24) & 15];
+					if ((fetch_pc & 0xFFFFFFFC) != lastfetchAddress + 4)
 					{
 						fetchticks += 6;
 					}
-					lastfetchAddress = PC & 0xFFFFFFFC;
+					lastfetchAddress = fetch_pc & 0xFFFFFFFC;
 				//}
 				//else
 				//{
@@ -586,14 +616,15 @@ void Cpu::nextInstr(UInt64 next_event_time)
 			}
 			else
 			{
-				fetchticks = BusTiming.memoryWait32Arm9[(PC >> 24) & 15];
-				if (PC != lastfetchAddress + 4)
+				fetchticks = BusTiming.memoryWait32Arm9[(fetch_pc >> 24) & 15];
+				if (fetch_pc != lastfetchAddress + 4)
 				{
 					fetchticks += 6;
 				}
-				lastfetchAddress = PC;
+				lastfetchAddress = fetch_pc;
 			}
-			totalticks += max(fetchticks, newticks);
+			newticks = max(fetchticks, newticks);
+			totalticks += newticks;
 		}
 	}
 	else
@@ -601,14 +632,15 @@ void Cpu::nextInstr(UInt64 next_event_time)
 		int fetchticks = 0;
 		if (thumbmode)
 		{
-			fetchticks = BusTiming.codeTicksAccessSeq16(isArm9, PC);
+			fetchticks = BusTiming.codeTicksAccessSeq16(isArm9, fetch_pc);
 		}
 		else
 		{
-			fetchticks = BusTiming.codeTicksAccessSeq32(isArm9, PC);
+			fetchticks = BusTiming.codeTicksAccessSeq32(isArm9, fetch_pc);
 		}
 		if (newticks < fetchticks) newticks = fetchticks;
-		totalticks += newticks * 2;
+		newticks *= 2;
+		totalticks += newticks;
 	}
 }
 
@@ -1360,13 +1392,20 @@ void Cpu::arm_command()
 				Rdest = (Byte)((asmcmd >> 12) & 0xF);   // bit 15..12
 				OP2 = (UInt16)(asmcmd & 0xFFF);   // bit 11..0
 				RM_op2 = (Byte)(asmcmd & 0xF);   // bit 3..0
-				if (((asmcmd >> 22) & 1) == 1) // immidiate offset
+				if (isArm9 && (opcode_low == 0xD || opcode_low == 0xF) && ((asmcmd >> 20) & 1) == 0)
 				{
-					halfword_data_transfer(opcode_mid, opcode_low, updateflags, Rn_op1, Rdest, (UInt32)(((OP2 >> 4) & 0xF0) | RM_op2));
+					LDRD_STRD(((asmcmd >> 24) & 1) == 1, ((asmcmd >> 23) & 1) == 1, ((asmcmd >> 22) & 1) == 1, ((asmcmd >> 21) & 1) == 1, ((asmcmd >> 5) & 1) == 1, Rn_op1, Rdest, (Byte)((asmcmd >> 8) & 0xF), RM_op2);
 				}
-				else // register offset
+				else
 				{
-					halfword_data_transfer(opcode_mid, opcode_low, updateflags, Rn_op1, Rdest, regs[RM_op2]);
+					if (((asmcmd >> 22) & 1) == 1) // immidiate offset
+					{
+						halfword_data_transfer(opcode_mid, opcode_low, updateflags, Rn_op1, Rdest, (UInt32)(((OP2 >> 4) & 0xF0) | RM_op2));
+					}
+					else // register offset
+					{
+						halfword_data_transfer(opcode_mid, opcode_low, updateflags, Rn_op1, Rdest, regs[RM_op2]);
+					}
 				}
 				break;
 
@@ -1527,14 +1566,14 @@ void Cpu::software_interrupt()
 	if (old_thumb)
 	{
 		PC = irpTarget + 6; // will be 8 after end of thumb command
-		newticks = 3;
 	}
 	else
 	{
 		PC = irpTarget + 4; // will be 8 after end of arm command
-		newticks = BusTiming.codeTicksAccessSeq32(isArm9, PC) + 1;
-		newticks = newticks + BusTiming.codeTicksAccess32(isArm9, PC) + 1;
+		//newticks = BusTiming.codeTicksAccessSeq32(isArm9, PC) + 1;
+		//newticks = newticks + BusTiming.codeTicksAccess32(isArm9, PC) + 1;
 	}
+	newticks = 3;
 
 	thumbmode = false;
 	IRQ_disable = true;
@@ -1587,6 +1626,8 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 	bool pre = (opcode & 8) == 8;
 	bool usermode_regs = false;
 	bool writeback_in_reglist = false;
+
+	bool arm9_writeback = false;
 
 	// should only happen in priviledged mode
 	if ((opcode & 2) == 2) // PSR & force user bit
@@ -1662,6 +1703,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				if (i == Rn_op1)
 				{
 					writeback_in_reglist = true;
+					if (reglist > 1 || (first && reglist == 1)) arm9_writeback = true; // writeback if Rb is "the ONLY register, or NOT the LAST register" in Rlist
 				}
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{
@@ -1768,7 +1810,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 	}
 	Memory.blockcmd_lowerbits = 0;
 
-	if ((opcode & 1) == 1 && !writeback_in_reglist) //writeback
+	if ((opcode & 1) == 1 && (!writeback_in_reglist || arm9_writeback)) //writeback
 	{
 		if (pre)
 		{
@@ -3247,6 +3289,81 @@ void Cpu::SMLAL(byte RdHi, byte RdLo, byte Rs, byte Rm, bool x, bool y)
 	newticks = 2;
 }
 
+void Cpu::LDRD_STRD(bool pre, bool up, bool immidate, bool writeback, bool iswrite, byte Rn, byte Rd, byte addr_mode_hi, byte addr_mode_lo)
+{
+	UInt32 imm_value = 0;
+	if (immidate)
+	{
+		imm_value = addr_mode_hi << 4 | addr_mode_lo;
+	}
+	else
+	{
+		imm_value = regs[addr_mode_lo];
+	}
+
+	UInt32 address = regs[Rn];
+	if (pre) //pre
+	{
+		if (up) //up
+		{
+			address += imm_value;
+		}
+		else
+		{
+			address -= imm_value;
+		}
+	}
+
+	if ((Rd & 0x1) == 0 && Rd < 14)
+	{
+		if (!iswrite) // load
+		{
+			regs[Rd] = (*read_dword)(ACCESSTYPE::CPUDATA, address);
+			newticks = BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
+			Rd++;
+			address += 4;
+			regs[Rd] = (*read_dword)(ACCESSTYPE::CPUDATA, address);
+			newticks += BusTiming.dataTicksAccess32(isArm9, address, true, lastAddress);
+			address -= 4;
+		}
+		else
+		{
+			uint value = regs[Rd];
+			newticks = BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
+			(*write_dword)(ACCESSTYPE::CPUDATA, address, value);
+			Rd++;
+			address += 4;
+			value = regs[Rd];
+			newticks += BusTiming.dataTicksAccess32(isArm9, address, false, lastAddress);
+			(*write_dword)(ACCESSTYPE::CPUDATA, address, value);
+			address -= 4;
+		}
+
+		if (!isArm9) newticks += 3;
+		if (newticks < 3) newticks = 3;
+
+		if (!pre) //post
+		{
+			if (up == 4) //up
+			{
+				address += imm_value;
+			}
+			else
+			{
+				address -= imm_value;
+			}
+		}
+
+		if (!pre || writeback) //writeback
+		{
+			if (Rn != Rd || writeback) // when storing, result address can be written
+			{
+				regs[Rn] = address;
+			}
+		}
+	}
+}
+
 void Cpu::coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset)
 {
 	int br = 1;
@@ -3274,13 +3391,13 @@ void Cpu::coprocessor_register_transfer_read(byte opMode, byte coSrcDstReg, byte
 			switch (coInfo)
 			{
 			case 1:
-				//*R = cacheType;
+				regs[armSrcDstReg] = 0x0F0D2112; //cacheType;
 				return;
 			case 2:
-				//*R = TCMSize;
+				regs[armSrcDstReg] = 0x00140180; //TCMSize;
 				return;
 			default:
-				//*R = IDCode;
+				regs[armSrcDstReg] = 0x41059461; //IDCode;
 				return;
 			}
 		}

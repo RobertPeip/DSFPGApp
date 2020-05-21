@@ -74,7 +74,6 @@ void JOYPAD::check_irp()
 			UInt16 newvalue = (UInt16)((~value) & irpmask);
 			if (newvalue == irpmask)
 			{
-				IRP9.set_irp_bit(IRP9.IRPMASK_Keypad);
 				IRP7.set_irp_bit(IRP7.IRPMASK_Keypad);
 			}
 		}
@@ -85,7 +84,30 @@ void JOYPAD::check_irp()
 			newvalue &= 0x3FF;
 			if (newvalue > 0)
 			{
-				IRP9.set_irp_bit(IRP9.IRPMASK_Keypad);
+				IRP7.set_irp_bit(IRP7.IRPMASK_Keypad);
+			}
+		}
+	}
+
+	irpmask = (UInt16)Regs_Arm7.Sect_keypad7.KEYCNT.read();
+	if ((irpmask & 0x4000) > 0)
+	{
+		if ((irpmask & 0x8000) > 0) // logical and -> all mentioned
+		{
+			irpmask &= 0x3FF;
+			UInt16 newvalue = (UInt16)((~value) & irpmask);
+			if (newvalue == irpmask)
+			{
+				IRP7.set_irp_bit(IRP7.IRPMASK_Keypad);
+			}
+		}
+		else // logical or -> at least one
+		{
+			irpmask &= 0x3FF;
+			UInt16 newvalue = (UInt16)((~value) & irpmask);
+			newvalue &= 0x3FF;
+			if (newvalue > 0)
+			{
 				IRP7.set_irp_bit(IRP7.IRPMASK_Keypad);
 			}
 		}

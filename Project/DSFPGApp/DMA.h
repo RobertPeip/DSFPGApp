@@ -65,7 +65,8 @@ public:
 	bool dma_active = false;
 	bool delayed = false;
 
-	UInt32 debug_dmatranfers = 0;
+	UInt32 debug_dmatranfers9 = 0;
+	UInt32 debug_dmatranfers7 = 0;
 	int cpuDmaCount = 0;
 
 	bool new_hblank = false;

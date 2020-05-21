@@ -53,7 +53,8 @@ void Dma::reset()
 
 	dma_active = false;
 
-	debug_dmatranfers = 0;
+	debug_dmatranfers9 = 0;
+	debug_dmatranfers7 = 0;
 
 	DSReg empty;
 
@@ -142,26 +143,41 @@ void Dma::set_settings(int index)
 
 		switch (index)
 		{
-		case 0: DMAs[index].addr_source &= 0x07FFFFFE; DMAs[index].addr_target &= 0x07FFFFFE; break;
-		case 1: DMAs[index].addr_source &= 0x0FFFFFFE; DMAs[index].addr_target &= 0x07FFFFFE; break;
-		case 2: DMAs[index].addr_source &= 0x0FFFFFFE; DMAs[index].addr_target &= 0x07FFFFFE; break;
-		case 3: DMAs[index].addr_source &= 0x0FFFFFFE; DMAs[index].addr_target &= 0x0FFFFFFE; break;
+		case 4: DMAs[index].addr_source &= 0x07FFFFFF; DMAs[index].addr_target &= 0x07FFFFFF; break;
+		case 5: DMAs[index].addr_source &= 0x0FFFFFFF; DMAs[index].addr_target &= 0x07FFFFFF; break;
+		case 6: DMAs[index].addr_source &= 0x0FFFFFFF; DMAs[index].addr_target &= 0x07FFFFFF; break;
+		case 7: DMAs[index].addr_source &= 0x0FFFFFFF; DMAs[index].addr_target &= 0x0FFFFFFF; break;
 		}
 
 		if (DMAs[index].dMA_Transfer_Type)
 		{
-			DMAs[index].addr_source &= 0x0FFFFFFC;
-			DMAs[index].addr_target &= 0x0FFFFFFC;
+			DMAs[index].addr_source &= 0xFFFFFFFC;
+			DMAs[index].addr_target &= 0xFFFFFFFC;
+		}
+		else
+		{
+			DMAs[index].addr_source &= 0xFFFFFFFE;
+			DMAs[index].addr_target &= 0xFFFFFFFE;
 		}
 
-		DMAs[index].count = DMAs[index].CNT_L.read();
-
-		if (DMAs[index].count == 0)
+		DMAs[index].fullcount = DMAs[index].CNT_L.read();
+		DMAs[index].CNT_L.write(0);
+		if (index < 4)
 		{
-			DMAs[index].count = 0x4000;
-			if (index == 3)
+			if (DMAs[index].fullcount == 0)
 			{
-				DMAs[index].count = 0x10000;
+				DMAs[index].fullcount = 0x200000;
+			}
+		}
+		else
+		{
+			if (DMAs[index].fullcount == 0)
+			{
+				DMAs[index].fullcount = 0x4000;
+				if (index == 3)
+				{
+					DMAs[index].fullcount = 0x10000;
+				}
 			}
 		}
 		DMAs[index].waiting = true;
@@ -209,7 +225,7 @@ void Dma::check_run(int index)
 		DMAs[index].waitTicks = 3;
 		DMAs[index].waiting = false;
 		DMAs[index].first = true;
-		DMAs[index].fullcount = DMAs[index].count;
+		DMAs[index].count = DMAs[index].fullcount;
 		gameboy.reschedule = true;
 	}
 }
@@ -303,6 +319,16 @@ void Dma::work()
 
 				DMAs[i].next_event_time = gameboy.totalticks + ticks;
 				//DMAs[i].CPU->totalticks += ticks;
+#ifdef FPGACOMPATIBLE
+				if (i < 4)
+				{
+					if (CPU9.totalticks < DMAs[i].next_event_time) CPU9.totalticks = DMAs[i].next_event_time;
+				}
+				else
+				{
+					if (CPU7.totalticks < DMAs[i].next_event_time) CPU7.totalticks = DMAs[i].next_event_time;
+				}
+#endif
 
 				// transfer
 				dma_active = true;
@@ -347,7 +373,14 @@ void Dma::work()
 					else if (DMAs[i].dest_Addr_Control == 1) { DMAs[i].addr_target -= 2; }
 				}
 
-				debug_dmatranfers++;
+				if (i < 4)
+				{
+					debug_dmatranfers9++;
+				}
+				else
+				{
+					debug_dmatranfers7++;
+				}
 				gameboy.reschedule = true;
 
 				DMAs[i].count--;
@@ -371,7 +404,7 @@ void Dma::work()
 						}
 						else
 						{
-							DMAs[i].count = DMAs[i].CNT_L.read();
+							DMAs[i].count = DMAs[i].fullcount;
 							if (DMAs[i].dest_Addr_Control == 3)
 							{
 								DMAs[i].addr_target = DMAs[i].DAD.read();

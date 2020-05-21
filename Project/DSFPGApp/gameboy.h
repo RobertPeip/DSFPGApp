@@ -10,6 +10,7 @@ public:
 	bool on = false;
 	bool pause = false;
 	bool coldreset = false;
+	bool blockinput = false;
 
 	UInt64 totalticks;
 	bool reschedule;

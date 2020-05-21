@@ -67,7 +67,7 @@ void Gameboy::reset()
 	CPU9.PC = Header.ARM9_CODE_PC;
 	CPU7.PC = Header.ARM7_CODE_PC;
 
-#if DESMUMECOMPATIBLE
+#ifdef DESMUMECOMPATIBLE
 	InstrCache.inCache(CPU9.PC, true); // fetch first instruction
 #endif
 
@@ -107,8 +107,8 @@ void Gameboy::run()
 		reschedule = false;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 24644)
-		//if (tracer.commands == 1)
+		if (tracer.traclist_ptr == 13831)
+		//if (tracer.commands == 4850)
 		{
 			int stop = 1;
 		}
@@ -146,10 +146,11 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 4900000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
-			tracer.runmoretrace = 100000;
+			tracer.runmoretrace = 200000;
+			tracer.startindex = 0;
 		}
 
 		if (tracer.runmoretrace > 0)
@@ -163,12 +164,50 @@ void Gameboy::run()
 			}
 			if (tracer.runmoretrace == 0)
 			{
-				tracer.runmoretrace = -1;
-				//tracer.vcd_file_last();
+				tracer.vcd_file_last(tracer.startindex);
+				if (false)
+				{
+					tracer.startindex = tracer.commands + 1;
+					tracer.traclist_ptr = 0;
+					tracer.runmoretrace = 200000;
+				}
+				else
+				{
+					tracer.runmoretrace = -1;
+				}
 			}
 		}
 		tracer.commands++;
 		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 2000;
+
+		//blockinput = true;
+		//if (tracer.commands == 200000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		//if (tracer.commands == 400000) { Joypad.KeyStart = false; Joypad.set_reg(); }
+		//if (tracer.commands == 700000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		//if (tracer.commands == 1000000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//if (tracer.commands == 1300000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		//if (tracer.commands == 1600000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//if (tracer.commands == 2000000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		//if (tracer.commands == 2300000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//if (tracer.commands == 2600000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		//if (tracer.commands == 2900000) { Joypad.KeyStart = false; Joypad.set_reg();}
+
+		//if (tracer.commands == 300000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 600000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 900000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 1200000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 1500000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 1800000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 2100000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 2400000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 2700000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 3000000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 3300000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 3600000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 3900000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 4200000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 4500000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		//if (tracer.commands == 4800000) { Joypad.KeyStart = false; Joypad.set_reg(); }
 #endif
 
 		checkcount++;

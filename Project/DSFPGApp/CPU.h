@@ -147,6 +147,7 @@ private:
 	void SMLA(byte Rd, byte Rn, byte Rs, byte Rm, bool x, bool y);
 	void SMLAW(byte Rd, byte Rn, byte Rs, byte Rm, bool y);
 	void SMLAL(byte RdHi, byte RdLo, byte Rs, byte Rm, bool x, bool y);
+	void LDRD_STRD(bool pre, bool up, bool immidate, bool writeback, bool iswrite, byte Rn, byte Rd, byte addr_mode_hi, byte addr_mode_lo);
 
 	void coprocessor_data_transfer(bool pre, bool up, bool length, bool writeback, bool load, byte baseReg, byte coSrcDstReg, byte coNumber, byte offset);
 	void coprocessor_data_operation(byte opCode, byte opRegn, byte dstReg, byte coNumber, byte coInfo, byte opRegm);
@@ -251,6 +252,8 @@ public:
 	Int32 newticks;
 	Int32 totalticks;
 
+	int startindex;
+
 	int additional_steps;
 	UInt64 commands;
 	UInt64 cyclenr;
@@ -265,7 +268,7 @@ public:
 	int debug_outdivcnt;
 
 	void trace_file_last();
-	void vcd_file_last();
+	void vcd_file_last(int startpos);
 
 };
 extern Tracer tracer;

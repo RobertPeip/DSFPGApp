@@ -12,4 +12,5 @@
 #define Int64 signed long long
 #define UInt64 unsigned long long
 
-#define FPGACOMPATIBLE
+//#define FPGACOMPATIBLE
+#define DESMUMECOMPATIBLE

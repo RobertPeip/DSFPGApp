@@ -169,7 +169,7 @@ void SPI_INTERN::write_data(UInt16 value)
 			break;
 
 		case 4: // Touchscreen Z2 - Position(diagonal position for pressure measurement)
-			CalculateTouchPressure(0x32, value, scratch);
+			CalculateTouchPressure(0x32, scratch, value);
 
 			if (Regs_Arm7.Sect_system7.SPICNT_Chipselect_Hold.on())
 			{
@@ -276,8 +276,14 @@ void SPI_INTERN::CalculateTouchPressure(int pressurePercent, UInt16& z1, UInt16&
 		z1 = z2 = 0;
 		return;
 	}
-	int y = adc_x; // nds.scr_touchY;
-	int x = adc_y; // nds.scr_touchX;
+	else
+	{
+		z1 = z2 = 0x4567;
+		return;
+	}
+
+	int y = adc_y; // nds.scr_touchY;
+	int x = adc_x; // nds.scr_touchX;
 	float u = (x / 256.0f);
 	float v = (y / 192.0f);
 
@@ -290,7 +296,8 @@ void SPI_INTERN::CalculateTouchPressure(int pressurePercent, UInt16& z1, UInt16&
 		float b1 = (970 - 864) * fPressurePercent + 864;
 		float b2 = (192 - 136) * fPressurePercent + 136;
 		float b3 = (1560 - 1100) * fPressurePercent + 1100;
-		z1 = (UInt16)(int)(b0 + (b1 - b0) * u + (b2 - b0) * v + (b3 - b2 - b1 + b0) * u * v);
+		Int32 value = (b0 + (b1 - b0) * u + (b2 - b0) * v + (b3 - b2 - b1 + b0) * u * v); 
+		z1 = (UInt16)value; // will overflow!
 	}
 
 	//z2 goes down as pressure goes up
