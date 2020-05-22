@@ -323,10 +323,12 @@ void Dma::work()
 				if (i < 4)
 				{
 					if (CPU9.totalticks < DMAs[i].next_event_time) CPU9.totalticks = DMAs[i].next_event_time;
+					if (CPU7.totalticks < DMAs[i].next_event_time) CPU7.totalticks = DMAs[i].next_event_time;
 				}
 				else
 				{
 					if (CPU7.totalticks < DMAs[i].next_event_time) CPU7.totalticks = DMAs[i].next_event_time;
+					if (CPU9.totalticks < DMAs[i].next_event_time) CPU9.totalticks = DMAs[i].next_event_time;
 				}
 #endif
 

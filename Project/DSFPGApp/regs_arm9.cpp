@@ -414,7 +414,7 @@ RegSect_system9::RegSect_system9()
     IPCSYNC = DSReg(0x180, 15, 0, 1, 0, "writeonly", "IPCSYNC", Regs_Arm9.data);
     IPCSYNC_Data_from_IPCSYNC = DSReg(0x180, 3, 0, 1, 0, "readonly", "IPCSYNC_Data_from_IPCSYNC", Regs_Arm9.data);
     IPCSYNC_Data_to_IPCSYNC = DSReg(0x180, 11, 8, 1, 0, "readwrite", "IPCSYNC_Data_to_IPCSYNC", Regs_Arm9.data);
-    IPCSYNC_IRQ_to_remote_CPU = DSReg(0x180, 13, 13, 1, 0, "readonly", "IPCSYNC_IRQ_to_remote_CPU", Regs_Arm9.data);
+    IPCSYNC_IRQ_to_remote_CPU = DSReg(0x180, 13, 13, 1, 0, "writeonly", "IPCSYNC_IRQ_to_remote_CPU", Regs_Arm9.data);
     IPCSYNC_Ena_IRQ_from_remote_CPU = DSReg(0x180, 14, 14, 1, 0, "readwrite", "IPCSYNC_Ena_IRQ_from_remote_CPU", Regs_Arm9.data);
     IPCFIFOCNT = DSReg(0x184, 15, 0, 1, 0, "writeonly", "IPCFIFOCNT", Regs_Arm9.data);
     IPCFIFOCNT_Send_Fifo_Empty_Status = DSReg(0x184, 0, 0, 1, 0, "readonly", "IPCFIFOCNT_Send_Fifo_Empty_Status", Regs_Arm9.data);
@@ -1456,11 +1456,11 @@ void REGS_Arm9::reset()
     rwmask[305] = (byte)((0xFFFFFFFF >> 8) & 0xFF);
     rwmask[306] = (byte)((0xFFFFFFFF >> 16) & 0xFF);
     rwmask[307] = (byte)((0xFFFFFFFF >> 24) & 0xFF);
-    // IPCSYNC at 0x180 = 0x6F0F;
-    rwmask[384] = (byte)(0x6F0F & 0xFF);
-    rwmask[385] = (byte)((0x6F0F >> 8) & 0xFF);
-    rwmask[386] = (byte)((0x6F0F >> 16) & 0xFF);
-    rwmask[387] = (byte)((0x6F0F >> 24) & 0xFF);
+    // IPCSYNC at 0x180 = 0x4F0F;
+    rwmask[384] = (byte)(0x4F0F & 0xFF);
+    rwmask[385] = (byte)((0x4F0F >> 8) & 0xFF);
+    rwmask[386] = (byte)((0x4F0F >> 16) & 0xFF);
+    rwmask[387] = (byte)((0x4F0F >> 24) & 0xFF);
     // IPCFIFOCNT at 0x184 = 0xC707;
     rwmask[388] = (byte)(0xC707 & 0xFF);
     rwmask[389] = (byte)((0xC707 >> 8) & 0xFF);

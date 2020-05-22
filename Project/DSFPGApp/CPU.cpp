@@ -87,7 +87,8 @@ void cpustate::update(bool isArm9)
 	this->memory02 = 0; //CPU.lastAddress;
 	//this->memory02 = GXFifo.fifo.size();
 	//this->memory02 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x040000DC);
-	this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
+	//this->memory03 = (*CPU.read_dword)(ACCESSTYPE::CPUDATA, 0x04000004); // vcount
+	this->memory03 = 0; // vcount
 
 	if (isArm9)
 	{
@@ -458,6 +459,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 
 	PC_old = PC;
 	bool old_thumb = thumbmode;
+	didjump = false;
 
 	//if (irpnext && !IRQ_disable)
 	//{
@@ -467,49 +469,42 @@ void Cpu::nextInstr(UInt64 next_event_time)
 	//	irpdelay_next = false;
 	//}
 	//else if (!halt)
-	if (!halt)
+
+	op_since_dma++;
+
+	if (thumbmode)
 	{
-		op_since_dma++;
+		regs[15] = PC + 4;
+		thumb_command();
 
-		if (thumbmode)
+		if (newticks < 0)
 		{
-			regs[15] = PC + 4;
-			thumb_command();
-
-			if (newticks < 0)
-			{
-				newticks = 0;
-			}
-			if (newticks == 0)
-			{
-				newticks = BusTiming.codeTicksAccessSeq16(isArm9, PC_old);
-			}
+			newticks = 0;
 		}
-		else
+		if (newticks == 0)
 		{
-			regs[15] = PC + 8;
-			arm_command();
-
-			if (newticks < 0)
-			{
-				newticks = 0;
-			}
-			if (newticks == 0)
-			{
-				newticks = BusTiming.codeTicksAccessSeq32(isArm9, PC_old);
-			}
-		}
-
-		commands++;
-		if (newticks + additional_steps > 0)
-		{
-			newticks += additional_steps;
+			newticks = BusTiming.codeTicksAccessSeq16(isArm9, PC_old);
 		}
 	}
 	else
 	{
-		totalticks = next_event_time;
-		return;
+		regs[15] = PC + 8;
+		arm_command();
+
+		if (newticks < 0)
+		{
+			newticks = 0;
+		}
+		if (newticks == 0)
+		{
+			newticks = BusTiming.codeTicksAccessSeq32(isArm9, PC_old);
+		}
+	}
+
+	commands++;
+	if (newticks + additional_steps > 0)
+	{
+		newticks += additional_steps;
 	}
 
 #ifdef DESMUMECOMPATIBLE
@@ -570,14 +565,10 @@ void Cpu::nextInstr(UInt64 next_event_time)
 #ifdef FPGACOMPATIBLE
 			uint pipeline_addr = PC_old;
 			if (thumbmode) pipeline_addr += 2; else pipeline_addr += 4;
-			if (PC != pipeline_addr)
+			if (didjump || PC != pipeline_addr)
 			{
 				if ((pipeline_addr & 0x1F) == 0)
 				{
-					if (pipeline_addr == 0x02000860)
-					{
-						int a = 5;
-					}
 					InstrCache.inCache(pipeline_addr, true); // read further to make sure cache is updated because of pipeline
 				}
 				else
@@ -585,10 +576,6 @@ void Cpu::nextInstr(UInt64 next_event_time)
 					if (thumbmode) pipeline_addr += 2; else pipeline_addr += 4;
 					if ((pipeline_addr & 0x1F) == 0)
 					{
-						if (pipeline_addr == 0x02000860)
-						{
-							int a = 5;
-						}
 						InstrCache.inCache(pipeline_addr, true); // read further to make sure cache is updated because of pipeline
 					}
 				}
@@ -600,6 +587,9 @@ void Cpu::nextInstr(UInt64 next_event_time)
 			uint fetchticks;
 			if (thumbmode)
 			{
+#ifdef FPGACOMPATIBLE
+				fetch_pc += 2;
+#endif
 				//if (!(PC == PC_old + 2 && (PC & 2)))
 				//{
 					fetchticks = BusTiming.memoryWait32Arm9[(fetch_pc >> 24) & 15];
@@ -1709,7 +1699,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				{
 					regbanks[0][i] = (*read_dword)(ACCESSTYPE::CPUDATA, address & 0xFFFFFFFC);
 
-					// all below only for desmume, probably wrong!
 					gameboy.reschedule = true; // probably not required
 					if (i < 13)
 					{
@@ -1758,6 +1747,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				UInt32 writeval;
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{
+#ifdef DESMUMECOMPATIBLE
 					// for desmume, old implementation below
 					gameboy.reschedule = true; // probably not required
 					if (i >= 13 && i <= 14)
@@ -1768,14 +1758,16 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 					{
 						writeval = regs[i];
 					}
-					//if (i >= 8 && i <= 14)
-					//{
-					//	writeval = regbanks[0][i];
-					//}
-					//else
-					//{
-					//	writeval = 0;
-					//}
+#else
+					if (i >= 8 && i <= 14)
+					{
+						writeval = regbanks[0][i];
+					}
+					else
+					{
+						writeval = 0;
+					}
+#endif
 				}
 				else
 				{
@@ -2663,6 +2655,7 @@ void Cpu::data_processing(bool imm, byte opcode, bool s_updateflags, byte Rn_op1
 	{
 		if (Rdest == 15)
 		{
+			didjump = true;
 			PC = (UInt32)regs[15];
 			newticks = 3;// +BusTiming.codeTicksAccessSeq32(isArm9, PC);
 			//newticks = newticks + BusTiming.codeTicksAccess32(isArm9, PC) + 1;

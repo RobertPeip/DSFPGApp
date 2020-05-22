@@ -80,6 +80,7 @@ void Gameboy::run()
 	reset();
 
 	byte checkcount = 0;
+	bool any_calc = false;
 
 	while (on)
 	{
@@ -107,8 +108,8 @@ void Gameboy::run()
 		reschedule = false;
 
 #if DEBUG
-		if (tracer.traclist_ptr == 13831)
-		//if (tracer.commands == 4850)
+		//if (tracer.traclist_ptr == 13831)
+		if (tracer.commands == 3150386)
 		{
 			int stop = 1;
 		}
@@ -124,14 +125,35 @@ void Gameboy::run()
 				int stop = 1;
 			}
 #endif
+			any_calc = false;
 			if (CPU9.totalticks <= totalticks)
 			{
-				CPU9.nextInstr(nexteventtotal);
+				if (!CPU9.halt)
+				{
+					any_calc = true;
+					CPU9.nextInstr(nexteventtotal);
+				}
+				else
+				{
+					CPU9.totalticks = nexteventtotal;
+				}
 			}
 			if (CPU7.totalticks <= totalticks)
 			{
-				CPU7.nextInstr(nexteventtotal);
+				any_calc = true;
+				if (!CPU7.halt)
+				{
+					CPU7.nextInstr(nexteventtotal);
+				}
+				else
+				{
+					CPU7.totalticks = nexteventtotal;
+				}
 			}
+#ifdef FPGACOMPATIBLE
+			if (CPU9.halt) CPU9.totalticks = CPU7.totalticks;
+			if (CPU7.halt) CPU7.totalticks = CPU9.totalticks;
+#endif
 
 #if DEBUG
 			if (reschedule)
@@ -146,7 +168,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 4900000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 200000;
@@ -155,6 +177,15 @@ void Gameboy::run()
 
 		if (tracer.runmoretrace > 0)
 		{
+#ifdef FPGACOMPATIBLE
+			if (!any_calc && (CPU9.halt || CPU7.halt))
+			{
+				tracer.runmoretrace++;
+				tracer.traclist_ptr--;
+				tracer.commands--;
+			}
+#endif //FPGACOMPATIBLE
+
 			if (tracer.debug_outdivcnt == 0)
 			{
 				tracer.Tracelist[tracer.traclist_ptr][0].update(true);
@@ -164,8 +195,8 @@ void Gameboy::run()
 			}
 			if (tracer.runmoretrace == 0)
 			{
-				tracer.vcd_file_last(tracer.startindex);
-				if (false)
+				//tracer.vcd_file_last(tracer.startindex);
+				if (true)
 				{
 					tracer.startindex = tracer.commands + 1;
 					tracer.traclist_ptr = 0;
@@ -180,17 +211,17 @@ void Gameboy::run()
 		tracer.commands++;
 		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 2000;
 
-		//blockinput = true;
-		//if (tracer.commands == 200000) { Joypad.KeyStart = true; Joypad.set_reg(); }
-		//if (tracer.commands == 400000) { Joypad.KeyStart = false; Joypad.set_reg(); }
-		//if (tracer.commands == 700000) { Joypad.KeyStart = true; Joypad.set_reg(); }
-		//if (tracer.commands == 1000000) { Joypad.KeyStart = false; Joypad.set_reg();}
-		//if (tracer.commands == 1300000) { Joypad.KeyStart = true; Joypad.set_reg();}
-		//if (tracer.commands == 1600000) { Joypad.KeyStart = false; Joypad.set_reg();}
-		//if (tracer.commands == 2000000) { Joypad.KeyStart = true; Joypad.set_reg();}
-		//if (tracer.commands == 2300000) { Joypad.KeyStart = false; Joypad.set_reg();}
-		//if (tracer.commands == 2600000) { Joypad.KeyStart = true; Joypad.set_reg();}
-		//if (tracer.commands == 2900000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		blockinput = true;
+		if (tracer.commands == 200000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		if (tracer.commands == 400000) { Joypad.KeyStart = false; Joypad.set_reg(); }
+		if (tracer.commands == 700000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		if (tracer.commands == 1000000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		if (tracer.commands == 1300000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		if (tracer.commands == 1600000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		if (tracer.commands == 2000000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		if (tracer.commands == 2300000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		if (tracer.commands == 2600000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		if (tracer.commands == 2900000) { Joypad.KeyStart = false; Joypad.set_reg();}
 
 		//if (tracer.commands == 300000) { Joypad.KeyDown = true; Joypad.set_reg(); }
 		//if (tracer.commands == 600000) { Joypad.KeyDown = false; Joypad.set_reg(); }

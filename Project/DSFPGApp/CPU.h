@@ -48,6 +48,7 @@ public:
 
 	bool halt;
 	bool stop;
+	bool didjump;
 
 	UInt32 regbanks[6][18];
 
