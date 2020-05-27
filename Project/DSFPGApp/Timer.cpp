@@ -122,7 +122,7 @@ void TIMER::overflow(int index)
 
 	if (timers[index].irp_on)
 	{
-		timers[index].IRP->set_irp_bit(timers[index].irpmask);
+		timers[index].IRP->set_irp_bit(timers[index].irpmask, false);
 	}
 }
 
@@ -138,7 +138,11 @@ void TIMER::updatereg(int index)
 		}
 		else
 		{
+#ifdef DESMUMECOMPATIBLE
 			int diff = Timer.timers[index].next_event_time - gameboy.totalticks;
+#else	
+			int diff = (Timer.timers[index].next_event_time - 1) - gameboy.totalticks;
+#endif
 			diff = diff / timers[index].prescale;
 			if (diff == 65536)
 			{

@@ -174,7 +174,7 @@ UInt32 GAMECARD::readData()
 		ROMCTRL_Data_Word_Status.write(0);
 		if (AUXSPICNT_Transfer_Ready_IRQ.on())
 		{
-			IRP->set_irp_bit(IRP->IRPMASK_NDS_Slot_Transfer_Complete);
+			IRP->set_irp_bit(IRP->IRPMASK_NDS_Slot_Transfer_Complete, false);
 		}
 	}
 

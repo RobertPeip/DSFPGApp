@@ -43,9 +43,11 @@ public:
 
 	bool checknext;
 
+	UInt32 next_mask;
+
 	Irp();
 	void reset(bool isArm9);
-	void set_irp_bit(UInt32 mask);
+	void set_irp_bit(UInt32 mask, bool delay);
 	void clear_irp_bit(UInt32 mask);
 	void update_IE();
 	void clear_irp_bits();

@@ -22,7 +22,7 @@ public:
 	bool do_loadstate = false;
 	bool do_exportmem = false;
 	bool loading_state;
-	UInt32 savestate[131072];
+	UInt32 savestate[2097152];
 
 	void reset();
 	void run();

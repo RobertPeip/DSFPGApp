@@ -597,7 +597,15 @@ void Gpu::draw_line(byte y_in)
 
 	//if (SDL_LockMutex(drawlock) == 0)
 	{
-		UInt16 colorall = *(UInt16*)&Memory.PaletteRAM[0];
+		UInt16 colorall;
+		if (isGPUA)
+		{
+			colorall = *(UInt16*)&Memory.PaletteRAM[0];
+		}
+		else
+		{
+			colorall = *(UInt16*)&Memory.PaletteRAM[0x400];
+		}
 		pixelbackdrop.update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 
 		byte prio_bg0 = (byte)BG0CNT_BG_Priority.read();

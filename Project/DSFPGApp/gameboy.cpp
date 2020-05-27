@@ -73,6 +73,8 @@ void Gameboy::reset()
 
 	on = true;
 	pause = false;
+
+	savestate[0] = 0;
 }
 
 void Gameboy::run()
@@ -104,12 +106,17 @@ void Gameboy::run()
 		if (IRP9.checknext) IRP9.check_and_execute_irp();
 		if (IRP7.checknext) IRP7.check_and_execute_irp();
 
+#ifdef FPGACOMPATIBLE
+		if (IRP9.next_mask != 0) { IRP9.set_irp_bit(IRP9.next_mask, false); IRP9.next_mask = 0; }
+		if (IRP7.next_mask != 0) { IRP7.set_irp_bit(IRP7.next_mask, false); IRP7.next_mask = 0; }
+#endif
+
 		UInt64 nexteventtotal = next_event_time();
 		reschedule = false;
 
 #if DEBUG
 		//if (tracer.traclist_ptr == 13831)
-		if (tracer.commands == 3150386)
+		if (tracer.commands == 977900)
 		{
 			int stop = 1;
 		}
@@ -168,7 +175,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 00000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 900000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 200000;
@@ -211,22 +218,22 @@ void Gameboy::run()
 		tracer.commands++;
 		//tracer.debug_outdivcnt = (tracer.debug_outdivcnt + 1) % 2000;
 
-		blockinput = true;
-		if (tracer.commands == 200000) { Joypad.KeyStart = true; Joypad.set_reg(); }
-		if (tracer.commands == 400000) { Joypad.KeyStart = false; Joypad.set_reg(); }
-		if (tracer.commands == 700000) { Joypad.KeyStart = true; Joypad.set_reg(); }
-		if (tracer.commands == 1000000) { Joypad.KeyStart = false; Joypad.set_reg();}
-		if (tracer.commands == 1300000) { Joypad.KeyStart = true; Joypad.set_reg();}
-		if (tracer.commands == 1600000) { Joypad.KeyStart = false; Joypad.set_reg();}
-		if (tracer.commands == 2000000) { Joypad.KeyStart = true; Joypad.set_reg();}
-		if (tracer.commands == 2300000) { Joypad.KeyStart = false; Joypad.set_reg();}
-		if (tracer.commands == 2600000) { Joypad.KeyStart = true; Joypad.set_reg();}
-		if (tracer.commands == 2900000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//blockinput = true;
+		//if (tracer.commands == 200000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		//if (tracer.commands == 400000) { Joypad.KeyStart = false; Joypad.set_reg(); }
+		//if (tracer.commands == 700000) { Joypad.KeyStart = true; Joypad.set_reg(); }
+		//if (tracer.commands == 1000000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//if (tracer.commands == 1300000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		//if (tracer.commands == 1600000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//if (tracer.commands == 2000000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		//if (tracer.commands == 2300000) { Joypad.KeyStart = false; Joypad.set_reg();}
+		//if (tracer.commands == 2600000) { Joypad.KeyStart = true; Joypad.set_reg();}
+		//if (tracer.commands == 2900000) { Joypad.KeyStart = false; Joypad.set_reg();}
 
-		//if (tracer.commands == 300000) { Joypad.KeyDown = true; Joypad.set_reg(); }
-		//if (tracer.commands == 600000) { Joypad.KeyDown = false; Joypad.set_reg(); }
-		//if (tracer.commands == 900000) { Joypad.KeyDown = true; Joypad.set_reg(); }
-		//if (tracer.commands == 1200000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 200000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 400000) { Joypad.KeyDown = false; Joypad.set_reg(); }
+		//if (tracer.commands == 700000) { Joypad.KeyDown = true; Joypad.set_reg(); }
+		//if (tracer.commands == 1100000) { Joypad.KeyDown = false; Joypad.set_reg(); }
 		//if (tracer.commands == 1500000) { Joypad.KeyDown = true; Joypad.set_reg(); }
 		//if (tracer.commands == 1800000) { Joypad.KeyDown = false; Joypad.set_reg(); }
 		//if (tracer.commands == 2100000) { Joypad.KeyDown = true; Joypad.set_reg(); }
@@ -305,10 +312,40 @@ UInt64 Gameboy::next_event_time()
 
 void Gameboy::create_savestate()
 {
-	/*
 	savestate[0]++; // header -> number of savestate, 0 = invalid
 
-	uint index = 2;
+	uint index = 4; // header size = 4 dwords
+
+	for (int i = 0; i < 4194304 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.WRAM_Large[i * 4]; }
+	for (int i = 0; i < 65536 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.WRAM_Small_64[i * 4]; }
+	for (int i = 0; i < 32768 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.WRAM_Small_32[i * 4]; }
+	for (int i = 0; i < 671744 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.VRAM[i * 4]; }
+	for (int i = 0; i < 2048 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.OAMRAM[i * 4]; }
+	for (int i = 0; i < 2048 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.PaletteRAM[i * 4]; }
+	for (int i = 0; i < 32768 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.ITCM[i * 4]; }
+	for (int i = 0; i < 16384 / 4; i++) { savestate[index++] = *(UInt32*)&Memory.DTCM[i * 4]; }
+
+	for (int i = 0; i < 8192 / 4; i++)
+	{
+		UInt32 value = *(UInt32*)&Regs_Arm9.data[i * 4];
+		savestate[index++] = value;
+	}
+
+	for (int i = 0; i < 8192; i++)
+	{
+		UInt32 value = *(UInt32*)&Regs_Arm7.data[i * 4];
+		savestate[index++] = value;
+	}
+
+	for (int i = 0; i < 1024; i++) // todo: internal state
+	{
+		UInt32 value = 0;
+		savestate[index++] = value;
+	}
+
+	savestate[1] = index; // header -> size
+
+	/*
 	savestate[index++] = CPU.PC;
 	for (int i = 0; i < 18; i++)
 	{
@@ -418,12 +455,6 @@ void Gameboy::create_savestate()
 		UInt32 value = *(UInt32*)&DSRegs.data[i * 4];
 		savestate[index++] = value;
 	}
-
-	for (int i = 0; i < 65536; i++) { savestate[index++] = *(UInt32*)&Memory.WRAM_Large[i * 4]; }
-	for (int i = 0; i < 8192; i++) { savestate[index++] = *(UInt32*)&Memory.WRAM_Small[i * 4]; }
-	for (int i = 0; i < 256; i++) { savestate[index++] = *(UInt32*)&Memory.PaletteRAM[i * 4]; }
-	for (int i = 0; i < 24576; i++) { savestate[index++] = *(UInt32*)&Memory.VRAM[i * 4]; }
-	for (int i = 0; i < 256; i++) { savestate[index++] = *(UInt32*)&Memory.OAMRAM[i * 4]; }
 
 	savestate[1] = index; // header -> size
 	*/
@@ -630,4 +661,17 @@ void Gameboy::exportmem()
 
 	file = fopen("R:\\palette.csv", "w"); for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x5000000 + i, Memory.PaletteRAM[0x00000 + i]); } fclose(file);
 	file = fopen("R:\\oam.csv", "w");     for (int i = 0; i < 2048; i++) { fprintf(file, "0x%08x 0x%02x\n", 0x7000000 + i, Memory.OAMRAM[0x00000 + i]); }     fclose(file);
+
+	file = fopen("R:\\vram_a_32.csv", "w"); for (int i = 0; i < 0x20000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6000000 + i, *(UInt32*)&Memory.VRAM[0x00000 + i]); } fclose(file);
+	file = fopen("R:\\vram_b_32.csv", "w"); for (int i = 0; i < 0x20000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6020000 + i, *(UInt32*)&Memory.VRAM[0x20000 + i]); } fclose(file);
+	file = fopen("R:\\vram_c_32.csv", "w"); for (int i = 0; i < 0x20000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6040000 + i, *(UInt32*)&Memory.VRAM[0x40000 + i]); } fclose(file);
+	file = fopen("R:\\vram_d_32.csv", "w"); for (int i = 0; i < 0x20000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6060000 + i, *(UInt32*)&Memory.VRAM[0x60000 + i]); } fclose(file);
+	file = fopen("R:\\vram_e_32.csv", "w"); for (int i = 0; i < 0x10000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6080000 + i, *(UInt32*)&Memory.VRAM[0x80000 + i]); } fclose(file);
+	file = fopen("R:\\vram_f_32.csv", "w"); for (int i = 0; i < 0x04000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6090000 + i, *(UInt32*)&Memory.VRAM[0x90000 + i]); } fclose(file);
+	file = fopen("R:\\vram_g_32.csv", "w"); for (int i = 0; i < 0x04000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6094000 + i, *(UInt32*)&Memory.VRAM[0x94000 + i]); } fclose(file);
+	file = fopen("R:\\vram_h_32.csv", "w"); for (int i = 0; i < 0x08000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x6098000 + i, *(UInt32*)&Memory.VRAM[0x98000 + i]); } fclose(file);
+	file = fopen("R:\\vram_i_32.csv", "w"); for (int i = 0; i < 0x04000; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x60A0000 + i, *(UInt32*)&Memory.VRAM[0xA0000 + i]); } fclose(file);
+
+	file = fopen("R:\\palette_32.csv", "w"); for (int i = 0; i < 2048; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x5000000 + i, *(UInt32*)&Memory.PaletteRAM[0x00000 + i]); } fclose(file);
+	file = fopen("R:\\oam_32.csv", "w");     for (int i = 0; i < 2048; i+=4) { fprintf(file, "0x%08x 0x%08x\n", 0x7000000 + i, *(UInt32*)&Memory.OAMRAM[0x00000 + i]); }     fclose(file);
 }

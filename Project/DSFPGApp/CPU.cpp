@@ -1747,8 +1747,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				UInt32 writeval;
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{
-#ifdef DESMUMECOMPATIBLE
-					// for desmume, old implementation below
 					gameboy.reschedule = true; // probably not required
 					if (i >= 13 && i <= 14)
 					{
@@ -1758,16 +1756,6 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 					{
 						writeval = regs[i];
 					}
-#else
-					if (i >= 8 && i <= 14)
-					{
-						writeval = regbanks[0][i];
-					}
-					else
-					{
-						writeval = 0;
-					}
-#endif
 				}
 				else
 				{
@@ -3337,7 +3325,7 @@ void Cpu::LDRD_STRD(bool pre, bool up, bool immidate, bool writeback, bool iswri
 
 		if (!pre) //post
 		{
-			if (up == 4) //up
+			if (up) //up
 			{
 				address += imm_value;
 			}
@@ -3349,7 +3337,7 @@ void Cpu::LDRD_STRD(bool pre, bool up, bool immidate, bool writeback, bool iswri
 
 		if (!pre || writeback) //writeback
 		{
-			if (Rn != Rd || writeback) // when storing, result address can be written
+			if (Rn != Rd || iswrite) // when storing, result address can be written
 			{
 				regs[Rn] = address;
 			}

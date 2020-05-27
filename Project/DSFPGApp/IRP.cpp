@@ -28,15 +28,30 @@ void Irp::reset(bool isArm9)
 		REG_IF = Regs_Arm7.Sect_system7.IF;
 	}
 
+	next_mask = 0;
 	checknext = false;
 }
 
-void Irp::set_irp_bit(UInt32 mask)
+void Irp::set_irp_bit(UInt32 mask, bool delay)
 {
+#ifdef FPGACOMPATIBLE
+	if (delay)
+	{
+		next_mask = next_mask | mask;
+	}
+	else
+	{
+		IRP_Flags |= mask;
+		REG_IF.write(IRP_Flags);
+		checknext = true;
+		gameboy.reschedule = true;
+	}
+#else
 	IRP_Flags |= mask;
 	REG_IF.write(IRP_Flags);
 	checknext = true;
 	gameboy.reschedule = true;
+#endif // FPGACOMPATIBLE
 }
 
 void Irp::clear_irp_bit(UInt32 mask)
@@ -87,7 +102,7 @@ void Irp::check_gxfifobits()
 	byte irqsource = Regs_Arm9.Sect_3D9.GXSTAT_Command_FIFO_IRQ.read();
 	if ((irqsource == 1 && GXFifo.lesshalf) || (irqsource == 2 && GXFifo.empty))
 	{
-		IRP9.set_irp_bit(IRP9.IRPMASK_Geometry_Command_FIFO);
+		IRP9.set_irp_bit(IRP9.IRPMASK_Geometry_Command_FIFO, false);
 	}
 	else
 	{

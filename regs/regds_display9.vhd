@@ -9,7 +9,7 @@ package pReg_ds_display_9 is
 
    -- range 0x0000 .. 0x006C + 0x1000 .. 0x106C
    --   (                                                      adr      upper    lower    size   default   accesstype)                                                     
-   constant A_DISPCNT                        : regmap_type := (16#0000#,  15,      0,        1,        0,   readwrite); -- LCD Control                                   2    R/W   
+   constant A_DISPCNT                        : regmap_type := (16#0000#,  31,      0,        1,        0,   readwrite); -- LCD Control                                   2    R/W   
    constant A_DISPCNT_BG_Mode                : regmap_type := (16#0000#,   2,      0,        1,        0,   readwrite); -- BG Mode                     (0-5=Video Mode 0-6, 7=Prohibited)
    constant A_DISPCNT_BG0_2D_3D              : regmap_type := (16#0000#,   3,      3,        1,        0,   readwrite); -- A only BG0 2D/3D Selection (instead CGB Mode) (0=2D, 1=3D)
    constant A_DISPCNT_Tile_OBJ_Mapping       : regmap_type := (16#0000#,   4,      4,        1,        0,   readwrite); -- Tile OBJ Mapping        (0=2D; max 32KB, 1=1D; max 32KB..256KB)
@@ -213,7 +213,7 @@ package pReg_ds_display_9 is
    -- ##################### Engine B
    -- ###################################### 
    
-   constant B_DISPCNT                        : regmap_type := (16#1000#,  15,      0,        1,        0,   readwrite); -- LCD Control                                   2    R/W   
+   constant B_DISPCNT                        : regmap_type := (16#1000#,  31,      0,        1,        0,   readwrite); -- LCD Control                                   2    R/W   
    constant B_DISPCNT_BG_Mode                : regmap_type := (16#1000#,   2,      0,        1,        0,   readwrite); -- BG Mode                     (0-5=Video Mode 0-6, 7=Prohibited)
    constant B_DISPCNT_BG0_2D_3D              : regmap_type := (16#1000#,   3,      3,        1,        0,   readwrite); -- A only BG0 2D/3D Selection (instead CGB Mode) (0=2D, 1=3D)
    constant B_DISPCNT_Tile_OBJ_Mapping       : regmap_type := (16#1000#,   4,      4,        1,        0,   readwrite); -- Tile OBJ Mapping        (0=2D; max 32KB, 1=1D; max 32KB..256KB)

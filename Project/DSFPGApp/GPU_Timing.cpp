@@ -50,12 +50,12 @@ void GPUTiming::work()
 				if (vcount_irp_next9)
 				{
 					vcount_irp_next9 = false;
-					IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match);
+					IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match, true);
 				}
 				if (vcount_irp_next7)
 				{
 					vcount_irp_next7 = false;
-					IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match);
+					IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match, true);
 				}
 			}
 			break;
@@ -68,6 +68,9 @@ void GPUTiming::work()
 				next_event_time = localticks + 3108;
 				gpustate = GPUState::VISIBLE;
 				gameboy.reschedule = true;
+#ifdef FPGACOMPATIBLE
+				DMA.new_MemDisplay = true;
+#endif // FPGACOMPATIBLE
 			}
 			break;
 
@@ -81,8 +84,8 @@ void GPUTiming::work()
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(1);
 				Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_flag.write(1);
 				DMA.new_hblank = true;
-				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_H_Blank);
-				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank);
+				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_H_Blank, true);
+				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank, true);
 				old_dispstat = Regs_Arm9.data[4];
 
 				GPU_A.once_per_hblank();
@@ -106,7 +109,9 @@ void GPUTiming::work()
 				if (line < 192)
 				{
 					gpustate = GPUState::HSTART;
+#ifndef FPGACOMPATIBLE
 					DMA.new_MemDisplay = true;
+#endif // !FPGACOMPATIBLE
 				}
 				else
 				{
@@ -133,19 +138,19 @@ void GPUTiming::work()
 				if (vcount_irp_next9)
 				{
 					vcount_irp_next9 = false;
-					IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match);
+					IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Counter_Match, true);
 				}
 				if (vcount_irp_next7)
 				{
 					vcount_irp_next7 = false;
-					IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match);
+					IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Counter_Match, true);
 				}
 
 				if (line == 192)
 				{
 					DMA.new_vblank = true;
-					if (Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Blank);
-					if (Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Blank);
+					if (Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_V_Blank, true);
+					if (Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_V_Blank, true);
 				}
 				if (line == 262)
 				{
@@ -175,8 +180,8 @@ void GPUTiming::work()
 				Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_flag.write(1);
 				Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_flag.write(1);
 				//DMA.new_hblank = true; //!!! don't do here!
-				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_H_Blank); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
-				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
+				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_H_Blank, true); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
+				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank, true); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
 				old_dispstat = Regs_Arm9.data[4];
 			}
 			break;
@@ -200,7 +205,9 @@ void GPUTiming::work()
 					Regs_Arm9.Sect_display9.DISPSTAT_V_Blank_flag.write(0);
 					Regs_Arm7.Sect_display7.DISPSTAT_V_Blank_flag.write(0);
 					DMA.new_vblank = false;
+#ifndef FPGACOMPATIBLE
 					DMA.new_MemDisplay = true;
+#endif // !FPGACOMPATIBLE
 				}
 				else
 				{

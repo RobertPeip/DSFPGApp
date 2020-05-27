@@ -248,10 +248,10 @@ void Dma::work()
 				{
 					switch (i % 4)
 					{
-					case 0: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_0); break;
-					case 1: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_1); break;
-					case 2: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_2); break;
-					case 3: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_3); break;
+					case 0: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_0, false); break;
+					case 1: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_1, false); break;
+					case 2: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_2, false); break;
+					case 3: DMAs[i].IRP->set_irp_bit(DMAs[i].IRP->IRPMASK_DMA_3, false); break;
 					}
 				}
 			}

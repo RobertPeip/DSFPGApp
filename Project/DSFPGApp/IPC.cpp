@@ -70,7 +70,7 @@ void IPC::write_sync()
 
 	if (IPCSYNC_IRQ_to_remote_CPU.on() && IPCSYNC_Ena_IRQ_from_remote_CPU_Extern.on())
 	{
-		IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Sync);
+		IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Sync, false);
 	}
 
 	gameboy.reschedule = true; // probably not required
@@ -96,9 +96,9 @@ void IPC::write_control()
 
 	update_status();
 
-	if (Send_Fifo_Empty_IRQ.on() && Send_Fifo_Empty_Status.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty);
+	if (Send_Fifo_Empty_IRQ.on() && Send_Fifo_Empty_Status.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty, false);
 
-	if (Receive_Fifo_Not_Empty_IRQ.on() && !Receive_Fifo_Empty.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty);
+	if (Receive_Fifo_Not_Empty_IRQ.on() && !Receive_Fifo_Empty.on()) IRP->set_irp_bit(IRP->IRPMASK_IPC_Send_FIFO_Empty, false);
 
 	gameboy.reschedule = true; // probably not required
 }
@@ -135,7 +135,7 @@ void IPC::writefifo(uint value)
 
 			if (recempty)
 			{
-				IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Recv_FIFO_Not_Empty);
+				IRP_Extern->set_irp_bit(IRP_Extern->IRPMASK_IPC_Recv_FIFO_Not_Empty, false);
 			}
 		}
 	}

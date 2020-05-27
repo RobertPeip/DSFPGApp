@@ -5,7 +5,7 @@ REGS_Arm9 Regs_Arm9;
 
 RegSect_display9::RegSect_display9()
 {
-    A_DISPCNT = DSReg(0x0000, 15, 0, 1, 0, "readwrite", "A_DISPCNT", Regs_Arm9.data);
+    A_DISPCNT = DSReg(0x0000, 31, 0, 1, 0, "readwrite", "A_DISPCNT", Regs_Arm9.data);
     A_DISPCNT_BG_Mode = DSReg(0x0000, 2, 0, 1, 0, "readwrite", "A_DISPCNT_BG_Mode", Regs_Arm9.data);
     A_DISPCNT_BG0_2D_3D = DSReg(0x0000, 3, 3, 1, 0, "readwrite", "A_DISPCNT_BG0_2D_3D", Regs_Arm9.data);
     A_DISPCNT_Tile_OBJ_Mapping = DSReg(0x0000, 4, 4, 1, 0, "readwrite", "A_DISPCNT_Tile_OBJ_Mapping", Regs_Arm9.data);
@@ -180,7 +180,7 @@ RegSect_display9::RegSect_display9()
     A_MASTER_BRIGHT = DSReg(0x006C, 15, 0, 1, 0, "writeonly", "A_MASTER_BRIGHT", Regs_Arm9.data);
     A_MASTER_BRIGHT_Factor = DSReg(0x006C, 4, 0, 1, 0, "readwrite", "A_MASTER_BRIGHT_Factor", Regs_Arm9.data);
     A_MASTER_BRIGHT_Mode = DSReg(0x006C, 15, 14, 1, 0, "readwrite", "A_MASTER_BRIGHT_Mode", Regs_Arm9.data);
-    B_DISPCNT = DSReg(0x1000, 15, 0, 1, 0, "readwrite", "B_DISPCNT", Regs_Arm9.data);
+    B_DISPCNT = DSReg(0x1000, 31, 0, 1, 0, "readwrite", "B_DISPCNT", Regs_Arm9.data);
     B_DISPCNT_BG_Mode = DSReg(0x1000, 2, 0, 1, 0, "readwrite", "B_DISPCNT_BG_Mode", Regs_Arm9.data);
     B_DISPCNT_BG0_2D_3D = DSReg(0x1000, 3, 3, 1, 0, "readwrite", "B_DISPCNT_BG0_2D_3D", Regs_Arm9.data);
     B_DISPCNT_Tile_OBJ_Mapping = DSReg(0x1000, 4, 4, 1, 0, "readwrite", "B_DISPCNT_Tile_OBJ_Mapping", Regs_Arm9.data);
