@@ -288,7 +288,7 @@ public:
 	void draw_bg_mode5(Pixel pixelslocal[], bool wrap, UInt32 mapbase, Int32 refX, Int32 refY, Int16 dx, Int16 dy);
 	uint get_mapped_obj_address(uint address_in);
 	uint get_mapped_obj_extpalette_address(uint address_in);
-	void draw_obj(int y, int baseaddr);
+	void draw_obj(int y);
 	int get_mapped_rearplane_address(uint address_in);
 	void draw_3D(int y);
 	void draw_game(uint* framebuffer_raw);

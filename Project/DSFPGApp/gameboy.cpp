@@ -82,10 +82,14 @@ void Gameboy::run()
 	reset();
 
 	byte checkcount = 0;
-	bool any_calc = false;
+	bool halt_both = false;
 
 	while (on)
 	{
+#ifdef FPGACOMPATIBLE
+		skipcpuonce = false;
+#endif
+
 		GPU_Timing.work();
 
 		if (MathDIV.calculating) { MathDIV.finish(); }
@@ -116,7 +120,7 @@ void Gameboy::run()
 
 #if DEBUG
 		//if (tracer.traclist_ptr == 13831)
-		if (tracer.commands == 977900)
+		if (tracer.commands == 3304804)
 		{
 			int stop = 1;
 		}
@@ -132,12 +136,16 @@ void Gameboy::run()
 				int stop = 1;
 			}
 #endif
-			any_calc = false;
+
+#ifdef FPGACOMPATIBLE
+		halt_both = CPU9.halt & CPU7.halt;
+		if (!skipcpuonce)
+		{ 
+#endif
 			if (CPU9.totalticks <= totalticks)
 			{
 				if (!CPU9.halt)
 				{
-					any_calc = true;
 					CPU9.nextInstr(nexteventtotal);
 				}
 				else
@@ -147,7 +155,6 @@ void Gameboy::run()
 			}
 			if (CPU7.totalticks <= totalticks)
 			{
-				any_calc = true;
 				if (!CPU7.halt)
 				{
 					CPU7.nextInstr(nexteventtotal);
@@ -158,8 +165,18 @@ void Gameboy::run()
 				}
 			}
 #ifdef FPGACOMPATIBLE
-			if (CPU9.halt) CPU9.totalticks = CPU7.totalticks;
-			if (CPU7.halt) CPU7.totalticks = CPU9.totalticks;
+		}
+
+			if (halt_both)
+			{
+				CPU9.totalticks = totalticks + 4;
+				CPU7.totalticks = totalticks + 4;
+			}
+			else
+			{
+				if (CPU9.halt && !CPU7.halt) CPU9.totalticks = CPU7.totalticks;
+				if (CPU7.halt && !CPU9.halt) CPU7.totalticks = CPU9.totalticks;
+			}
 #endif
 
 #if DEBUG
@@ -175,7 +192,7 @@ void Gameboy::run()
 		if (CPU7.halt) { CPU7.totalticks = totalticks; }
 
 #if DEBUG
-		if (tracer.commands == 900000 && tracer.runmoretrace == 0)
+		if (tracer.commands == 000000 && tracer.runmoretrace == 0)
 		{
 			tracer.traclist_ptr = 0;
 			tracer.runmoretrace = 200000;
@@ -184,15 +201,6 @@ void Gameboy::run()
 
 		if (tracer.runmoretrace > 0)
 		{
-#ifdef FPGACOMPATIBLE
-			if (!any_calc && (CPU9.halt || CPU7.halt))
-			{
-				tracer.runmoretrace++;
-				tracer.traclist_ptr--;
-				tracer.commands--;
-			}
-#endif //FPGACOMPATIBLE
-
 			if (tracer.debug_outdivcnt == 0)
 			{
 				tracer.Tracelist[tracer.traclist_ptr][0].update(true);
@@ -202,8 +210,8 @@ void Gameboy::run()
 			}
 			if (tracer.runmoretrace == 0)
 			{
-				//tracer.vcd_file_last(tracer.startindex);
-				if (true)
+				tracer.vcd_file_last(tracer.startindex);
+				if (true && tracer.commands < 8000000)
 				{
 					tracer.startindex = tracer.commands + 1;
 					tracer.traclist_ptr = 0;

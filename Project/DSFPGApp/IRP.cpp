@@ -94,6 +94,7 @@ void Irp::check_and_execute_irp()
 	{
 		checknext = false;
 		CPU->interrupt();
+		gameboy.skipcpuonce = true;
 	}
 }
 

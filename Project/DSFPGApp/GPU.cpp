@@ -991,7 +991,7 @@ void Gpu::draw_line(byte y_in)
 			}
 			if (spriteon)
 			{
-				draw_obj(y, 0);
+				draw_obj(y);
 			}
 
 			////////////////////////
@@ -1498,6 +1498,9 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 	Int32 mapbaseaddr = (int)mapbase * 2048; // 2kb blocks
 	Int32 tilebaseaddr = (int)tilebase * 0x4000; // 64kb blocks
 
+	uint offset_display = 0;
+	if (!isGPUA) offset_display = 0x400;
+
 	Int32 realX = refX;
 	Int32 realY = refY;
 
@@ -1600,7 +1603,7 @@ void Gpu::draw_bg_mode2(Pixel pixelslocal[], int engine, bool tile16bit, UInt32 
 				}
 				else
 				{
-					colorall = *(UInt16*)&Memory.PaletteRAM[colordata * 2];
+					colorall = *(UInt16*)&Memory.PaletteRAM[offset_display + colordata * 2];
 				}
 				pixelslocal[x].update((Byte)((colorall & 0x1F) * 8), (byte)(((colorall >> 5) & 0x1F) * 8), (byte)(((colorall >> 10) & 0x1F) * 8));
 			}
@@ -1705,7 +1708,7 @@ uint Gpu::get_mapped_obj_extpalette_address(uint address_in)
 	return 0;
 }
 
-void Gpu::draw_obj(int y, int baseaddr)
+void Gpu::draw_obj(int y)
 {
 	for (int x = 0; x < 256; x++)
 	{
@@ -1816,7 +1819,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 					tileindex = tileindex & 0x3FE;
 				}
 
-				int pixeladdr = baseaddr + tileindex * 32;
+				int pixeladdr = tileindex * 32;
 				int tilemult;
 				int x_flip_offset;
 				int y_flip_offset;
@@ -1961,7 +1964,7 @@ void Gpu::draw_obj(int y, int baseaddr)
 								if (xxx >= 0 && xxx < sizeX && yyy >= 0 && yyy < sizeY)
 								{
 									pixeladdr_X = pixeladdr;
-									if (bitmap_OBJ_2D_Dim)
+									if (bitmap_OBJ_2D_Dim) // todo something wrong here, 2 times same parameter!
 									{
 										if (bitmap_OBJ_2D_Dim)
 										{

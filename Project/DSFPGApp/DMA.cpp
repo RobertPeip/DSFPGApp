@@ -86,17 +86,17 @@ void Dma::reset()
 	DMAs[6] = SingleDMA(&CPU7, &IRP7, IRP7.IRPMASK_DMA_3,
 		Regs_Arm7.Sect_dma7.DMA2SAD, Regs_Arm7.Sect_dma7.DMA2DAD, Regs_Arm7.Sect_dma7.DMA2CNT_L,
 		Regs_Arm7.Sect_dma7.DMA2CNT_H_Dest_Addr_Control, Regs_Arm7.Sect_dma7.DMA2CNT_H_Source_Adr_Control, Regs_Arm7.Sect_dma7.DMA2CNT_H_DMA_Repeat, Regs_Arm7.Sect_dma7.DMA2CNT_H_DMA_Transfer_Type,
-		empty, Regs_Arm7.Sect_dma7.DMA2CNT_H_DMA_Start_Timing, Regs_Arm7.Sect_dma7.DMA2CNT_H_IRQ_on, Regs_Arm7.Sect_dma7.DMA2CNT_H_DMA_Enable, true);
+		empty, Regs_Arm7.Sect_dma7.DMA2CNT_H_DMA_Start_Timing, Regs_Arm7.Sect_dma7.DMA2CNT_H_IRQ_on, Regs_Arm7.Sect_dma7.DMA2CNT_H_DMA_Enable, false);
 
 	DMAs[5] = SingleDMA(&CPU7, &IRP7, IRP7.IRPMASK_DMA_3,
 		Regs_Arm7.Sect_dma7.DMA1SAD, Regs_Arm7.Sect_dma7.DMA1DAD, Regs_Arm7.Sect_dma7.DMA1CNT_L,
 		Regs_Arm7.Sect_dma7.DMA1CNT_H_Dest_Addr_Control, Regs_Arm7.Sect_dma7.DMA1CNT_H_Source_Adr_Control, Regs_Arm7.Sect_dma7.DMA1CNT_H_DMA_Repeat, Regs_Arm7.Sect_dma7.DMA1CNT_H_DMA_Transfer_Type,
-		empty, Regs_Arm7.Sect_dma7.DMA1CNT_H_DMA_Start_Timing, Regs_Arm7.Sect_dma7.DMA1CNT_H_IRQ_on, Regs_Arm7.Sect_dma7.DMA1CNT_H_DMA_Enable, true);
+		empty, Regs_Arm7.Sect_dma7.DMA1CNT_H_DMA_Start_Timing, Regs_Arm7.Sect_dma7.DMA1CNT_H_IRQ_on, Regs_Arm7.Sect_dma7.DMA1CNT_H_DMA_Enable, false);
 
 	DMAs[4] = SingleDMA(&CPU7, &IRP7, IRP7.IRPMASK_DMA_3,
 		Regs_Arm7.Sect_dma7.DMA0SAD, Regs_Arm7.Sect_dma7.DMA0DAD, Regs_Arm7.Sect_dma7.DMA0CNT_L,
 		Regs_Arm7.Sect_dma7.DMA0CNT_H_Dest_Addr_Control, Regs_Arm7.Sect_dma7.DMA0CNT_H_Source_Adr_Control, Regs_Arm7.Sect_dma7.DMA0CNT_H_DMA_Repeat, Regs_Arm7.Sect_dma7.DMA0CNT_H_DMA_Transfer_Type,
-		empty, Regs_Arm7.Sect_dma7.DMA0CNT_H_DMA_Start_Timing, Regs_Arm7.Sect_dma7.DMA0CNT_H_IRQ_on, Regs_Arm7.Sect_dma7.DMA0CNT_H_DMA_Enable, true);
+		empty, Regs_Arm7.Sect_dma7.DMA0CNT_H_DMA_Start_Timing, Regs_Arm7.Sect_dma7.DMA0CNT_H_IRQ_on, Regs_Arm7.Sect_dma7.DMA0CNT_H_DMA_Enable, false);
 }
 
 void Dma::set_settings(int index)

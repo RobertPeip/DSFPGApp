@@ -327,10 +327,10 @@ void Tracer::vcd_file_last(int startpos)
 			if (i == 0 || state.IF_intern != laststate.IF_intern) fprintf(file, "b%s %dIF\n", std::bitset<32>(state.IF_intern).to_string().c_str(), cpuindex);
 			//if (i == 0 || state.irp_wait != laststate.irp_wait) fprintf(file, "b%s %dIW\n", std::bitset<8>(state.irp_wait).to_string().c_str(), cpuindex);
 			
-			if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s %dT0\n", std::bitset<32>(state.timer0).to_string().c_str(), cpuindex);
-			if (i == 0 || state.timer1 != laststate.timer1) fprintf(file, "b%s %dT1\n", std::bitset<32>(state.timer1).to_string().c_str(), cpuindex);
-			if (i == 0 || state.timer2 != laststate.timer2) fprintf(file, "b%s %dT2\n", std::bitset<32>(state.timer2).to_string().c_str(), cpuindex);
-			if (i == 0 || state.timer3 != laststate.timer3) fprintf(file, "b%s %dT3\n", std::bitset<32>(state.timer3).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.timer0 != laststate.timer0) fprintf(file, "b%s %dT0\n", std::bitset<32>(state.timer0).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.timer1 != laststate.timer1) fprintf(file, "b%s %dT1\n", std::bitset<32>(state.timer1).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.timer2 != laststate.timer2) fprintf(file, "b%s %dT2\n", std::bitset<32>(state.timer2).to_string().c_str(), cpuindex);
+			//if (i == 0 || state.timer3 != laststate.timer3) fprintf(file, "b%s %dT3\n", std::bitset<32>(state.timer3).to_string().c_str(), cpuindex);
 			
 			if (i == 0 || state.memory01 != laststate.memory01) fprintf(file, "b%s %dM1\n", std::bitset<32>(state.memory01).to_string().c_str(), cpuindex);
 			if (i == 0 || state.memory02 != laststate.memory02) fprintf(file, "b%s %dM2\n", std::bitset<32>(state.memory02).to_string().c_str(), cpuindex);
@@ -564,7 +564,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 			}
 #ifdef FPGACOMPATIBLE
 			uint pipeline_addr = PC_old;
-			if (thumbmode) pipeline_addr += 2; else pipeline_addr += 4;
+			if (old_thumb) pipeline_addr += 2; else pipeline_addr += 4;
 			if (didjump || PC != pipeline_addr)
 			{
 				if ((pipeline_addr & 0x1F) == 0)
@@ -573,7 +573,7 @@ void Cpu::nextInstr(UInt64 next_event_time)
 				}
 				else
 				{
-					if (thumbmode) pipeline_addr += 2; else pipeline_addr += 4;
+					if (old_thumb) pipeline_addr += 2; else pipeline_addr += 4;
 					if ((pipeline_addr & 0x1F) == 0)
 					{
 						InstrCache.inCache(pipeline_addr, true); // read further to make sure cache is updated because of pipeline
@@ -644,7 +644,9 @@ void Cpu::interrupt()
 	halt = false;
 
 #ifdef DEBUG
+#ifndef FPGACOMPATIBLE
 	regs[15] = PC + 0x8;
+#endif // !FPGACOMPATIBLE
 	lastinstruction = 0;
 #endif
 }
@@ -1693,7 +1695,7 @@ void Cpu::block_data_transfer(byte opcode, bool load_store, byte Rn_op1, UInt16 
 				if (i == Rn_op1)
 				{
 					writeback_in_reglist = true;
-					if (reglist > 1 || (first && reglist == 1)) arm9_writeback = true; // writeback if Rb is "the ONLY register, or NOT the LAST register" in Rlist
+					if (isArm9 && (reglist > 1 || (first && reglist == 1))) arm9_writeback = true; // writeback if Rb is "the ONLY register, or NOT the LAST register" in Rlist
 				}
 				if (usermode_regs && cpu_mode != CPUMODES::USER && cpu_mode != CPUMODES::SYSTEM)
 				{

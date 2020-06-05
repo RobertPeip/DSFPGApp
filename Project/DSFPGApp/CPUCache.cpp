@@ -33,7 +33,7 @@ void CPUCache::reset()
 bool CPUCache::inCache(uint address, bool isRead)
 {
 	address &= 0x03FFFFF; // mask for wram large
-	uint maskedaddress = address & TAGMASK;
+	uint maskedaddress = (address & TAGMASK) >> SUBTAGBITS;
 	int line = (address & LINEMASK) >> 5;
 	for (int a = 0; a < ASSOCIATIVITY; a++)
 	{

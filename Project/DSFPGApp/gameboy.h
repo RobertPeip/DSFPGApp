@@ -11,6 +11,7 @@ public:
 	bool pause = false;
 	bool coldreset = false;
 	bool blockinput = false;
+	bool skipcpuonce = false;
 
 	UInt64 totalticks;
 	bool reschedule;
