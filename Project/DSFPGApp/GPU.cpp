@@ -1467,14 +1467,7 @@ void Gpu::draw_bg_mode0(Pixel pixelslocal[], int engine, byte y, UInt32 mapbase,
 		else if (ext_palette_bg)
 		{
 			byte palette = (byte)(tileinfo >> 12);
-			if (hicolor)
-			{ 
-				pixelslocal[x].transparent = (colordata & 0xFF) == 0;
-			}
-			else
-			{
-				pixelslocal[x].transparent = (colordata & 0xF) == 0;
-			}
+			pixelslocal[x].transparent = (colordata & 0xFF) == 0;
 			if (!pixelslocal[x].transparent)
 			{
 				UInt16 colorall = *(UInt16*)&Memory.VRAM[get_mapped_bg_extpalette_address(0x2000 * (engine + Paletteoffset * 2) + palette * 512 + colordata * 2)];

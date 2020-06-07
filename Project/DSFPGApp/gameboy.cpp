@@ -91,6 +91,11 @@ void Gameboy::run()
 #endif
 
 		GPU_Timing.work();
+		if (GPU_A.lockSpeed && newhblank)
+		{
+			newhblank = false;
+			Sound.work();
+		}
 
 		if (MathDIV.calculating) { MathDIV.finish(); }
 		if (MathSQRT.calculating) { MathSQRT.finish(); }
@@ -101,10 +106,6 @@ void Gameboy::run()
 		DMA.work();
 		Timer.work();
 
-		if (GPU_A.lockSpeed)
-		{
-			Sound.work();
-		}
 		//Serial.work();
 
 		if (IRP9.checknext) IRP9.check_and_execute_irp();
@@ -120,13 +121,13 @@ void Gameboy::run()
 
 #if DEBUG
 		//if (tracer.traclist_ptr == 13831)
-		if (tracer.commands == 3304804)
+		if (tracer.commands == 1326903)
 		{
 			int stop = 1;
 		}
 		UInt64 startticks = totalticks;
 #endif
-		//while (totalticks < nexteventtotal && !reschedule)
+		while (totalticks < nexteventtotal && !reschedule)
 		{
 #if DEBUG
 			UInt64 runticks = totalticks - startticks;
@@ -210,7 +211,7 @@ void Gameboy::run()
 			}
 			if (tracer.runmoretrace == 0)
 			{
-				tracer.vcd_file_last(tracer.startindex);
+				//tracer.vcd_file_last(tracer.startindex);
 				if (true && tracer.commands < 8000000)
 				{
 					tracer.startindex = tracer.commands + 1;

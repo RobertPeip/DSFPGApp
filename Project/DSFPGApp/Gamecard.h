@@ -54,6 +54,8 @@ public:
 	bool autodetect;
 	int autodetectsize;
 
+	int accessindex = 0;
+
 	DSReg ROMCTRL_KEY1_gap1_length;
 	DSReg ROMCTRL_KEY2_encrypt_data;
 	DSReg ROMCTRL_SE;

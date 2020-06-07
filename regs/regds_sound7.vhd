@@ -256,7 +256,7 @@ package pReg_ds_sound_7 is
    constant SOUNDCAP1_Capture_Start_Status           : regmap_type := (16#508#,  15,     15,        1,        0,   readwrite); -- Bit15    Capture Start/Status  (0=Stop, 1=Start/Busy)
    
    constant SNDCAP0DAD                               : regmap_type := (16#510#,  26,      0,        1,        0,   readwrite); -- Destination address (word aligned, bit0-1 are always zero)
-   constant SNDCAP0LEN                               : regmap_type := (16#510#,  15,      0,        1,        0,   readwrite); -- Buffer length (1..FFFFh words) (ie. N*4 bytes)
+   constant SNDCAP0LEN                               : regmap_type := (16#514#,  15,      0,        1,        0,   readwrite); -- Buffer length (1..FFFFh words) (ie. N*4 bytes)
    constant SNDCAP1DAD                               : regmap_type := (16#518#,  26,      0,        1,        0,   readwrite); -- Destination address (word aligned, bit0-1 are always zero)
    constant SNDCAP1LEN                               : regmap_type := (16#51C#,  15,      0,        1,        0,   readwrite); -- Buffer length (1..FFFFh words) (ie. N*4 bytes)
 

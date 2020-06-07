@@ -247,7 +247,7 @@ RegSect_sound7::RegSect_sound7()
     SOUNDCAP1_Capture_Format = DSReg(0x508, 11, 11, 1, 0, "readwrite", "SOUNDCAP1_Capture_Format", Regs_Arm7.data);
     SOUNDCAP1_Capture_Start_Status = DSReg(0x508, 15, 15, 1, 0, "readwrite", "SOUNDCAP1_Capture_Start_Status", Regs_Arm7.data);
     SNDCAP0DAD = DSReg(0x510, 26, 0, 1, 0, "readwrite", "SNDCAP0DAD", Regs_Arm7.data);
-    SNDCAP0LEN = DSReg(0x510, 15, 0, 1, 0, "readwrite", "SNDCAP0LEN", Regs_Arm7.data);
+    SNDCAP0LEN = DSReg(0x514, 15, 0, 1, 0, "readwrite", "SNDCAP0LEN", Regs_Arm7.data);
     SNDCAP1DAD = DSReg(0x518, 26, 0, 1, 0, "readwrite", "SNDCAP1DAD", Regs_Arm7.data);
     SNDCAP1LEN = DSReg(0x51C, 15, 0, 1, 0, "readwrite", "SNDCAP1LEN", Regs_Arm7.data);
 }
@@ -1572,6 +1572,11 @@ void REGS_Arm7::reset()
     rwmask[1297] = (byte)((0x7FFFFFF >> 8) & 0xFF);
     rwmask[1298] = (byte)((0x7FFFFFF >> 16) & 0xFF);
     rwmask[1299] = (byte)((0x7FFFFFF >> 24) & 0xFF);
+    // SNDCAP0LEN at 0x514 = 0xFFFF;
+    rwmask[1300] = (byte)(0xFFFF & 0xFF);
+    rwmask[1301] = (byte)((0xFFFF >> 8) & 0xFF);
+    rwmask[1302] = (byte)((0xFFFF >> 16) & 0xFF);
+    rwmask[1303] = (byte)((0xFFFF >> 24) & 0xFF);
     // SNDCAP1DAD at 0x518 = 0x7FFFFFF;
     rwmask[1304] = (byte)(0x7FFFFFF & 0xFF);
     rwmask[1305] = (byte)((0x7FFFFFF >> 8) & 0xFF);

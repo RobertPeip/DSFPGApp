@@ -1,5 +1,6 @@
 #include "SoundGenerator.h"
 #include "regs_arm7.h"
+#include "Memory.h"
 
 SoundGenerator::SoundGenerator()
 {
@@ -57,18 +58,51 @@ void SoundGenerator::set_soundcapture()
 	{
 		capturehack = true;
 	}
+
+	if (Regs_Arm7.Sect_sound7.SOUNDCAP0_Capture_Start_Status.on())
+	{
+		while (!capture[0].capturefifo.empty()) capture[0].capturefifo.pop();
+		capture[0].on = true;
+		capture[0].add = Regs_Arm7.Sect_sound7.SOUNDCAP1_Control.on();
+		capture[0].source = Regs_Arm7.Sect_sound7.SOUNDCAP1_Capture_Source.on();
+		capture[0].format8 = Regs_Arm7.Sect_sound7.SOUNDCAP1_Capture_Format.on();
+		capture[0].oneshot = Regs_Arm7.Sect_sound7.SOUNDCAP1_Capture_Repeat.on();
+		capture[0].start_addr = Regs_Arm7.Sect_sound7.SNDCAP0DAD.read();
+		capture[0].capture_addr = Regs_Arm7.Sect_sound7.SNDCAP0DAD.read();
+		capture[0].capture_cnt = Regs_Arm7.Sect_sound7.SNDCAP0LEN.read() * 4;
+		capture[0].capture_len = Regs_Arm7.Sect_sound7.SNDCAP0LEN.read() * 4;
+	}
+	else
+	{
+		capture[0].on = false;
+	}
+
+	if (Regs_Arm7.Sect_sound7.SOUNDCAP1_Capture_Start_Status.on())
+	{
+		while (!capture[1].capturefifo.empty()) capture[1].capturefifo.pop();
+		capture[1].on = true;
+		capture[1].add = Regs_Arm7.Sect_sound7.SOUNDCAP0_Control.on();
+		capture[1].source = Regs_Arm7.Sect_sound7.SOUNDCAP0_Capture_Source.on();
+		capture[1].format8 = Regs_Arm7.Sect_sound7.SOUNDCAP0_Capture_Format.on();
+		capture[1].oneshot = Regs_Arm7.Sect_sound7.SOUNDCAP0_Capture_Repeat.on();
+		capture[1].start_addr = Regs_Arm7.Sect_sound7.SNDCAP1DAD.read();
+		capture[1].capture_addr = Regs_Arm7.Sect_sound7.SNDCAP1DAD.read();
+		capture[1].capture_cnt = Regs_Arm7.Sect_sound7.SNDCAP1LEN.read() * 4;
+		capture[1].capture_len = Regs_Arm7.Sect_sound7.SNDCAP1LEN.read() * 4;
+	}
+	else
+	{
+		capture[1].on = false;
+	}
 }
+
+const int soundlist_Length = 8192;
+int soundlist[8192][20];
+int soundlist_ptr = 0;
+bool soundlist_first = true;
 
 void SoundGenerator::update_timebased(Int32 new_cycles)
 {
-	for (int i = 0; i < 16; i++)
-	{
-		if (soundchannels[i].on)
-		{
-			soundchannels[i].update_timebased(new_cycles);
-		}
-	}
-
 	samplingCounter += new_cycles;
 	if (samplingCounter >= SAMPLINGRRATE)
 	{
@@ -77,6 +111,17 @@ void SoundGenerator::update_timebased(Int32 new_cycles)
 			while (samplingCounter >= SAMPLINGRRATE)
 			{
 				samplingCounter -= SAMPLINGRRATE;
+				//if (soundlist_ptr == 5771)
+				//{
+				//	int a = 5;
+				//}
+				for (int i = 0; i < 16; i++)
+				{
+					if (soundchannels[i].on)
+					{
+						soundchannels[i].update_timebased(SAMPLINGRRATE);
+					}
+				}
 				if (nextSamples_left.size() < 15000)
 				{
 					Int64 value_left = 0;
@@ -87,6 +132,7 @@ void SoundGenerator::update_timebased(Int32 new_cycles)
 					Int64 value_right_3 = 0;
 					if (Master_Enable)
 					{
+						Int16 allchannels[16];
 						for (int i = 0; i < 16; i++)
 						{
 							if (soundchannels[i].on)
@@ -100,12 +146,16 @@ void SoundGenerator::update_timebased(Int32 new_cycles)
 								case 2: next_sample = next_sample * 4; break;
 								case 3: next_sample = next_sample * 1; break;
 								}
+
+								allchannels[i] = (Int16)(next_sample / 16);
 								
+								//soundlist[soundlist_ptr][i] = next_sample / 16;
+
 								next_sample *= soundchannels[i].Volume_Mul; // Volume Factor(mul N / 128) 16.11
-								
+
 								Int64 next_left  = next_sample * (127 - soundchannels[i].Panning) / 1024; //Panning(mul N / 128) 16.18
 								Int64 next_right = next_sample * soundchannels[i].Panning / 1024;//  Rounding Down(strip 10bit) 16.8
-
+								
 								if (i == 1)
 								{
 									value_left_1 = next_left;
@@ -122,6 +172,29 @@ void SoundGenerator::update_timebased(Int32 new_cycles)
 								value_left += next_left;
 								value_right += next_right;
 							}
+							else
+							{
+								allchannels[i] = 0;
+							}
+						}
+
+						int capout[2];
+						if (capture[0].on)
+						{
+							if (capture[0].source == 0)
+								capout[0] = (Int16)(value_left / 256); //cap0 = L-mix
+							else if (capture[0].add)
+								capout[0] = allchannels[0] + allchannels[1]; //cap0 = ch0+ch1
+							else capout[0] = allchannels[0]; //cap0 = ch0
+						}
+
+						if (capture[1].on)
+						{
+							if (capture[1].source == 0)
+								capout[1] = (Int16)(value_right / 256); //cap1 = R-mix
+							else if (capture[1].add)
+								capout[1] = allchannels[2] + allchannels[3]; //cap1 = ch2+ch3
+							else capout[1] = allchannels[2]; //cap1 = ch2
 						}
 
 						if (!capturehack)
@@ -145,12 +218,83 @@ void SoundGenerator::update_timebased(Int32 new_cycles)
 						value_left  = value_left  * Master_Volume / 0x20000; // Master Volume(mul N / 128 / 64) 14.21
 						value_right = value_right * Master_Volume / 0x20000; // Strip fraction                  14.0
 
+						for (int cap = 0; cap < 2; cap++)
+						{
+							if (capture[cap].on)
+							{
+								if (capture[cap].capturefifo.size() < 16)
+								{
+									capture[cap].capturefifo.push(capout[cap]);
+								}
+								else
+								{
+									Int16 oldvalue = capture[cap].capturefifo.front();
+									capture[cap].capturefifo.pop();
+									capture[cap].capturefifo.push(capout[cap]);
+
+									if (capture[cap].format8)
+									{
+										SByte val8 = (SByte)(oldvalue / 256);
+										write_byte_7(ACCESSTYPE::DMA, capture[cap].capture_addr, val8);
+										capture[cap].capture_addr++;
+										capture[cap].capture_cnt--;
+									}
+									else
+									{
+										write_word_7(ACCESSTYPE::DMA, capture[cap].capture_addr, oldvalue);
+										capture[cap].capture_addr+=2;
+										capture[cap].capture_cnt-=2;
+									}
+
+									if (capture[cap].capture_cnt <= 0)
+									{
+										if (capture[cap].oneshot)
+										{
+											capture[cap].on = false;
+										}
+										else
+										{
+											capture[cap].capture_addr = capture[cap].start_addr;
+											capture[cap].capture_cnt = capture[cap].capture_len;
+										}
+									}
+								}
+							}
+						}
+
 						// 8 Add Bias(0..3FFh, def = 200h)   15.0 - 2000h + 0 + 1FF0h + 3FFh
 						// 9 Clip(min / max 0h..3FFh)        10.0  0 + 3FFh
 					}
 
 					nextSamples_left.push((Int32)value_left);
 					nextSamples_right.push((Int32)value_right);
+
+					//soundlist[soundlist_ptr][16] = value_left;
+					//soundlist[soundlist_ptr][17] = value_right;
+					//soundlist[soundlist_ptr][18] = 0; //capout[0];
+					//soundlist[soundlist_ptr][19] = 0; //capout[1];
+
+					//soundlist_ptr++;
+					//if (soundlist_ptr == soundlist_Length)
+					//{
+					//	soundlist_ptr = 0;
+					//	if (soundlist_first)
+					//	{
+					//		FILE* file = fopen("R:\\debug_sound_DSFPGApp.csv", "w");
+					//		fclose(file);
+					//		soundlist_first = false;
+					//	}
+					//	FILE* file = fopen("R:\\debug_sound_DSFPGApp.csv", "a");
+					//	for (int sample = 0; sample < soundlist_Length; sample++)
+					//	{
+					//		for (int ch = 0; ch < 20; ch++)
+					//		{
+					//			fprintf(file, "%d;", soundlist[sample][ch]);
+					//		}
+					//		fprintf(file, "\n");
+					//	}
+					//	fclose(file);
+					//}
 				}
 			}
 			SDL_UnlockMutex(nextSamples_lock);

@@ -12,6 +12,7 @@ public:
 	bool coldreset = false;
 	bool blockinput = false;
 	bool skipcpuonce = false;
+	bool newhblank = false;
 
 	UInt64 totalticks;
 	bool reschedule;

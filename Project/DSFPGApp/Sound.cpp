@@ -28,11 +28,10 @@ void SOUND::set_soundreg(UInt32 adr)
 
 void SOUND::work()
 {
-	if (sound_on)
+	Int32 timediff = gameboy.totalticks - lasttime;
+	lasttime = gameboy.totalticks;
+	if (sound_on && soundGenerator.Master_Enable)
 	{
-		Int32 timediff = gameboy.totalticks - lasttime;
-		lasttime = gameboy.totalticks;
-
 		soundGenerator.update_timebased(timediff);
 	}
 }

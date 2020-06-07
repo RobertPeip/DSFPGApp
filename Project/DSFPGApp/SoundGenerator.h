@@ -5,6 +5,21 @@ using namespace std;
 #include "SoundChannel.h"
 #include "SDL.h"
 
+class SoundCapture
+{
+public:
+	std::queue<Int16> capturefifo;
+	uint start_addr;
+	uint capture_addr;
+	uint capture_cnt;
+	uint capture_len;
+	bool on;
+	bool add;
+	bool source;
+	bool format8;
+	bool oneshot;
+};
+
 class SoundGenerator
 {
 public:
@@ -23,7 +38,7 @@ public:
 	std::queue<int> nextSamples_right;
 	SDL_mutex* nextSamples_lock;
 
-	int samplingCounter;
+	double samplingCounter;
 
 	SoundGenerator();
 	void set_soundcontrol();
@@ -33,6 +48,8 @@ public:
 	static Uint8* audio_chunk;
 	static Uint32 audio_len;
 	static Uint8* audio_pos;
+
+	SoundCapture capture[2];
 };
 
 extern void fill_audio(void* udata, Uint8* stream, int len);

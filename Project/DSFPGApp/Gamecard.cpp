@@ -183,6 +183,8 @@ UInt32 GAMECARD::readData()
 
 void GAMECARD::write_spi_cnt(UInt16 value)
 {
+	//if (value == 192) return;
+
 	bool cs = AUXSPICNT_SPI_Hold_Chipselect.on();
 	if ((!cs && csOld) || (AUXSPICNT_NDS_Slot_Mode.on() && (spi_oldcnt == 0) && !cs))
 	{
@@ -191,10 +193,22 @@ void GAMECARD::write_spi_cnt(UInt16 value)
 
 	csOld = AUXSPICNT_SPI_Hold_Chipselect.on();
 	spi_oldcnt = value;
+
+	//FILE* file = fopen("R:\\debug_auxspi.lua", "a");
+	//fprintf(file, "write_dsbus_16bit(%d, 0x040001A0)\n", value);
+	//fclose(file);
 }
 
 void GAMECARD::write_spi_dat(byte value)
 {
+	//FILE* file = fopen("R:\\debug_auxspi.lua", "a");
+	//fprintf(file, "write_dsbus_8bit(%d, 0x040001A2)\n", value);
+
+	//if (accessindex == 295)
+	//{
+	//	int a = 5;
+	//}
+
 	switch (cmd)
 	{
 	case AUXSPICMD::WRITESTATUS: write_protect = value & 0xFC; break;
@@ -305,4 +319,8 @@ void GAMECARD::write_spi_dat(byte value)
 	}
 
 	AUXSPIDATA.write(value);
+
+	//accessindex++;
+	//fprintf(file, "compare_dsbus_8bit(%d, 0x040001A2)\n", value);
+	//fclose(file);
 }

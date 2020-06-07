@@ -1,7 +1,8 @@
 #include "types.h"
 #include "DSReg.h"
 
-#define SAMPLINGRRATE (67027964 / 44100)
+//#define SAMPLINGRRATE (67027964.0 / 44100.0)
+#define SAMPLINGRRATE   (66907964.0 / 44100.0)
 
 static const SByte INDEXTBL[8] =
 {

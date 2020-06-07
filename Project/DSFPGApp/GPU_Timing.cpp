@@ -87,11 +87,12 @@ void GPUTiming::work()
 				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_H_Blank, true);
 				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank, true);
 				old_dispstat = Regs_Arm9.data[4];
+				gameboy.newhblank = true;
 
 				GPU_A.once_per_hblank();
 				GPU_B.once_per_hblank();
-				GPU_A.next_line(line);
-				GPU_B.next_line(line);
+				GPU_A.next_line(line); // shouldn't this start at beginning of visible?
+				GPU_B.next_line(line); // shouldn't this start at beginning of visible?
 			}
 			break;
 
@@ -183,6 +184,7 @@ void GPUTiming::work()
 				if (Regs_Arm9.Sect_display9.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP9.set_irp_bit(IRP9.IRPMASK_LCD_H_Blank, true); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
 				if (Regs_Arm7.Sect_display7.DISPSTAT_H_Blank_IRQ_Enable.on()) IRP7.set_irp_bit(IRP7.IRPMASK_LCD_H_Blank, true); // Note that no H-Blank interrupts are generated within V-Blank period. Really?
 				old_dispstat = Regs_Arm9.data[4];
+				gameboy.newhblank = true;
 			}
 			break;
 
